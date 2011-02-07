@@ -1,0 +1,12 @@
+#ifndef LIBCPCEMU_GLOBAL_H
+#define LIBCPCEMU_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LIBCPCEMU_LIBRARY)
+#  define LIBCPCEMUSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define LIBCPCEMUSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LIBCPCEMU_GLOBAL_H
