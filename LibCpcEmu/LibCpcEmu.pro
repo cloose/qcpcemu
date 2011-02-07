@@ -11,3 +11,5 @@ TEMPLATE = lib
 
 DEFINES += LIBCPCEMU_LIBRARY
 HEADERS += LibCpcEmu_global.h
+
+include(kernel/kernel.pri)
