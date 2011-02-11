@@ -1,6 +1,10 @@
 #include "gatearray.h"
 
-GateArray::GateArray()
+#include "memory.h"
+
+
+GateArray::GateArray(Memory* memory)
+    : m_memory(memory)
 {
 }
 

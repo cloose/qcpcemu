@@ -1,4 +1,6 @@
 #include <cstring>
+
+#include "gatearray.h"
 #include "memory.h"
 #include "romimagefile.h"
 
@@ -10,6 +12,8 @@ public:
 
     void setupHardware();
 
+    GateArray* gateArray;
+
     Memory memory;
     RomImageFile* systemRom;
 };
@@ -17,6 +21,7 @@ public:
 
 CpcSystemPrivate::~CpcSystemPrivate()
 {
+    delete gateArray;
     delete systemRom;
 }
 
@@ -43,4 +48,6 @@ void CpcSystemPrivate::setupHardware()
     memory.blocks[1] = memory.ram + 0x4000;
     memory.blocks[2] = memory.ram + 0x8000;
     memory.blocks[3] = memory.basicRom;
+
+    gateArray = new GateArray(&memory);
 }

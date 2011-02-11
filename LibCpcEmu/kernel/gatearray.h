@@ -3,16 +3,22 @@
 
 #include "ioport.h"
 
+struct Memory;
+
+
 /**
  * \brief A class representing the gate array in the Amstrad CPC
  */
 class GateArray : public IoPort
 {
 public:
-    GateArray();
+    explicit GateArray(Memory* memory);
 
     virtual bool in(word_t address, byte_t& value);
     virtual bool out(word_t address, byte_t value);
+
+private:
+    Memory* m_memory;
 };
 
 #endif // GATEARRAY_H
