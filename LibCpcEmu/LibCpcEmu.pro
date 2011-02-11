@@ -10,6 +10,12 @@ TARGET = LibCpcEmu
 TEMPLATE = lib
 
 DEFINES += LIBCPCEMU_LIBRARY
-HEADERS += LibCpcEmu_global.h
+HEADERS += LibCpcEmu_global.h \
+    cpcsystem.h
+
+SOURCES += \
+    cpcsystem.cpp \
+    cpcsystem_p.cpp
 
 include(kernel/kernel.pri)
+include(utils/utils.pri)
