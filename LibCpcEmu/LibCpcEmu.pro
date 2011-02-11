@@ -13,8 +13,9 @@ DEFINES += LIBCPCEMU_LIBRARY
 HEADERS += LibCpcEmu_global.h \
     cpcsystem.h
 
-include(kernel/kernel.pri)
-
 SOURCES += \
     cpcsystem.cpp \
     cpcsystem_p.cpp
+
+include(kernel/kernel.pri)
+include(utils/utils.pri)
