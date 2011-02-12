@@ -14,7 +14,8 @@ CpcSystem::~CpcSystem()
 
 void CpcSystem::run()
 {
-    d->cpu->step();
-    d->cpu->step();
-    d->cpu->step();
+    for (int i = 0; i < 20; ++i)
+    {
+        d->cpu->step();
+    }
 }

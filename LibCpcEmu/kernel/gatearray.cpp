@@ -12,7 +12,8 @@ GateArray::GateArray(Memory* memory)
 
 bool GateArray::in(word_t address, byte_t& value)
 {
-    qDebug() << "[GA ] IN request at address" << hex << address;
+    Q_UNUSED(address)
+    Q_UNUSED(value)
 
     return false;
 }
