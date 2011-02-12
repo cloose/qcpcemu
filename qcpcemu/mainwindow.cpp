@@ -11,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // TODO: temporary
-    new CpcSystem();
+    CpcSystem* system = new CpcSystem();
+    system->run();
 }
 
 MainWindow::~MainWindow()

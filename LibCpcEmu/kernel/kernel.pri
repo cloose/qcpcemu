@@ -8,7 +8,8 @@ HEADERS += \
     kernel/memory.h \
     kernel/memoryaccessdevice.h \
     kernel/z80.h \
-    kernel/registerset.h
+    kernel/registerset.h \
+    kernel/z80_macros.h
 
 SOURCES += \
     kernel/gatearray.cpp \

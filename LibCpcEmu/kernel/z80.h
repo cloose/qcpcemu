@@ -20,6 +20,13 @@ public:
 private:
     byte_t fetchInstruction();
 
+    void executeOpCode();
+    void executeOpCodeCB();
+    void executeOpCodeED();
+
+    byte_t emitInputRequest(word_t address);
+    void emitOutputRequest(word_t address, byte_t value);
+
     byte_t         m_opCode;
     QList<IoPort*> m_ioPorts;
 };

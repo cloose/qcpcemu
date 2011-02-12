@@ -12,6 +12,8 @@ public:
     CpcSystem();
     ~CpcSystem();
 
+    void run();
+
 private:
     CpcSystemPrivate* const d;
 };
