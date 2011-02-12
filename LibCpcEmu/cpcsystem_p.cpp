@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "gatearray.h"
+#include "iocontroller.h"
 #include "memory.h"
 #include "romimagefile.h"
 #include "z80.h"
@@ -14,6 +15,7 @@ public:
     void setupHardware();
 
     GateArray* gateArray;
+    IoController* ioController;
     Z80* cpu;
 
     Memory memory;
@@ -24,6 +26,7 @@ public:
 CpcSystemPrivate::~CpcSystemPrivate()
 {
     delete cpu;
+    delete ioController;
     delete gateArray;
     delete systemRom;
 }
@@ -54,6 +57,9 @@ void CpcSystemPrivate::setupHardware()
 
     gateArray = new GateArray(&memory);
 
+    ioController = new IoController();
+
     cpu = new Z80(&memory);
     cpu->registerIoPort(gateArray);
+    cpu->registerIoPort(ioController);
 }

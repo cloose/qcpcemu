@@ -9,10 +9,12 @@ HEADERS += \
     kernel/memoryaccessdevice.h \
     kernel/z80.h \
     kernel/registerset.h \
-    kernel/z80_macros.h
+    kernel/z80_macros.h \
+    kernel/iocontroller.h
 
 SOURCES += \
     kernel/gatearray.cpp \
     kernel/memoryaccessdevice.cpp \
     kernel/z80.cpp \
-    kernel/registerset.cpp
+    kernel/registerset.cpp \
+    kernel/iocontroller.cpp
