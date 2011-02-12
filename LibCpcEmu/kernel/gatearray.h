@@ -18,6 +18,8 @@ public:
     virtual bool out(word_t address, byte_t value);
 
 private:
+    void setRomConfiguration(byte_t value);
+
     Memory* m_memory;
 };
 
