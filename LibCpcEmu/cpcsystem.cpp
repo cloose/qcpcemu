@@ -11,3 +11,8 @@ CpcSystem::~CpcSystem()
 {
     delete d;
 }
+
+void CpcSystem::run()
+{
+    d->cpu->step();
+}

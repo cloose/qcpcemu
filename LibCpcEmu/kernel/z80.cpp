@@ -16,7 +16,22 @@ void Z80::registerIoPort(IoPort* port)
 
 void Z80::reset()
 {
+    // main registers
+    REGISTER_AF = 0x0000;
+    REGISTER_BC = 0x0000;
+    REGISTER_DE = 0x0000;
+    REGISTER_HL = 0x0000;
     REGISTER_PC = 0x0000;
+    REGISTER_SP = 0xc000;
+
+    // shadow registers
+    REGISTER_AF1 = 0x0000;
+    REGISTER_BC1 = 0x0000;
+    REGISTER_DE1 = 0x0000;
+    REGISTER_HL1 = 0x0000;
+
+    // disable interrupts on reset (Z80 manual  p.23)
+    RegisterSet::IFF1 = RegisterSet::IFF2 = 0;
 }
 
 void Z80::step()
