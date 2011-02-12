@@ -14,7 +14,13 @@ public:
 
     void registerIoPort(IoPort* port);
 
+    void reset();
+    void step();
+
 private:
+    byte_t fetchInstruction();
+
+    byte_t         m_opCode;
     QList<IoPort*> m_ioPorts;
 };
 
