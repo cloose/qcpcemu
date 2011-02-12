@@ -34,6 +34,9 @@ struct RegisterSet
 #define REGISTER_PC RegisterSet::PC.pair
 #define REGISTER_SP RegisterSet::SP.pair
 
+#define REGISTER_B   RegisterSet::BC.high
+#define REGISTER_C   RegisterSet::BC.low
+
 #define REGISTER_AF1 RegisterSet::AF1.pair
 #define REGISTER_BC1 RegisterSet::BC1.pair
 #define REGISTER_DE1 RegisterSet::DE1.pair

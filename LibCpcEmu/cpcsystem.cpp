@@ -15,4 +15,6 @@ CpcSystem::~CpcSystem()
 void CpcSystem::run()
 {
     d->cpu->step();
+    d->cpu->step();
+    d->cpu->step();
 }
