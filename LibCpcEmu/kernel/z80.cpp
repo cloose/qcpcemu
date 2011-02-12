@@ -11,7 +11,8 @@ static const byte_t PREFIX_ED = 0xed;
 
 enum OpCodes
 {
-    nop, ld_bc_word
+    nop, ld_bc_word, inc_bc = 0x03, ld_b_byte = 0x06, ld_de_word = 0x11, inc_de = 0x13,
+    jp_nn = 0xc3, di = 0xf3
 };
 
 enum OpCodesCB
@@ -20,7 +21,7 @@ enum OpCodesCB
 
 enum OpCodesED
 {
-    out_c_c = 0x49
+    out_c_c = 0x49, in_a_c = 0x78
 };
 
 
@@ -88,6 +89,13 @@ void Z80::executeOpCode()
     {
         case nop:           break;
         case ld_bc_word:    LD16_TO_REG(RegisterSet::BC); break;
+        case inc_bc:        REGISTER_BC++; break;
+        case ld_b_byte:     LD8_TO_REG(REGISTER_B); break;
+        case ld_de_word:    LD16_TO_REG(RegisterSet::DE); break;
+        case inc_de:        REGISTER_DE++; break;
+        case jp_nn:         JUMP; break;
+        case di:            RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
+
         default:
             qCritical() << "[Z80] unhandled opcode" << hex << m_opCode;
             break;
@@ -109,6 +117,9 @@ void Z80::executeOpCodeED()
     switch (m_opCode)
     {
         case out_c_c:       emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case in_a_c:        REGISTER_A = emitInputRequest(REGISTER_BC);
+            // TODO: FLAGS!!
+            break;
         default:
             qCritical() << "[Z80] unhandled opcode 0xed" << hex << m_opCode;
             break;
