@@ -85,6 +85,54 @@ static inline void LoadWordToReg(register_pair_t& reg)
 
 
 //----------------------------------------------------------------------------
+//- Exchange, Block Transfer, and Search Group
+//----------------------------------------------------------------------------
+
+/**
+ * Each 2-byte value in register pairs BC, DE, and HL is exchanged with the
+ * 2-byte value in BC', DE', and HL', respectively.
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Exx()
+{
+    qSwap(REGISTER_BC, REGISTER_BC1);
+    qSwap(REGISTER_DE, REGISTER_DE1);
+    qSwap(REGISTER_HL, REGISTER_HL1);
+}
+
+/**
+ * A byte of data is transferred from the memory location addressed, by the contents of
+ * the HL register pair to the memory location addressed by the contents of the
+ * DE register pair. Then both these register pairs are incremented and the BC
+ * (Byte Counter) register pair is decremented.
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is reset
+ *     P/V is set if BC -1 != 0; reset otherwise
+ *     N is reset
+ *     C is not affected
+ */
+static inline void Ldi()
+{
+    // transfer data from (HL) to (DE)
+    WriteByteToMemory(REGISTER_DE, ReadByteFromMemory(REGISTER_HL));
+
+    REGISTER_F &= (S_FLAG | Z_FLAG | C_FLAG);
+
+    REGISTER_HL++;
+    REGISTER_DE++;
+    REGISTER_BC--;
+
+    // set overflow flag if BC not equal 0
+    if (REGISTER_BC != 0)
+        REGISTER_F |= V_FLAG;
+}
+
+
+//----------------------------------------------------------------------------
 //- 8-Bit Arithmetic Group
 //----------------------------------------------------------------------------
 
