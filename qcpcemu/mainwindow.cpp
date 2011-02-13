@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
 #include <QDockWidget>
 
 #include "cpcsystem.h"
@@ -17,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     createActions();
     createDockWindows();
+
+    connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
+            this, SLOT(setBreakpoint(quint16)));
 }
 
 MainWindow::~MainWindow()
@@ -37,14 +41,29 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
+void MainWindow::debugRun()
+{
+    m_system->run();
+    m_debugForm->update();
+}
+
 void MainWindow::debugStep()
 {
     m_system->step();
     m_debugForm->update();
 }
 
+void MainWindow::setBreakpoint(quint16 address)
+{
+    m_system->addBreakpoint(address);
+}
+
 void MainWindow::createActions()
 {
+    m_debugRunAction = new QAction(tr("Debug run"), this);
+    connect(m_debugRunAction, SIGNAL(triggered()), this, SLOT(debugRun()));
+    ui->mainToolBar->addAction(m_debugRunAction);
+
     m_debugStepAction = new QAction(tr("Debug step"), this);
     connect(m_debugStepAction, SIGNAL(triggered()), this, SLOT(debugStep()));
     ui->mainToolBar->addAction(m_debugStepAction);

@@ -1,6 +1,8 @@
 #include "cpcsystem.h"
 #include "cpcsystem_p.cpp"
 
+#include "registerset.h"
+
 
 CpcSystem::CpcSystem()
     : d(new CpcSystemPrivate)
@@ -15,13 +17,19 @@ CpcSystem::~CpcSystem()
 
 void CpcSystem::run()
 {
-    for (int i = 0; i < 50; ++i)
+    do
     {
         d->cpu->step();
     }
+    while (!d->breakpoints.contains(REGISTER_PC));
 }
 
 void CpcSystem::step()
 {
     d->cpu->step();
+}
+
+void CpcSystem::addBreakpoint(word_t address)
+{
+    d->breakpoints.append(address);
 }

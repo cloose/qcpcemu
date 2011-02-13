@@ -2,6 +2,7 @@
 #define CPCSYSTEM_H
 
 #include "LibCpcEmu_global.h"
+#include "types.h"
 
 class CpcSystemPrivate;
 
@@ -14,6 +15,8 @@ public:
 
     void run();
     void step();
+
+    void addBreakpoint(word_t address);
 
 private:
     CpcSystemPrivate* const d;
