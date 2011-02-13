@@ -9,7 +9,8 @@ HEADERS += \
     kernel/z80.h \
     kernel/registerset.h \
     kernel/iocontroller.h \
-    kernel/z80_tables.h
+    kernel/z80_tables.h \
+    kernel/videocontroller.h
 
 SOURCES += \
     kernel/gatearray.cpp \
@@ -17,4 +18,5 @@ SOURCES += \
     kernel/registerset.cpp \
     kernel/iocontroller.cpp \
     kernel/z80_p.cpp \
-    kernel/memory.cpp
+    kernel/memory.cpp \
+    kernel/videocontroller.cpp
