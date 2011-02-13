@@ -1,33 +1,23 @@
 #include "z80.h"
+#include "z80_p.cpp"
 
 #include <QDebug>
 
 #include "ioport.h"
+#include "memory.h"
 #include "registerset.h"
-#include "z80_macros.h"
+#include "z80_tables.h"
+
 
 static const byte_t PREFIX_CB = 0xcb;
+static const byte_t PREFIX_DD = 0xdd;
 static const byte_t PREFIX_ED = 0xed;
-
-enum OpCodes
-{
-    nop, ld_bc_word, inc_bc = 0x03, ld_b_byte = 0x06, ld_de_word = 0x11, inc_de = 0x13,
-    jp_nn = 0xc3, di = 0xf3
-};
-
-enum OpCodesCB
-{
-};
-
-enum OpCodesED
-{
-    out_c_c = 0x49, in_a_c = 0x78
-};
+static const byte_t PREFIX_FD = 0xfd;
 
 
-Z80::Z80(Memory* memory)
-    : MemoryAccessDevice(memory)
-    , m_opCode(0x00)
+Z80::Z80()
+    : m_opCode(0x00)
+    , m_eiDelay(0)
 {
 }
 
@@ -80,24 +70,87 @@ void Z80::step()
 
 byte_t Z80::fetchInstruction()
 {
-    return readByteFromMemory(REGISTER_PC++);
+    return ReadByteFromMemory(REGISTER_PC++);
 }
 
 void Z80::executeOpCode()
 {
     switch (m_opCode)
     {
-        case nop:           break;
-        case ld_bc_word:    LD16_TO_REG(RegisterSet::BC); break;
-        case inc_bc:        REGISTER_BC++; break;
-        case ld_b_byte:     LD8_TO_REG(REGISTER_B); break;
-        case ld_de_word:    LD16_TO_REG(RegisterSet::DE); break;
-        case inc_de:        REGISTER_DE++; break;
-        case jp_nn:         JUMP; break;
-        case di:            RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
+        case 0x00: /* nop */        break;
+
+        case 0x01: /* ld bc,nn */   LoadWordToReg(RegisterSet::BC); break;
+        case 0x02: /* ld (bc),a */  LoadAccumulatorToMem(REGISTER_BC); break;
+        case 0x03: /* inc bc */     Inc(REGISTER_BC); break;
+        case 0x04: /* inc b */      Inc(REGISTER_B); break;
+        case 0x05: /* dec b */      Dec(REGISTER_B); break;
+        case 0x06: /* ld b,n */     LoadByteToReg(REGISTER_B); break;
+        case 0x0a: /* ld a,(bc) */  LoadAccumulatorFromMem(REGISTER_BC); break;
+        case 0x0b: /* dec bc */     Dec(REGISTER_BC); break;
+        case 0x0c: /* inc c */      Inc(REGISTER_C); break;
+        case 0x0d: /* dec c */      Dec(REGISTER_C); break;
+        case 0x0e: /* ld c,n */     LoadByteToReg(REGISTER_C); break;
+
+        case 0x11: /* ld de,nn */   LoadWordToReg(RegisterSet::DE); break;
+        case 0x12: /* ld (de),a */  LoadAccumulatorToMem(REGISTER_DE); break;
+        case 0x13: /* inc de */     Inc(REGISTER_DE); break;
+        case 0x14: /* inc d */      Inc(REGISTER_D); break;
+        case 0x15: /* dec d */      Dec(REGISTER_D); break;
+        case 0x16: /* ld d,n */     LoadByteToReg(REGISTER_D); break;
+        case 0x18: /* jr e */       JumpRelative(); break;
+        case 0x1a: /* ld a,(de) */  LoadAccumulatorFromMem(REGISTER_DE); break;
+        case 0x1b: /* dec de */     Dec(REGISTER_DE); break;
+        case 0x1c: /* inc e */      Inc(REGISTER_E); break;
+        case 0x1d: /* dec e */      Dec(REGISTER_E); break;
+        case 0x1e: /* ld e,n */     LoadByteToReg(REGISTER_E); break;
+
+        case 0x20: /* jr nz,e */
+            if( REGISTER_F & Z_FLAG )
+            {
+                REGISTER_PC++;
+            }
+            else
+            {
+                JumpRelative();
+            }
+            break;
+
+        case 0x21: /* ld hl,nn */   LoadWordToReg(RegisterSet::HL); break;
+        case 0x23: /* inc hl */     Inc(REGISTER_HL); break;
+        case 0x24: /* inc h */      Inc(REGISTER_H); break;
+        case 0x25: /* dec h */      Dec(REGISTER_H); break;
+        case 0x26: /* ld h,n */     LoadByteToReg(REGISTER_H); break;
+        case 0x2b: /* dec hl */     Dec(REGISTER_HL); break;
+        case 0x2c: /* inc l */      Inc(REGISTER_L); break;
+        case 0x2d: /* dec l */      Dec(REGISTER_L); break;
+        case 0x2e: /* ld l,n */     LoadByteToReg(REGISTER_L); break;
+
+        case 0x31: /* ld sp,nn */   LoadWordToReg(RegisterSet::SP); break;
+        case 0x33: /* inc sp */     Inc(REGISTER_SP); break;
+        case 0x3b: /* dec sp */     Dec(REGISTER_SP); break;
+        case 0x3c: /* inc a */      Inc(REGISTER_A); break;
+        case 0x3d: /* dec a */      Dec(REGISTER_A); break;
+        case 0x3e: /* ld a,n */     LoadByteToReg(REGISTER_A); break;
+
+        case 0x7e: /* ld a,(hl) */  LoadAccumulatorFromMem(REGISTER_HL); break;
+
+        case 0xc3: /* jp nn */      Jump(); break;
+        case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
+
+        case 0xf2: /* jp p,nn */
+            if( REGISTER_F & S_FLAG )
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Jump();
+            }
+            break;
+        case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
 
         default:
-            qCritical() << "[Z80] unhandled opcode" << hex << m_opCode;
+            qCritical() << "[Z80] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
             break;
     }
 }
@@ -116,10 +169,15 @@ void Z80::executeOpCodeED()
 {
     switch (m_opCode)
     {
-        case out_c_c:       emitOutputRequest(REGISTER_BC, REGISTER_C); break;
-        case in_a_c:        REGISTER_A = emitInputRequest(REGISTER_BC);
-            // TODO: FLAGS!!
+        case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case 0x78: /* in a,(c) */
+            REGISTER_A = emitInputRequest(REGISTER_BC);
+            REGISTER_F = (REGISTER_F & C_FLAG)
+                       | SignAndZeroTable[REGISTER_A]
+                       | ParityTable[REGISTER_A];
             break;
+        case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
+
         default:
             qCritical() << "[Z80] unhandled opcode 0xed" << hex << m_opCode;
             break;

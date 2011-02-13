@@ -5,8 +5,7 @@
 #include "memory.h"
 
 
-GateArray::GateArray(Memory* memory)
-    : m_memory(memory)
+GateArray::GateArray()
 {
 }
 
@@ -42,17 +41,19 @@ bool GateArray::out(word_t address, byte_t value)
 
 void GateArray::setRomConfiguration(byte_t value)
 {
+    Memory memory;
+
     // bit 2: 0=enabled 1=disabled
     bool lowerRomEnabled = !(value & 0x04);
-    m_memory->blocks[0] = lowerRomEnabled ? m_memory->kernelRom
-                                          : m_memory->ram;
+    memory.blocks[0] = lowerRomEnabled ? memory.kernelRom
+                                       : memory.ram;
 
     qDebug() << "[GA ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
 
     // bit 3: 0=enabled 1=disabled
     bool upperRomEnabled = !(value & 0x08);
-    m_memory->blocks[3] = upperRomEnabled ? m_memory->basicRom
-                                          : m_memory->ram + 0xc000;
+    memory.blocks[3] = upperRomEnabled ? memory.basicRom
+                                       : memory.ram + 0xc000;
 
     qDebug() << "[GA ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
 }
