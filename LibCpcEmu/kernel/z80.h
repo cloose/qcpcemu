@@ -1,16 +1,16 @@
 #ifndef Z80_H
 #define Z80_H
 
-#include "memoryaccessdevice.h"
+#include "types.h"
 #include <QtCore/qlist.h>
 
 class IoPort;
 
 
-class Z80 : public MemoryAccessDevice
+class Z80
 {
 public:
-    explicit Z80(Memory* memory);
+    Z80();
 
     void registerIoPort(IoPort* port);
 

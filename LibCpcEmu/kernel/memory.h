@@ -6,11 +6,11 @@
 
 struct Memory
 {
-    const byte_t* blocks[4];
+    static const byte_t* blocks[4];
 
-    byte_t*       ram;
-    const byte_t* kernelRom;
-    const byte_t* basicRom;
+    static byte_t*       ram;
+    static const byte_t* kernelRom;
+    static const byte_t* basicRom;
 };
 
 #endif // MEMORY_H

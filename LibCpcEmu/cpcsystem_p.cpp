@@ -18,7 +18,6 @@ public:
     IoController* ioController;
     Z80* cpu;
 
-    Memory memory;
     RomImageFile* systemRom;
 };
 
@@ -44,6 +43,8 @@ void CpcSystemPrivate::setupHardware()
     }
 
     // create and initialize the RAM
+    Memory memory;
+
     memory.ram = new byte_t[64*1024];
     ::memset(memory.ram, 0, 64*1024);
 
@@ -55,11 +56,11 @@ void CpcSystemPrivate::setupHardware()
     memory.blocks[2] = memory.ram + 0x8000;
     memory.blocks[3] = memory.basicRom;
 
-    gateArray = new GateArray(&memory);
+    gateArray = new GateArray();
 
     ioController = new IoController();
 
-    cpu = new Z80(&memory);
+    cpu = new Z80();
     cpu->registerIoPort(gateArray);
     cpu->registerIoPort(ioController);
 }

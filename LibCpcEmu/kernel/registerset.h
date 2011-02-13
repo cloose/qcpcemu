@@ -48,4 +48,13 @@ struct RegisterSet
 #define REGISTER_DE1 RegisterSet::DE1.pair
 #define REGISTER_HL1 RegisterSet::HL1.pair
 
+// macros for the flag register
+#define S_FLAG 0x80     // sign flag      (1: result negative)
+#define Z_FLAG 0x40     // zero flag      (1: Result is zero)
+#define H_FLAG 0x10     // halfcarry flag (1: Halfcarry/Halfborrow)
+#define P_FLAG 0x04     // parity flag    (1: Result is even)
+#define V_FLAG 0x04     // overflow flag  (1: Overflow occured)
+#define N_FLAG 0x02     // negative flag  (1: Subtraction occured)
+#define C_FLAG 0x01     // carry flag     (1: Carry/Borrow occured)
+
 #endif // REGISTERSET_H
