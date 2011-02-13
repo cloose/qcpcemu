@@ -17,6 +17,7 @@ static const byte_t PREFIX_FD = 0xfd;
 
 Z80::Z80()
     : m_opCode(0x00)
+    , m_interruptMode(0)
     , m_eiDelay(0)
 {
 }
@@ -44,6 +45,9 @@ void Z80::reset()
 
     // disable interrupts on reset (Z80 manual  p.23)
     RegisterSet::IFF1 = RegisterSet::IFF2 = 0;
+
+    // after RESET the CPU automatically enters interrupt mode 0 (Z80 manual p.25)
+    m_interruptMode = 0;
 }
 
 void Z80::step()
@@ -150,7 +154,7 @@ void Z80::executeOpCode()
         case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
 
         default:
-            qCritical() << "[Z80] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
+            qCritical() << "[Z80 ] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
             break;
     }
 }
@@ -160,7 +164,7 @@ void Z80::executeOpCodeCB()
     switch (m_opCode)
     {
         default:
-            qCritical() << "[Z80] unhandled opcode 0xcb" << hex << m_opCode;
+            qCritical() << "[Z80 ] unhandled opcode 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             break;
     }
 }
@@ -169,7 +173,10 @@ void Z80::executeOpCodeED()
 {
     switch (m_opCode)
     {
+        case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case 0x56: /* im 1 */       m_interruptMode = 1; break;
+        case 0x5e: /* im 2 */       m_interruptMode = 2; break;
         case 0x78: /* in a,(c) */
             REGISTER_A = emitInputRequest(REGISTER_BC);
             REGISTER_F = (REGISTER_F & C_FLAG)
@@ -179,7 +186,7 @@ void Z80::executeOpCodeED()
         case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
 
         default:
-            qCritical() << "[Z80] unhandled opcode 0xed" << hex << m_opCode;
+            qCritical() << "[Z80 ] unhandled opcode 0xed" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             break;
     }
 }
