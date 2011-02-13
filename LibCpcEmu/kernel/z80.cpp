@@ -97,11 +97,23 @@ void Z80::executeOpCode()
         case 0x14: /* inc d */      Inc(REGISTER_D); break;
         case 0x15: /* dec d */      Dec(REGISTER_D); break;
         case 0x16: /* ld d,n */     LoadByteToReg(REGISTER_D); break;
+        case 0x18: /* jr e */       JumpRelative(); break;
         case 0x1a: /* ld a,(de) */  LoadAccumulatorFromMem(REGISTER_DE); break;
         case 0x1b: /* dec de */     Dec(REGISTER_DE); break;
         case 0x1c: /* inc e */      Inc(REGISTER_E); break;
         case 0x1d: /* dec e */      Dec(REGISTER_E); break;
         case 0x1e: /* ld e,n */     LoadByteToReg(REGISTER_E); break;
+
+        case 0x20: /* jr nz,e */
+            if( REGISTER_F & Z_FLAG )
+            {
+                REGISTER_PC++;
+            }
+            else
+            {
+                JumpRelative();
+            }
+            break;
 
         case 0x21: /* ld hl,nn */   LoadWordToReg(RegisterSet::HL); break;
         case 0x23: /* inc hl */     Inc(REGISTER_HL); break;
@@ -120,8 +132,21 @@ void Z80::executeOpCode()
         case 0x3d: /* dec a */      Dec(REGISTER_A); break;
         case 0x3e: /* ld a,n */     LoadByteToReg(REGISTER_A); break;
 
+        case 0x7e: /* ld a,(hl) */  LoadAccumulatorFromMem(REGISTER_HL); break;
+
         case 0xc3: /* jp nn */      Jump(); break;
         case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
+
+        case 0xf2: /* jp p,nn */
+            if( REGISTER_F & S_FLAG )
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Jump();
+            }
+            break;
         case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
 
         default:
@@ -151,6 +176,7 @@ void Z80::executeOpCodeED()
                        | SignAndZeroTable[REGISTER_A]
                        | ParityTable[REGISTER_A];
             break;
+        case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
 
         default:
             qCritical() << "[Z80] unhandled opcode 0xed" << hex << m_opCode;

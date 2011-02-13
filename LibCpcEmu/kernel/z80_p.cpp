@@ -220,3 +220,17 @@ static inline void Jump()
 {
     REGISTER_PC = ReadWordFromMemory(REGISTER_PC);
 }
+
+/**
+ * The value of the displacement e is added to the Program Counter (PC) and the next
+ * instruction is fetched from the location designated by the new contents of the PC.
+ * This jump is measured from the address of the instruction Op Code and has a range
+ * of -126 to +129 bytes. The assembler automatically adjusts for the twice
+ * incremented PC.
+ *
+ * Condition Bits Affected: None
+ */
+static inline void JumpRelative()
+{
+    REGISTER_PC += static_cast<offset_t>(ReadByteFromMemory(REGISTER_PC)) + 1;
+}
