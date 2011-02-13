@@ -1,6 +1,7 @@
 #include "cpcsystem.h"
 #include "cpcsystem_p.cpp"
 
+
 CpcSystem::CpcSystem()
     : d(new CpcSystemPrivate)
 {
@@ -18,4 +19,9 @@ void CpcSystem::run()
     {
         d->cpu->step();
     }
+}
+
+void CpcSystem::step()
+{
+    d->cpu->step();
 }
