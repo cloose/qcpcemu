@@ -131,6 +131,10 @@ void Z80::executeOpCode()
 
         case 0x31: /* ld sp,nn */   LoadWordToReg(RegisterSet::SP); break;
         case 0x33: /* inc sp */     Inc(REGISTER_SP); break;
+        case 0x36: /* ld (hl),n */
+            // TODO: new LoadXXX() function?
+            WriteByteToMemory(REGISTER_HL, ReadByteFromMemory(REGISTER_PC++));
+            break;
         case 0x3b: /* dec sp */     Dec(REGISTER_SP); break;
         case 0x3c: /* inc a */      Inc(REGISTER_A); break;
         case 0x3d: /* dec a */      Dec(REGISTER_A); break;
@@ -139,6 +143,7 @@ void Z80::executeOpCode()
         case 0x7e: /* ld a,(hl) */  LoadAccumulatorFromMem(REGISTER_HL); break;
 
         case 0xc3: /* jp nn */      Jump(); break;
+        case 0xd9: /* exx */        Exx(); break;
         case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
 
         case 0xf2: /* jp p,nn */
@@ -184,6 +189,14 @@ void Z80::executeOpCodeED()
                        | ParityTable[REGISTER_A];
             break;
         case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
+        case 0xb0: /* ldir */
+            Ldi();
+
+            if (REGISTER_BC != 0)
+            {
+                REGISTER_PC -= 2;
+            }
+            break;
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xed" << hex << m_opCode << "at PC" << REGISTER_PC-2;
