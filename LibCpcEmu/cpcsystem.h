@@ -13,6 +13,7 @@ public:
     ~CpcSystem();
 
     void run();
+    void step();
 
 private:
     CpcSystemPrivate* const d;

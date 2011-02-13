@@ -1,10 +1,11 @@
 #ifndef REGISTERSET_H
 #define REGISTERSET_H
 
+#include "LibCpcEmu_global.h"
 #include"types.h"
 
 
-struct RegisterSet
+struct LIBCPCEMUSHARED_EXPORT RegisterSet
 {
     /* main register set */
     static register_pair_t AF,  // 16-bit register pair containing A and flags
@@ -27,12 +28,12 @@ struct RegisterSet
 
 
 // convenience macros to access cpu registers
-#define REGISTER_AF RegisterSet::AF.pair
-#define REGISTER_BC RegisterSet::BC.pair
-#define REGISTER_DE RegisterSet::DE.pair
-#define REGISTER_HL RegisterSet::HL.pair
-#define REGISTER_PC RegisterSet::PC.pair
-#define REGISTER_SP RegisterSet::SP.pair
+#define REGISTER_AF  RegisterSet::AF.pair
+#define REGISTER_BC  RegisterSet::BC.pair
+#define REGISTER_DE  RegisterSet::DE.pair
+#define REGISTER_HL  RegisterSet::HL.pair
+#define REGISTER_PC  RegisterSet::PC.pair
+#define REGISTER_SP  RegisterSet::SP.pair
 
 #define REGISTER_A   RegisterSet::AF.high
 #define REGISTER_F   RegisterSet::AF.low

@@ -28,6 +28,7 @@ private:
     void emitOutputRequest(word_t address, byte_t value);
 
     byte_t         m_opCode;
+    unsigned int   m_interruptMode;
     unsigned int   m_eiDelay;
     QList<IoPort*> m_ioPorts;
 };

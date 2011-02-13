@@ -24,8 +24,6 @@ bool GateArray::out(word_t address, byte_t value)
     // 0x7Fxx: gate array port address (bit 15 = 0, bit 14 = 1)
     if ((address & 0xc000) == 0x4000)
     {
-        qDebug() << "[GA ] OUT request at address" << hex << address << "with value" << hex << value;
-
         // bit 7 and 6 define the function selected
         switch (value & 0xc0)
         {
@@ -34,6 +32,13 @@ bool GateArray::out(word_t address, byte_t value)
                 setRomConfiguration(value);
                 break;
         }
+
+        handled = true;
+    }
+
+    if (handled)
+    {
+        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
     }
 
     return handled;
@@ -48,12 +53,12 @@ void GateArray::setRomConfiguration(byte_t value)
     memory.blocks[0] = lowerRomEnabled ? memory.kernelRom
                                        : memory.ram;
 
-    qDebug() << "[GA ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
+    qDebug() << "[GA  ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
 
     // bit 3: 0=enabled 1=disabled
     bool upperRomEnabled = !(value & 0x08);
     memory.blocks[3] = upperRomEnabled ? memory.basicRom
                                        : memory.ram + 0xc000;
 
-    qDebug() << "[GA ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
+    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
 }

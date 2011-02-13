@@ -9,13 +9,17 @@ QT       += core gui
 TARGET = qcpcemu
 TEMPLATE = app
 
-INCLUDEPATH += ..\LibCpcEmu
+INCLUDEPATH += ..\LibCpcEmu \
+               ..\LibCpcEmu\kernel
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    debugform.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    debugform.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    debugform.ui
 
 win32:LIBS += ../LibCpcEmu-build-desktop/debug/LibCpcEmu.dll
