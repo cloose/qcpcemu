@@ -10,7 +10,8 @@ HEADERS += \
     kernel/z80.h \
     kernel/registerset.h \
     kernel/z80_macros.h \
-    kernel/iocontroller.h
+    kernel/iocontroller.h \
+    kernel/z80_tables.h
 
 SOURCES += \
     kernel/gatearray.cpp \

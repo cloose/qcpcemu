@@ -36,7 +36,7 @@ void CpcSystemPrivate::setupHardware()
 {
     // load the system ROM image from file
     // TODO: image name should be variable and depend on the CPC system
-    systemRom = new RomImageFile("cpc664.rom");
+    systemRom = new RomImageFile("cpc464.rom");
     if (!systemRom->load())
     {
         // TODO: missing error handling and reporting

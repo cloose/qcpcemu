@@ -15,7 +15,7 @@ public:
     byte_t readByteFromMemory(word_t address);
     word_t readWordFromMemory(word_t address);
 
-private:
+protected:
     Memory* m_memory;
 };
 
