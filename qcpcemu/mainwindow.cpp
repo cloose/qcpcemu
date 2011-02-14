@@ -72,6 +72,6 @@ void MainWindow::createActions()
 void MainWindow::createDockWindows()
 {
     QDockWidget* dock = new QDockWidget(tr("Debug"), this);
-    dock->setWidget(m_debugForm);
     addDockWidget(Qt::RightDockWidgetArea, dock);
+    dock->setWidget(m_debugForm);
 }
