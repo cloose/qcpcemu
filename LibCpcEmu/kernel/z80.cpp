@@ -89,6 +89,7 @@ void Z80::executeOpCode()
         case 0x04: /* inc b */      Inc(REGISTER_B); break;
         case 0x05: /* dec b */      Dec(REGISTER_B); break;
         case 0x06: /* ld b,n */     LoadByteToReg(REGISTER_B); break;
+        case 0x08: /* ex af,af' */  qSwap(REGISTER_AF, REGISTER_AF1); break;
         case 0x0a: /* ld a,(bc) */  LoadAccumulatorFromMem(REGISTER_BC); break;
         case 0x0b: /* dec bc */     Dec(REGISTER_BC); break;
         case 0x0c: /* inc c */      Inc(REGISTER_C); break;
@@ -142,6 +143,7 @@ void Z80::executeOpCode()
 
         case 0x7e: /* ld a,(hl) */  LoadAccumulatorFromMem(REGISTER_HL); break;
 
+        case 0xaf: /* xor a */      REGISTER_A = 0; REGISTER_F = P_FLAG|Z_FLAG; break;
         case 0xc3: /* jp nn */      Jump(); break;
         case 0xd9: /* exx */        Exx(); break;
         case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
