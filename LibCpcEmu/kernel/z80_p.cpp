@@ -3,6 +3,16 @@
 #include "registerset.h"
 #include "z80_tables.h"
 
+// high order byte of a word
+#define HIBYTE(word)       ((word >> 8) & 0xff)
+
+// low order byte of a word
+#define LOBYTE(word)       (word & 0xff)
+
+// make a word out of two bytes
+#define WORD(low, high)     (low | (high << 8))
+
+
 //----------------------------------------------------------------------------
 //- Memory Access
 //----------------------------------------------------------------------------
@@ -81,6 +91,23 @@ static inline void LoadWordToReg(register_pair_t& reg)
 {
     reg.low = ReadByteFromMemory(REGISTER_PC++);
     reg.high = ReadByteFromMemory(REGISTER_PC++);
+}
+
+/**
+ * The contents of the register pair qq are pushed to the external memory LIFO
+ * (last-in, first-out) Stack. The Stack Pointer (SP) register pair holds the 16-bit
+ * address of the current top of the Stack. This instruction first decrements SP and
+ * loads the high order byte of register pair qq to the memory address specified by
+ * the SP. The SP is decremented again and loads the low order byte of qq to the
+ * memory location corresponding to this new address in the SP. The operand qq
+ * identifies register pair BC, DE, HL, or AF.
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Push(word_t value)
+{
+    WriteByteToMemory(--REGISTER_SP, HIBYTE(value));
+    WriteByteToMemory(--REGISTER_SP, LOBYTE(value));
 }
 
 
@@ -281,4 +308,27 @@ static inline void Jump()
 static inline void JumpRelative()
 {
     REGISTER_PC += static_cast<offset_t>(ReadByteFromMemory(REGISTER_PC)) + 1;
+}
+
+
+//----------------------------------------------------------------------------
+//- Call and Return Group
+//----------------------------------------------------------------------------
+
+/**
+ * TODO: description missing
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Call()
+{
+    // retrieve address of subroutine
+    byte_t low  = ReadByteFromMemory(REGISTER_PC++);
+    byte_t high = ReadByteFromMemory(REGISTER_PC++);
+
+    // store current PC for return
+    Push(REGISTER_PC);
+
+    // jump to subroutine
+    REGISTER_PC = WORD(low, high);
 }

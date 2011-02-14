@@ -145,7 +145,11 @@ void Z80::executeOpCode()
 
         case 0xaf: /* xor a */      REGISTER_A = 0; REGISTER_F = P_FLAG|Z_FLAG; break;
         case 0xc3: /* jp nn */      Jump(); break;
+        case 0xc5: /* push bc */    Push(REGISTER_BC); break;
+        case 0xcd: /* call nn */    Call(); break;
+        case 0xd5: /* push de */    Push(REGISTER_DE); break;
         case 0xd9: /* exx */        Exx(); break;
+        case 0xe5: /* push hl */    Push(REGISTER_HL); break;
         case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
 
         case 0xf2: /* jp p,nn */
