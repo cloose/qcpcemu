@@ -23,7 +23,9 @@ protected:
     void changeEvent(QEvent *e);
 
 private slots:
+    void debugRun();
     void debugStep();
+    void setBreakpoint(quint16 address);
 
 private:
     void createActions();
@@ -33,6 +35,7 @@ private:
     CpcSystem* m_system;
     DebugForm* m_debugForm;
 
+    QAction* m_debugRunAction;
     QAction* m_debugStepAction;
 };
 

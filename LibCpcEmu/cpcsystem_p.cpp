@@ -20,6 +20,8 @@ public:
     VideoController* videoController;
     Z80* cpu;
 
+    QList<word_t> breakpoints;
+
     RomImageFile* systemRom;
 };
 

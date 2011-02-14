@@ -18,8 +18,14 @@ public:
 
     void update();
 
+signals:
+    void setBreakpoint(quint16 address);
+
 protected:
     void changeEvent(QEvent *e);
+
+public slots:
+    void setButtonClicked();
 
 private:
     Ui::DebugForm *ui;

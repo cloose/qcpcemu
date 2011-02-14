@@ -10,6 +10,9 @@ DebugForm::DebugForm(QWidget *parent)
     , ui(new Ui::DebugForm)
 {
     ui->setupUi(this);
+
+    connect(ui->pushButton, SIGNAL(clicked()),
+            this, SLOT(setButtonClicked()));
 }
 
 DebugForm::~DebugForm()
@@ -19,11 +22,18 @@ DebugForm::~DebugForm()
 
 void DebugForm::update()
 {
-    ui->regAFEdit->setText(QString::number(REGISTER_AF, 16));
-    ui->regBCEdit->setText(QString::number(REGISTER_BC, 16));
-    ui->regDEEdit->setText(QString::number(REGISTER_DE, 16));
-    ui->regHLEdit->setText(QString::number(REGISTER_HL, 16));
-    ui->regPCEdit->setText(QString::number(REGISTER_PC, 16));
+    ui->regAFEdit->setText(QString("%1").arg(REGISTER_AF, 4, 16, QLatin1Char('0')));
+    ui->regBCEdit->setText(QString("%1").arg(REGISTER_BC, 4, 16, QLatin1Char('0')));
+    ui->regDEEdit->setText(QString("%1").arg(REGISTER_DE, 4, 16, QLatin1Char('0')));
+    ui->regHLEdit->setText(QString("%1").arg(REGISTER_HL, 4, 16, QLatin1Char('0')));
+
+    ui->regAF1Edit->setText(QString("%1").arg(REGISTER_AF1, 4, 16, QLatin1Char('0')));
+    ui->regBC1Edit->setText(QString("%1").arg(REGISTER_BC1, 4, 16, QLatin1Char('0')));
+    ui->regDE1Edit->setText(QString("%1").arg(REGISTER_DE1, 4, 16, QLatin1Char('0')));
+    ui->regHL1Edit->setText(QString("%1").arg(REGISTER_HL1, 4, 16, QLatin1Char('0')));
+
+    ui->regPCEdit->setText(QString("%1").arg(REGISTER_PC, 4, 16, QLatin1Char('0')));
+    ui->regSPEdit->setText(QString("%1").arg(REGISTER_SP, 4, 16, QLatin1Char('0')));
 }
 
 void DebugForm::changeEvent(QEvent *e)
@@ -36,5 +46,15 @@ void DebugForm::changeEvent(QEvent *e)
         break;
     default:
         break;
+    }
+}
+
+void DebugForm::setButtonClicked()
+{
+    if (!ui->breakpointEdit->text().isEmpty())
+    {
+        quint16 address = ui->breakpointEdit->text().toInt(0, 16);
+        emit setBreakpoint(address);
+        ui->breakpointEdit->clear();
     }
 }
