@@ -152,6 +152,7 @@ void Z80::executeOpCode()
         case 0x2c: /* inc l */      Inc(REGISTER_L); break;
         case 0x2d: /* dec l */      Dec(REGISTER_L); break;
         case 0x2e: /* ld l,n */     Load(REGISTER_L, ConstantByte()); break;
+        case 0x2f: /* cpl */        Cpl(); break;
 
         case 0x31: /* ld sp,nn */   Load(REGISTER_SP, ConstantWord()); break;
         case 0x32: /* ld (nn),a */  Load(MemoryLocationW(ConstantWord()), REGISTER_A); break;
@@ -199,17 +200,47 @@ void Z80::executeOpCode()
         case 0x5e: /* ld e,(hl) */  Load(REGISTER_E, MemoryLocationR(REGISTER_HL)); break;
         case 0x5f: /* ld e,a */     Load(REGISTER_E, REGISTER_A); break;
 
+        case 0x70: /* ld (hl),b */  Load(MemoryLocationW(REGISTER_HL), REGISTER_B); break;
+        case 0x71: /* ld (hl),c */  Load(MemoryLocationW(REGISTER_HL), REGISTER_C); break;
+        case 0x72: /* ld (hl),d */  Load(MemoryLocationW(REGISTER_HL), REGISTER_D); break;
+        case 0x73: /* ld (hl),e */  Load(MemoryLocationW(REGISTER_HL), REGISTER_E); break;
+        case 0x74: /* ld (hl),h */  Load(MemoryLocationW(REGISTER_HL), REGISTER_H); break;
+        case 0x75: /* ld (hl),l */  Load(MemoryLocationW(REGISTER_HL), REGISTER_L); break;
         case 0x77: /* ld (hl),a */  Load(MemoryLocationW(REGISTER_HL), REGISTER_A); break;
-        case 0x7e: /* ld a,(hl) */  Load(REGISTER_A, MemoryLocationR(REGISTER_HL)); break;
 
+        case 0x78: /* ld a,b */     Load(REGISTER_A, REGISTER_B); break;
+        case 0x79: /* ld a,c */     Load(REGISTER_A, REGISTER_C); break;
+        case 0x7a: /* ld a,d */     Load(REGISTER_A, REGISTER_D); break;
+        case 0x7b: /* ld a,e */     Load(REGISTER_A, REGISTER_E); break;
+        case 0x7c: /* ld a,h */     Load(REGISTER_A, REGISTER_H); break;
+        case 0x7d: /* ld a,l */     Load(REGISTER_A, REGISTER_L); break;
+        case 0x7e: /* ld a,(hl) */  Load(REGISTER_A, MemoryLocationR(REGISTER_HL)); break;
+        case 0x7f: /* ld a,a */     Load(REGISTER_A, REGISTER_A); break;
+
+        case 0xa8: /* xor b */      Xor(REGISTER_B); break;
+        case 0xa9: /* xor c */      Xor(REGISTER_C); break;
+        case 0xaa: /* xor d */      Xor(REGISTER_D); break;
+        case 0xab: /* xor e */      Xor(REGISTER_E); break;
+        case 0xac: /* xor h */      Xor(REGISTER_H); break;
+        case 0xad: /* xor l */      Xor(REGISTER_L); break;
+        case 0xae: /* xor (hl) */   Xor(MemoryLocationR(REGISTER_HL)); break;
         case 0xaf: /* xor a */      REGISTER_A = 0; REGISTER_F = P_FLAG|Z_FLAG; break;
+
+        case 0xc0: /* ret nz */
+            if (!(REGISTER_F & Z_FLAG))
+            {
+                REGISTER_PC = Pop();
+            }
+            break;
         case 0xc3: /* jp nn */      Jump(); break;
         case 0xc5: /* push bc */    Push(REGISTER_BC); break;
+        case 0xc9: /* ret */        REGISTER_PC = Pop(); break;
         case 0xcd: /* call nn */    Call(); break;
         case 0xd5: /* push de */    Push(REGISTER_DE); break;
         case 0xd9: /* exx */        Exx(); break;
         case 0xe5: /* push hl */    Push(REGISTER_HL); break;
         case 0xe6: /* and n */      And(ReadByteFromMemory(REGISTER_PC++)); break;
+        case 0xeb: /* ex de,hl */   qSwap(REGISTER_DE, REGISTER_HL); break;
 
         case 0xf2: /* jp p,nn */
             if( REGISTER_F & S_FLAG )

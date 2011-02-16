@@ -102,6 +102,20 @@ static inline void Push(word_t value)
     WriteByteToMemory(--REGISTER_SP, LOBYTE(value));
 }
 
+/**
+ * TODO: missing description!
+ */
+static inline word_t Pop()
+{
+    byte_t low  = ReadByteFromMemory(REGISTER_SP++);
+    byte_t high = ReadByteFromMemory(REGISTER_SP++);
+
+    // make sure Pop() and Push() is in balance
+    Q_ASSERT(REGISTER_SP <= 0xc000);
+
+    return WORD(low, high);
+}
+
 
 //----------------------------------------------------------------------------
 //- Exchange, Block Transfer, and Search Group
@@ -200,6 +214,27 @@ static inline void Or(byte_t s)
 }
 
 /**
+ * A logical exclusive-OR operation is performed between the byte specified by the s operand
+ * and the byte contained in the Accumulator; the result is stored in the Accumulator.
+ * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ *
+ * Condition Bits Affected:
+ *     S is set if result is negative; reset otherwise
+ *     Z is set if result is zero; reset otherwise
+ *     H is reset
+ *     P/V is set if parity even; reset otherwise
+ *     N is reset
+ *     C is reset
+ */
+static inline void Xor(byte_t value)
+{
+    REGISTER_A ^= value;
+
+    REGISTER_F  = SignAndZeroTable[REGISTER_A]
+                | ParityTable[REGISTER_A];
+}
+
+/**
  * Register r is incremented and register r identifies any of the registers A, B,
  * C, D, E, H, or L.
  *
@@ -242,6 +277,31 @@ static inline void Dec(byte_t& m)
                | SignAndZeroTable[m]
                | (m == 0x7f ? V_FLAG : 0)
                | ((m &  0x0f) == 0x0f ? H_FLAG : 0);
+}
+
+
+//----------------------------------------------------------------------------
+//- General-Purpose Arithmetic and CPU Control Groups
+//----------------------------------------------------------------------------
+
+/**
+ * The contents of the Accumulator (register A) are inverted (one’s complement).
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is set
+ *     P/V is not affected
+ *     N is set
+ *     C is not affected
+ */
+static inline void Cpl()
+{
+    REGISTER_A ^= 0xff;
+
+    REGISTER_F = (REGISTER_F & (S_FLAG  | Z_FLAG | P_FLAG | C_FLAG))
+               | H_FLAG
+               | N_FLAG;
 }
 
 
