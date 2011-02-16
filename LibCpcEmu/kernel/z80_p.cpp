@@ -3,6 +3,16 @@
 #include "registerset.h"
 #include "z80_tables.h"
 
+// high order byte of a word
+#define HIBYTE(word)       ((word >> 8) & 0xff)
+
+// low order byte of a word
+#define LOBYTE(word)       (word & 0xff)
+
+// make a word out of two bytes
+#define WORD(low, high)     (low | (high << 8))
+
+
 //----------------------------------------------------------------------------
 //- Memory Access
 //----------------------------------------------------------------------------
@@ -33,37 +43,24 @@ static inline void WriteByteToMemory(word_t address, byte_t value)
 //- 8-Bit Load Group
 //----------------------------------------------------------------------------
 
-/**
- * The 8-bit integer n is loaded to any register r, where r identifies register A,
- * B, C, D, E, H, or L.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadByteToReg(byte_t& reg)
+static inline void Load(byte_t& destination, byte_t source)
 {
-    reg = ReadByteFromMemory(REGISTER_PC++);
+    destination = source;
 }
 
-/**
- * The contents of the Accumulator are loaded to the memory address specified by the
- * operand nn.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadAccumulatorToMem(word_t nn)
+static inline byte_t ConstantByte()
 {
-    Memory::ram[nn] = REGISTER_A;
+    return ReadByteFromMemory(REGISTER_PC++);
 }
 
-/**
- * The contents of the memory location specified by the operands nn are loaded to
- * the Accumulator.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadAccumulatorFromMem(word_t nn)
+static inline byte_t& MemoryLocationW(word_t address)
 {
-    REGISTER_A = ReadByteFromMemory(nn);
+    return Memory::ram[address];
+}
+
+static inline byte_t MemoryLocationR(word_t address)
+{
+    return ReadByteFromMemory(address);
 }
 
 
@@ -71,16 +68,52 @@ static inline void LoadAccumulatorFromMem(word_t nn)
 //- 16-Bit Load Group
 //----------------------------------------------------------------------------
 
+static inline void Load(word_t& destination, word_t source)
+{
+    destination = source;
+}
+
+static inline word_t ConstantWord()
+{
+    byte_t low = ReadByteFromMemory(REGISTER_PC++);
+    byte_t high = ReadByteFromMemory(REGISTER_PC++);
+    return WORD(low, high);
+}
+
+static inline word_t MemoryLocationWordR(word_t address)
+{
+    return ReadWordFromMemory(address);
+}
+
 /**
- * The 2-byte integer nn is loaded to the dd register pair, where dd defines the
- * BC, DE, HL, or SP register pairs.
+ * The contents of the register pair qq are pushed to the external memory LIFO
+ * (last-in, first-out) Stack. The Stack Pointer (SP) register pair holds the 16-bit
+ * address of the current top of the Stack. This instruction first decrements SP and
+ * loads the high order byte of register pair qq to the memory address specified by
+ * the SP. The SP is decremented again and loads the low order byte of qq to the
+ * memory location corresponding to this new address in the SP. The operand qq
+ * identifies register pair BC, DE, HL, or AF.
  *
  * Condition Bits Affected: None
  */
-static inline void LoadWordToReg(register_pair_t& reg)
+static inline void Push(word_t value)
 {
-    reg.low = ReadByteFromMemory(REGISTER_PC++);
-    reg.high = ReadByteFromMemory(REGISTER_PC++);
+    WriteByteToMemory(--REGISTER_SP, HIBYTE(value));
+    WriteByteToMemory(--REGISTER_SP, LOBYTE(value));
+}
+
+/**
+ * TODO: missing description!
+ */
+static inline word_t Pop()
+{
+    byte_t low  = ReadByteFromMemory(REGISTER_SP++);
+    byte_t high = ReadByteFromMemory(REGISTER_SP++);
+
+    // make sure Pop() and Push() is in balance
+    Q_ASSERT(REGISTER_SP <= 0xc000);
+
+    return WORD(low, high);
 }
 
 
@@ -181,6 +214,27 @@ static inline void Or(byte_t s)
 }
 
 /**
+ * A logical exclusive-OR operation is performed between the byte specified by the s operand
+ * and the byte contained in the Accumulator; the result is stored in the Accumulator.
+ * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ *
+ * Condition Bits Affected:
+ *     S is set if result is negative; reset otherwise
+ *     Z is set if result is zero; reset otherwise
+ *     H is reset
+ *     P/V is set if parity even; reset otherwise
+ *     N is reset
+ *     C is reset
+ */
+static inline void Xor(byte_t value)
+{
+    REGISTER_A ^= value;
+
+    REGISTER_F  = SignAndZeroTable[REGISTER_A]
+                | ParityTable[REGISTER_A];
+}
+
+/**
  * Register r is incremented and register r identifies any of the registers A, B,
  * C, D, E, H, or L.
  *
@@ -223,6 +277,31 @@ static inline void Dec(byte_t& m)
                | SignAndZeroTable[m]
                | (m == 0x7f ? V_FLAG : 0)
                | ((m &  0x0f) == 0x0f ? H_FLAG : 0);
+}
+
+
+//----------------------------------------------------------------------------
+//- General-Purpose Arithmetic and CPU Control Groups
+//----------------------------------------------------------------------------
+
+/**
+ * The contents of the Accumulator (register A) are inverted (one’s complement).
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is set
+ *     P/V is not affected
+ *     N is set
+ *     C is not affected
+ */
+static inline void Cpl()
+{
+    REGISTER_A ^= 0xff;
+
+    REGISTER_F = (REGISTER_F & (S_FLAG  | Z_FLAG | P_FLAG | C_FLAG))
+               | H_FLAG
+               | N_FLAG;
 }
 
 
@@ -281,4 +360,27 @@ static inline void Jump()
 static inline void JumpRelative()
 {
     REGISTER_PC += static_cast<offset_t>(ReadByteFromMemory(REGISTER_PC)) + 1;
+}
+
+
+//----------------------------------------------------------------------------
+//- Call and Return Group
+//----------------------------------------------------------------------------
+
+/**
+ * TODO: description missing
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Call()
+{
+    // retrieve address of subroutine
+    byte_t low  = ReadByteFromMemory(REGISTER_PC++);
+    byte_t high = ReadByteFromMemory(REGISTER_PC++);
+
+    // store current PC for return
+    Push(REGISTER_PC);
+
+    // jump to subroutine
+    REGISTER_PC = WORD(low, high);
 }
