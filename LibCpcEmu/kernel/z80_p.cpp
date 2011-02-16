@@ -43,37 +43,24 @@ static inline void WriteByteToMemory(word_t address, byte_t value)
 //- 8-Bit Load Group
 //----------------------------------------------------------------------------
 
-/**
- * The 8-bit integer n is loaded to any register r, where r identifies register A,
- * B, C, D, E, H, or L.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadByteToReg(byte_t& reg)
+static inline void Load(byte_t& destination, byte_t source)
 {
-    reg = ReadByteFromMemory(REGISTER_PC++);
+    destination = source;
 }
 
-/**
- * The contents of the Accumulator are loaded to the memory address specified by the
- * operand nn.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadAccumulatorToMem(word_t nn)
+static inline byte_t ConstantByte()
 {
-    Memory::ram[nn] = REGISTER_A;
+    return ReadByteFromMemory(REGISTER_PC++);
 }
 
-/**
- * The contents of the memory location specified by the operands nn are loaded to
- * the Accumulator.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadAccumulatorFromMem(word_t nn)
+static inline byte_t& MemoryLocationW(word_t address)
 {
-    REGISTER_A = ReadByteFromMemory(nn);
+    return Memory::ram[address];
+}
+
+static inline byte_t MemoryLocationR(word_t address)
+{
+    return ReadByteFromMemory(address);
 }
 
 
@@ -81,16 +68,21 @@ static inline void LoadAccumulatorFromMem(word_t nn)
 //- 16-Bit Load Group
 //----------------------------------------------------------------------------
 
-/**
- * The 2-byte integer nn is loaded to the dd register pair, where dd defines the
- * BC, DE, HL, or SP register pairs.
- *
- * Condition Bits Affected: None
- */
-static inline void LoadWordToReg(register_pair_t& reg)
+static inline void Load(word_t& destination, word_t source)
 {
-    reg.low = ReadByteFromMemory(REGISTER_PC++);
-    reg.high = ReadByteFromMemory(REGISTER_PC++);
+    destination = source;
+}
+
+static inline word_t ConstantWord()
+{
+    byte_t low = ReadByteFromMemory(REGISTER_PC++);
+    byte_t high = ReadByteFromMemory(REGISTER_PC++);
+    return WORD(low, high);
+}
+
+static inline word_t MemoryLocationWordR(word_t address)
+{
+    return ReadWordFromMemory(address);
 }
 
 /**

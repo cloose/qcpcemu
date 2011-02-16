@@ -83,31 +83,41 @@ void Z80::executeOpCode()
     {
         case 0x00: /* nop */        break;
 
-        case 0x01: /* ld bc,nn */   LoadWordToReg(RegisterSet::BC); break;
-        case 0x02: /* ld (bc),a */  LoadAccumulatorToMem(REGISTER_BC); break;
+        case 0x01: /* ld bc,nn */   Load(REGISTER_BC, ConstantWord()); break;
+        case 0x02: /* ld (bc),a */  Load(MemoryLocationW(REGISTER_BC), REGISTER_A); break;
         case 0x03: /* inc bc */     Inc(REGISTER_BC); break;
         case 0x04: /* inc b */      Inc(REGISTER_B); break;
         case 0x05: /* dec b */      Dec(REGISTER_B); break;
-        case 0x06: /* ld b,n */     LoadByteToReg(REGISTER_B); break;
+        case 0x06: /* ld b,n */     Load(REGISTER_B, ConstantByte()); break;
         case 0x08: /* ex af,af' */  qSwap(REGISTER_AF, REGISTER_AF1); break;
-        case 0x0a: /* ld a,(bc) */  LoadAccumulatorFromMem(REGISTER_BC); break;
+        case 0x0a: /* ld a,(bc) */  Load(REGISTER_A, MemoryLocationR(REGISTER_BC)); break;
         case 0x0b: /* dec bc */     Dec(REGISTER_BC); break;
         case 0x0c: /* inc c */      Inc(REGISTER_C); break;
         case 0x0d: /* dec c */      Dec(REGISTER_C); break;
-        case 0x0e: /* ld c,n */     LoadByteToReg(REGISTER_C); break;
+        case 0x0e: /* ld c,n */     Load(REGISTER_C, ConstantByte()); break;
 
-        case 0x11: /* ld de,nn */   LoadWordToReg(RegisterSet::DE); break;
-        case 0x12: /* ld (de),a */  LoadAccumulatorToMem(REGISTER_DE); break;
+        case 0x10: /* djnz e */
+            if( --REGISTER_B )
+            {
+                JumpRelative();
+            }
+            else
+            {
+                REGISTER_PC++;
+            }
+            break;
+        case 0x11: /* ld de,nn */   Load(REGISTER_DE, ConstantWord()); break;
+        case 0x12: /* ld (de),a */  Load(MemoryLocationW(REGISTER_DE), REGISTER_A); break;
         case 0x13: /* inc de */     Inc(REGISTER_DE); break;
         case 0x14: /* inc d */      Inc(REGISTER_D); break;
         case 0x15: /* dec d */      Dec(REGISTER_D); break;
-        case 0x16: /* ld d,n */     LoadByteToReg(REGISTER_D); break;
+        case 0x16: /* ld d,n */     Load(REGISTER_D, ConstantByte()); break;
         case 0x18: /* jr e */       JumpRelative(); break;
-        case 0x1a: /* ld a,(de) */  LoadAccumulatorFromMem(REGISTER_DE); break;
+        case 0x1a: /* ld a,(de) */  Load(REGISTER_A, MemoryLocationR(REGISTER_DE)); break;
         case 0x1b: /* dec de */     Dec(REGISTER_DE); break;
         case 0x1c: /* inc e */      Inc(REGISTER_E); break;
         case 0x1d: /* dec e */      Dec(REGISTER_E); break;
-        case 0x1e: /* ld e,n */     LoadByteToReg(REGISTER_E); break;
+        case 0x1e: /* ld e,n */     Load(REGISTER_E, ConstantByte()); break;
 
         case 0x20: /* jr nz,e */
             if( REGISTER_F & Z_FLAG )
@@ -120,28 +130,77 @@ void Z80::executeOpCode()
             }
             break;
 
-        case 0x21: /* ld hl,nn */   LoadWordToReg(RegisterSet::HL); break;
+        case 0x21: /* ld hl,nn */   Load(REGISTER_HL, ConstantWord()); break;
+        case 0x22: /* ld (nn),hl */
+            // TODO: new LoadXXX() function?
+            {
+                // retrieve address
+                byte_t low  = ReadByteFromMemory(REGISTER_PC++);
+                byte_t high = ReadByteFromMemory(REGISTER_PC++);
+                word_t address = WORD(low, high);
+
+                // store register content at address
+                WriteByteToMemory(address++, LOBYTE(REGISTER_HL));
+                WriteByteToMemory(address, HIBYTE(REGISTER_HL));
+            }
+            break;
         case 0x23: /* inc hl */     Inc(REGISTER_HL); break;
         case 0x24: /* inc h */      Inc(REGISTER_H); break;
         case 0x25: /* dec h */      Dec(REGISTER_H); break;
-        case 0x26: /* ld h,n */     LoadByteToReg(REGISTER_H); break;
+        case 0x26: /* ld h,n */     Load(REGISTER_H, ConstantByte()); break;
         case 0x2b: /* dec hl */     Dec(REGISTER_HL); break;
         case 0x2c: /* inc l */      Inc(REGISTER_L); break;
         case 0x2d: /* dec l */      Dec(REGISTER_L); break;
-        case 0x2e: /* ld l,n */     LoadByteToReg(REGISTER_L); break;
+        case 0x2e: /* ld l,n */     Load(REGISTER_L, ConstantByte()); break;
 
-        case 0x31: /* ld sp,nn */   LoadWordToReg(RegisterSet::SP); break;
+        case 0x31: /* ld sp,nn */   Load(REGISTER_SP, ConstantWord()); break;
+        case 0x32: /* ld (nn),a */  Load(MemoryLocationW(ConstantWord()), REGISTER_A); break;
         case 0x33: /* inc sp */     Inc(REGISTER_SP); break;
-        case 0x36: /* ld (hl),n */
-            // TODO: new LoadXXX() function?
-            WriteByteToMemory(REGISTER_HL, ReadByteFromMemory(REGISTER_PC++));
-            break;
+        case 0x36: /* ld (hl),n */  Load(MemoryLocationW(REGISTER_HL), ConstantByte()); break;
+        case 0x3a: /* ld a,(nn) */  Load(REGISTER_A, MemoryLocationR(ConstantWord())); break;
         case 0x3b: /* dec sp */     Dec(REGISTER_SP); break;
         case 0x3c: /* inc a */      Inc(REGISTER_A); break;
         case 0x3d: /* dec a */      Dec(REGISTER_A); break;
-        case 0x3e: /* ld a,n */     LoadByteToReg(REGISTER_A); break;
+        case 0x3e: /* ld a,n */     Load(REGISTER_A, ConstantByte()); break;
 
-        case 0x7e: /* ld a,(hl) */  LoadAccumulatorFromMem(REGISTER_HL); break;
+        case 0x40: /* ld b,b */     Load(REGISTER_B, REGISTER_B); break;
+        case 0x41: /* ld b,c */     Load(REGISTER_B, REGISTER_C); break;
+        case 0x42: /* ld b,d */     Load(REGISTER_B, REGISTER_D); break;
+        case 0x43: /* ld b,e */     Load(REGISTER_B, REGISTER_E); break;
+        case 0x44: /* ld b,h */     Load(REGISTER_B, REGISTER_H); break;
+        case 0x45: /* ld b,l */     Load(REGISTER_B, REGISTER_L); break;
+        case 0x46: /* ld b,(hl) */  Load(REGISTER_B, MemoryLocationR(REGISTER_HL)); break;
+        case 0x47: /* ld b,a */     Load(REGISTER_B, REGISTER_A); break;
+
+        case 0x48: /* ld c,b */     Load(REGISTER_C, REGISTER_B); break;
+        case 0x49: /* ld c,c */     Load(REGISTER_C, REGISTER_C); break;
+        case 0x4a: /* ld c,d */     Load(REGISTER_C, REGISTER_D); break;
+        case 0x4b: /* ld c,e */     Load(REGISTER_C, REGISTER_E); break;
+        case 0x4c: /* ld c,h */     Load(REGISTER_C, REGISTER_H); break;
+        case 0x4d: /* ld c,l */     Load(REGISTER_C, REGISTER_L); break;
+        case 0x4e: /* ld c,(hl) */  Load(REGISTER_C, MemoryLocationR(REGISTER_HL)); break;
+        case 0x4f: /* ld c,a */     Load(REGISTER_C, REGISTER_A); break;
+
+        case 0x50: /* ld d,b */     Load(REGISTER_D, REGISTER_B); break;
+        case 0x51: /* ld d,c */     Load(REGISTER_D, REGISTER_C); break;
+        case 0x52: /* ld d,d */     Load(REGISTER_D, REGISTER_D); break;
+        case 0x53: /* ld d,e */     Load(REGISTER_D, REGISTER_E); break;
+        case 0x54: /* ld d,h */     Load(REGISTER_D, REGISTER_H); break;
+        case 0x55: /* ld d,l */     Load(REGISTER_D, REGISTER_L); break;
+        case 0x56: /* ld d,(hl) */  Load(REGISTER_D, MemoryLocationR(REGISTER_HL)); break;
+        case 0x57: /* ld d,a */     Load(REGISTER_D, REGISTER_A); break;
+
+        case 0x58: /* ld e,b */     Load(REGISTER_E, REGISTER_B); break;
+        case 0x59: /* ld e,c */     Load(REGISTER_E, REGISTER_C); break;
+        case 0x5a: /* ld e,d */     Load(REGISTER_E, REGISTER_D); break;
+        case 0x5b: /* ld e,e */     Load(REGISTER_E, REGISTER_E); break;
+        case 0x5c: /* ld e,h */     Load(REGISTER_E, REGISTER_H); break;
+        case 0x5d: /* ld e,l */     Load(REGISTER_E, REGISTER_L); break;
+        case 0x5e: /* ld e,(hl) */  Load(REGISTER_E, MemoryLocationR(REGISTER_HL)); break;
+        case 0x5f: /* ld e,a */     Load(REGISTER_E, REGISTER_A); break;
+
+        case 0x77: /* ld (hl),a */  Load(MemoryLocationW(REGISTER_HL), REGISTER_A); break;
+        case 0x7e: /* ld a,(hl) */  Load(REGISTER_A, MemoryLocationR(REGISTER_HL)); break;
 
         case 0xaf: /* xor a */      REGISTER_A = 0; REGISTER_F = P_FLAG|Z_FLAG; break;
         case 0xc3: /* jp nn */      Jump(); break;
@@ -187,6 +246,7 @@ void Z80::executeOpCodeED()
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
+        case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord()));
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
         case 0x78: /* in a,(c) */
             REGISTER_A = emitInputRequest(REGISTER_BC);
