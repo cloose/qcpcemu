@@ -170,6 +170,32 @@ static inline void Ldi()
 //----------------------------------------------------------------------------
 
 /**
+ * The s operand is subtracted from the contents of the Accumulator, and the
+ * result is stored in the Accumulator.
+ * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ *
+ * Condition Bits Affected:
+ *     S is set if result is negative; reset otherwise
+ *     Z is set if result is zero; reset otherwise
+ *     H is set if borrow from bit 4; reset otherwise
+ *     P/V is set if overflow; reset otherwise
+ *     N is set
+ *     C is set if borrow; reset otherwise
+ */
+static inline void Sub(byte_t s)
+{
+    word_t result = REGISTER_A - s;
+
+    REGISTER_F = ((REGISTER_A ^ s) & (REGISTER_A ^ LOBYTE(result)) & 0x80 ? V_FLAG : 0)
+               | N_FLAG
+               | -HIBYTE(result)
+               | SignAndZeroTable[LOBYTE(result)]
+               | ((REGISTER_A ^ s ^ LOBYTE(result)) & H_FLAG);
+
+    REGISTER_A = LOBYTE(result);
+}
+
+/**
  * A logical AND operation is performed between the byte specified by the s operand
  * and the byte contained in the Accumulator; the result is stored in the Accumulator.
  * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
@@ -310,6 +336,28 @@ static inline void Cpl()
 //----------------------------------------------------------------------------
 
 /**
+ * TODO: missing description
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is set if carry out of bit 11; reset otherwise
+ *     P/V is not affected
+ *     N is reset
+ *     C is set if carry from bit 15; reset otherwise
+ */
+static inline void Add(word_t destination, word_t source)
+{
+    dword_t result = destination + source;
+
+    REGISTER_F = (REGISTER_F & (S_FLAG | Z_FLAG | V_FLAG))
+               | ((destination ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (result & 0x10000 ? C_FLAG : 0);
+
+    destination = (result & 0xffff);
+}
+
+/**
  * The contents of register pair ss (any of register pairs BC, DE, HL, or SP)
  * are incremented.
  *
@@ -329,6 +377,61 @@ static inline void Inc(word_t& ss)
 static inline void Dec(word_t& ss)
 {
     ss--;
+}
+
+
+//----------------------------------------------------------------------------
+//- Rotate and Shift Group
+//----------------------------------------------------------------------------
+
+/**
+ * The contents of the Accumulator (register A) are rotated left 1-bit position.
+ * The sign bit (bit 7) is copied to the Carry flag and also to bit 0. Bit 0 is the
+ * least-significant bit.
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is reset
+ *     P/V is not affected
+ *     N is reset
+ *     C is data from bit 7 of Accumulator
+ */
+static inline void Rlca()
+{
+    // bit 7 (sign bit) is the new carry flag
+    byte_t cf = REGISTER_A & 0x80 ? C_FLAG : 0;
+
+    // rotate left 1 bit and copy bit 7 to bit 0
+    REGISTER_A = (REGISTER_A << 1) | (REGISTER_A >> 7);
+
+    REGISTER_F = (REGISTER_F & (S_FLAG | Z_FLAG | P_FLAG))
+               | cf;
+}
+
+/**
+ * The contents of the Accumulator (register A) are rotated right 1-bit position.
+ * Bit 0 is copied to the Carry flag and also to bit 7. Bit 0 is the least-significant
+ * bit.
+ *
+ * Condition Bits Affected:
+ *     S is not affected
+ *     Z is not affected
+ *     H is reset
+ *     P/V is not affected
+ *     N is reset
+ *     C is data from bit 0 of Accumulator
+ */
+static inline void Rrca()
+{
+    // bit 0 (least-significant bit) is the new carry flag
+    byte_t cf = REGISTER_A & 0x01 ? C_FLAG : 0;
+
+    // rotate right 1 bit and copy bit 0 to bit 7
+    REGISTER_A = (REGISTER_A >> 1) | (REGISTER_A << 7);
+
+    REGISTER_F = (REGISTER_F & (S_FLAG | Z_FLAG | P_FLAG))
+               | cf;
 }
 
 
