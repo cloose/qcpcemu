@@ -12,6 +12,8 @@ class VideoController : public IoPort
 public:
     VideoController();
 
+    void run(int cycles);
+
     virtual bool in(word_t address, byte_t& value);
     virtual bool out(word_t address, byte_t value);
 

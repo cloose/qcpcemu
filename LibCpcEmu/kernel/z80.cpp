@@ -6,6 +6,7 @@
 #include "ioport.h"
 #include "memory.h"
 #include "registerset.h"
+#include "videocontroller.h"
 #include "z80_tables.h"
 
 
@@ -15,11 +16,17 @@ static const byte_t PREFIX_ED = 0xed;
 static const byte_t PREFIX_FD = 0xfd;
 
 
-Z80::Z80()
-    : m_opCode(0x00)
+Z80::Z80(VideoController* crtc)
+    : m_crtc(crtc)
+    , m_opCode(0x00)
+    , m_cycleCount(0)
+    , m_frameCycleCount(4000000/50)
     , m_interruptMode(0)
     , m_eiDelay(0)
+    , m_interruptPending(false)
+    , m_halt(false)
 {
+    reset();
 }
 
 void Z80::registerIoPort(IoPort* port)
@@ -53,6 +60,7 @@ void Z80::reset()
 void Z80::step()
 {
     m_opCode = fetchInstruction();
+    m_cycleCount = Cycles[m_opCode];
 
     switch (m_opCode)
     {
@@ -70,11 +78,67 @@ void Z80::step()
             executeOpCode();
             break;
     }
+
+    waitStates();
+
+    // after an EI instruction, we need to process
+    // one more instruction because of possible RET
+    if (m_eiDelay)
+    {
+        if (--m_eiDelay == 0)
+        {
+            RegisterSet::IFF1 = RegisterSet::IFF2 = P_FLAG; //???
+            // 300 Hz interrupt signal from gate array?
+            if (m_interruptPending)
+            {
+                interruptHandler();
+            }
+        }
+    }
+    else if (m_interruptPending)
+    {
+        interruptHandler();
+    }
+
+    if (m_frameCycleCount <= 0)
+    {
+        m_frameCycleCount += 4000000/50;
+    }
 }
 
 byte_t Z80::fetchInstruction()
 {
     return ReadByteFromMemory(REGISTER_PC++);
+}
+
+void Z80::waitStates()
+{
+    if (m_cycleCount)
+    {
+        m_crtc->run(m_cycleCount >> 2);
+
+        m_frameCycleCount -= m_cycleCount;
+    }
+}
+
+void Z80::interruptHandler()
+{
+    // interrupts enabled?
+    if (RegisterSet::IFF1)
+    {
+        // automatically reset interrupt flip-flops (Z80 manual p. 23)
+        RegisterSet::IFF1 = RegisterSet::IFF2 = 0;
+
+        m_interruptPending = false;
+
+        // get out of HALT instruction
+        if( m_halt )
+        {
+            m_halt = false;
+            REGISTER_PC++;
+        }
+
+    }
 }
 
 void Z80::executeOpCode()
