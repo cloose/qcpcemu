@@ -8,6 +8,15 @@ VideoController::VideoController()
 {
 }
 
+void VideoController::run(int cycles)
+{
+    while (cycles)
+    {
+
+        cycles--;
+    }
+}
+
 bool VideoController::in(word_t address, byte_t& value)
 {
     bool handled = false;

@@ -67,7 +67,7 @@ void CpcSystemPrivate::setupHardware()
 
     videoController = new VideoController();
 
-    cpu = new Z80();
+    cpu = new Z80(videoController);
     cpu->registerIoPort(gateArray);
     cpu->registerIoPort(ioController);
     cpu->registerIoPort(videoController);
