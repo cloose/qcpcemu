@@ -19,4 +19,5 @@ SOURCES += \
     kernel/iocontroller.cpp \
     kernel/z80_p.cpp \
     kernel/memory.cpp \
-    kernel/videocontroller.cpp
+    kernel/videocontroller.cpp \
+    kernel/videocontroller_p.cpp
