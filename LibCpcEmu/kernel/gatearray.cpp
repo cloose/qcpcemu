@@ -6,6 +6,8 @@
 
 
 GateArray::GateArray()
+    : m_currentPen(0)
+    , m_scanlineCounter(0)
 {
 }
 
@@ -27,6 +29,16 @@ bool GateArray::out(word_t address, byte_t value)
         // bit 7 and 6 define the function selected
         switch (value & 0xc0)
         {
+            // bit 7 = 0, bit 6 = 0: select pen
+            case 0x00:
+                selectPen(value);
+                break;
+
+            // bit 7 = 0, bit 6 = 1: select color
+            case 0x40:
+                selectColorForPen(value);
+                break;
+
             // bit 7 = 1, bit 6 = 0: select screen mode, rom configuration and interrupt control
             case 0x80:
                 setRomConfiguration(value);
@@ -42,6 +54,23 @@ bool GateArray::out(word_t address, byte_t value)
     }
 
     return handled;
+}
+
+void GateArray::selectPen(byte_t value)
+{
+    // bit 4 set --> change border ink
+    if( value & 0x10 )
+        m_currentPen = 16;
+    else
+        m_currentPen = value & 0x0f;
+
+    qDebug() << "[GA  ] select pen" << m_currentPen;
+}
+
+void GateArray::selectColorForPen(byte_t value)
+{
+    m_inkValues[m_currentPen] = value & 0x1f;
+    qDebug() << "[GA  ] select color" << m_inkValues[m_currentPen] << "for pen" << m_currentPen;
 }
 
 void GateArray::setRomConfiguration(byte_t value)

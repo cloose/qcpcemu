@@ -26,6 +26,7 @@ private:
     void executeOpCode();
     void executeOpCodeCB();
     void executeOpCodeED();
+    void executeOpCodeXX(word_t& destinationRegister);
 
     byte_t emitInputRequest(word_t address);
     void emitOutputRequest(word_t address, byte_t value);

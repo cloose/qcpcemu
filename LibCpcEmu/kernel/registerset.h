@@ -21,6 +21,10 @@ struct LIBCPCEMUSHARED_EXPORT RegisterSet
                            DE1, // 16-bit register pair containing D and E
                            HL1; // 16-bit register pair containing H and L
 
+    /* index registers */
+    static word_t IX,           // 16-bit Index Register X
+                  IY;           // 16-bit Index Register Y
+
     /* interrupt flip-flops */
     static byte_t IFF1,         // IFF1: used to disable interrupts
                   IFF2;         // IFF2: temporary storage for IFF1
@@ -48,6 +52,9 @@ struct LIBCPCEMUSHARED_EXPORT RegisterSet
 #define REGISTER_BC1 RegisterSet::BC1.pair
 #define REGISTER_DE1 RegisterSet::DE1.pair
 #define REGISTER_HL1 RegisterSet::HL1.pair
+
+#define REGISTER_IX RegisterSet::IX
+#define REGISTER_IY RegisterSet::IY
 
 // macros for the flag register
 #define S_FLAG 0x80     // sign flag      (1: result negative)

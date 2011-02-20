@@ -3,6 +3,8 @@
 
 #include "ioport.h"
 
+class VideoControllerPrivate;
+
 
 /**
  * \brief The CRTC 6845 chip in a Amstrad CPC system
@@ -11,6 +13,7 @@ class VideoController : public IoPort
 {
 public:
     VideoController();
+    virtual ~VideoController();
 
     void run(int cycles);
 
@@ -18,8 +21,10 @@ public:
     virtual bool out(word_t address, byte_t value);
 
 private:
-    quint8 m_currentRegister;
-    byte_t m_registers[18];
+    byte_t readRegisterValue();
+    void writeRegisterValue(byte_t value);
+
+    VideoControllerPrivate* const d;
 };
 
 #endif // VIDEOCONTROLLER_H
