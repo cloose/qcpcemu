@@ -13,5 +13,8 @@ register_pair_t RegisterSet::BC1;
 register_pair_t RegisterSet::DE1;
 register_pair_t RegisterSet::HL1;
 
+word_t RegisterSet::IX;
+word_t RegisterSet::IY;
+
 byte_t RegisterSet::IFF1;
 byte_t RegisterSet::IFF2;
