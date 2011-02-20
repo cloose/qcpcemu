@@ -612,6 +612,43 @@ static inline void Srl(byte_t& m)
 
 
 //----------------------------------------------------------------------------
+//- Bit Set, Reset, and Test Group
+//----------------------------------------------------------------------------
+
+/**
+ * TODO: description missing
+ */
+static inline void Bit(byte_t bit, byte_t value)
+{
+    REGISTER_F = (REGISTER_F & ~(N_FLAG|Z_FLAG))
+               | H_FLAG
+               | (value & (1 << bit) ? 0 : Z_FLAG);
+}
+
+
+/**
+ * TODO: description missing
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Set(byte_t bit, byte_t& value)
+{
+    value |= (1 << bit);
+}
+
+
+/**
+ * TODO: description missing
+ *
+ * Condition Bits Affected: None
+ */
+static inline void Res(byte_t bit, byte_t& value)
+{
+    value &= ~(1 << bit);
+}
+
+
+//----------------------------------------------------------------------------
 //- Jump Group
 //----------------------------------------------------------------------------
 
