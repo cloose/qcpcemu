@@ -14,10 +14,12 @@ INCLUDEPATH += ..\LibCpcEmu \
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    debugform.cpp
+    debugform.cpp \
+    screenwidget.cpp
 
 HEADERS  += mainwindow.h \
-    debugform.h
+    debugform.h \
+    screenwidget.h
 
 FORMS    += mainwindow.ui \
     debugform.ui
