@@ -700,3 +700,15 @@ static inline void Call()
     // jump to subroutine
     REGISTER_PC = WORD(low, high);
 }
+
+/**
+ * TODO: missing description
+ */
+static inline void Rst(word_t address)
+{
+    // store current PC on stack
+    Push(REGISTER_PC);
+
+    // continue execution at restart address
+    REGISTER_PC = address;
+}

@@ -259,6 +259,20 @@ void Z80::executeOpCode()
         case 0x31: /* ld sp,nn */   Load(REGISTER_SP, ConstantWord()); break;
         case 0x32: /* ld (nn),a */  Load(MemoryLocationW(ConstantWord()), REGISTER_A); break;
         case 0x33: /* inc sp */     Inc(REGISTER_SP); break;
+        case 0x34: /* inc (hl) */
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Inc(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x35: /* dec (hl) */
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Dec(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
         case 0x36: /* ld (hl),n */  Load(MemoryLocationW(REGISTER_HL), ConstantByte()); break;
         case 0x37: /* scf */
             SetFlag(C_FLAG);
@@ -361,6 +375,24 @@ void Z80::executeOpCode()
         case 0x86: /* add a,(hl) */ Add(MemoryLocationR(REGISTER_HL)); break;
         case 0x87: /* add a,a */    Add(REGISTER_A); break;
 
+        case 0x90: /* sub b */      Sub(REGISTER_B); break;
+        case 0x91: /* sub c */      Sub(REGISTER_C); break;
+        case 0x92: /* sub d */      Sub(REGISTER_D); break;
+        case 0x93: /* sub e */      Sub(REGISTER_E); break;
+        case 0x94: /* sub h */      Sub(REGISTER_H); break;
+        case 0x95: /* sub l */      Sub(REGISTER_L); break;
+        case 0x96: /* sub (hl) */   Sub(MemoryLocationR(REGISTER_HL)); break;
+        case 0x97: /* sub a */      Sub(REGISTER_A); break;
+
+        case 0x98: /* sbc b */      Sbc(REGISTER_B); break;
+        case 0x99: /* sbc c */      Sbc(REGISTER_C); break;
+        case 0x9a: /* sbc d */      Sbc(REGISTER_D); break;
+        case 0x9b: /* sbc e */      Sbc(REGISTER_E); break;
+        case 0x9c: /* sbc h */      Sbc(REGISTER_H); break;
+        case 0x9d: /* sbc l */      Sbc(REGISTER_L); break;
+        case 0x9e: /* sbc (hl) */   Sbc(MemoryLocationR(REGISTER_HL)); break;
+        case 0x9f: /* sbc a */      Sbc(REGISTER_A); break;
+
         case 0xa0: /* and b */      And(REGISTER_B); break;
         case 0xa1: /* and c */      And(REGISTER_C); break;
         case 0xa2: /* and d */      And(REGISTER_D); break;
@@ -415,8 +447,19 @@ void Z80::executeOpCode()
             }
             break;
         case 0xc3: /* jp nn */      Jump(); break;
+        case 0xc4: /* call nz,nn */
+            if (REGISTER_F & Z_FLAG)
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Call();
+            }
+            break;
         case 0xc5: /* push bc */    Push(REGISTER_BC); break;
         case 0xc6: /* add a,n */    Add(ConstantByte()); break;
+        case 0xc7: /* rst 0x00 */   Rst(0x0000); break;
         case 0xc8: /* ret z */
             if (REGISTER_F & Z_FLAG)
             {
@@ -434,7 +477,18 @@ void Z80::executeOpCode()
                 REGISTER_PC += 2;
             }
             break;
+        case 0xcc: /* call z,nn */
+            if (REGISTER_F & Z_FLAG)
+            {
+                Call();
+            }
+            else
+            {
+                REGISTER_PC += 2;
+            }
+            break;
         case 0xcd: /* call nn */    Call(); break;
+        case 0xcf: /* rst 0x08 */   Rst(0x0008); break;
 
         case 0xd0: /* ret nc */
             if (!(REGISTER_F & C_FLAG))
@@ -443,8 +497,29 @@ void Z80::executeOpCode()
             }
             break;
         case 0xd1: /* pop de */     REGISTER_DE = Pop(); break;
+        case 0xd2: /* jp nc,nn */
+            if (REGISTER_F & C_FLAG)
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Jump();
+            }
+            break;
+        case 0xd4: /* call nc,nn */
+            if (REGISTER_F & C_FLAG)
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Call();
+            }
+            break;
         case 0xd5: /* push de */    Push(REGISTER_DE); break;
         case 0xd6: /* sub n */      Sub(ConstantByte()); break;
+        case 0xd7: /* rst 0x10 */   Rst(0x0010); break;
         case 0xd8: /* ret c */
             if (REGISTER_F & C_FLAG)
             {
@@ -452,7 +527,18 @@ void Z80::executeOpCode()
             }
             break;
         case 0xd9: /* exx */        Exx(); break;
+        case 0xda: /* jp c,nn */
+            if (REGISTER_F & C_FLAG)
+            {
+                Jump();
+            }
+            else
+            {
+                REGISTER_PC += 2;
+            }
+            break;
         case 0xde: /* sbc a,n */    Sbc(ConstantByte()); break;
+        case 0xdf: /* rst 0x18 */   Rst(0x0018); break;
 
         case 0xe1: /* pop hl */     REGISTER_HL = Pop(); break;
         case 0xe5: /* push hl */    Push(REGISTER_HL); break;
@@ -461,7 +547,7 @@ void Z80::executeOpCode()
 
         case 0xf1: /* pop af */     REGISTER_AF = Pop(); break;
         case 0xf2: /* jp p,nn */
-            if( REGISTER_F & S_FLAG )
+            if (REGISTER_F & S_FLAG)
             {
                 REGISTER_PC += 2;
             }
@@ -475,6 +561,7 @@ void Z80::executeOpCode()
         case 0xf6: /* or n */       Or(ConstantByte()); break;
         case 0xfb: /* ei */         RegisterSet::IFF1 = RegisterSet::IFF2 = 1; m_eiDelay = 2; break;
         case 0xfe: /* cp n */       Cp(ConstantByte()); break;
+        case 0xff: /* rst 0x38 */   Rst(0x0038); break;
 
         default:
             qCritical() << "[Z80 ] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
