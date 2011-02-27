@@ -23,6 +23,7 @@ private:
     byte_t m_inkValues[17];
     byte_t m_currentPen;
     byte_t m_scanlineCounter;
+    byte_t m_screenMode;
 };
 
 #endif // GATEARRAY_H
