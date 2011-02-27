@@ -8,6 +8,7 @@
 GateArray::GateArray()
     : m_currentPen(0)
     , m_scanlineCounter(0)
+    , m_screenMode(0)
 {
 }
 
@@ -76,6 +77,11 @@ void GateArray::selectColorForPen(byte_t value)
 void GateArray::setRomConfiguration(byte_t value)
 {
     Memory memory;
+
+    // bit 0 & 1: screen mode selection
+    m_screenMode = value & 0x03;
+
+    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
 
     // bit 2: 0=enabled 1=disabled
     bool lowerRomEnabled = !(value & 0x04);
