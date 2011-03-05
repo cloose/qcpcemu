@@ -494,6 +494,7 @@ void Z80::executeOpCode()
             }
             break;
         case 0xcd: /* call nn */    Call(); break;
+        case 0xce: /* adc a,n */    Adc(ConstantByte()); break;
         case 0xcf: /* rst 0x08 */   Rst(0x0008); break;
 
         case 0xd0: /* ret nc */
@@ -557,6 +558,17 @@ void Z80::executeOpCode()
         case 0xdf: /* rst 0x18 */   Rst(0x0018); break;
 
         case 0xe1: /* pop hl */     REGISTER_HL = Pop(); break;
+        case 0xe3: /* ex (sp),hl */
+             {
+                 quint8 low  = ReadByteFromMemory(REGISTER_SP);
+                 WriteByteToMemory(REGISTER_SP++, REGISTER_L);
+
+                 quint8 high = ReadByteFromMemory(REGISTER_SP);
+                 WriteByteToMemory(REGISTER_SP--, REGISTER_H);
+
+                 REGISTER_HL = WORD(low, high);
+             }
+             break;
         case 0xe5: /* push hl */    Push(REGISTER_HL); break;
         case 0xe6: /* and n */      And(ConstantByte()); break;
         case 0xe7: /* rst 0x20 */   Rst(0x0020); break;
@@ -1048,6 +1060,7 @@ void Z80::executeOpCodeED()
     {
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
         case 0x53: /* ld (nn),de */
             // TODO: new LoadXXX() function?
             {
@@ -1064,6 +1077,19 @@ void Z80::executeOpCodeED()
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
         case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
+        case 0x73: /* ld (nn),sp */
+            // TODO: new LoadXXX() function?
+            {
+                // retrieve address
+                byte_t low  = ReadByteFromMemory(REGISTER_PC++);
+                byte_t high = ReadByteFromMemory(REGISTER_PC++);
+                word_t address = WORD(low, high);
+
+                // store register content at address
+                WriteByteToMemory(address++, LOBYTE(REGISTER_SP));
+                WriteByteToMemory(address, HIBYTE(REGISTER_SP));
+            }
+            break;
         case 0x78: /* in a,(c) */
             REGISTER_A = emitInputRequest(REGISTER_BC);
             REGISTER_F = (REGISTER_F & C_FLAG)
@@ -1071,6 +1097,7 @@ void Z80::executeOpCodeED()
                        | ParityTable[REGISTER_A];
             break;
         case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
+        case 0x7b: /* ld sp,(nn) */ Load(REGISTER_SP, MemoryLocationWordR(ConstantWord())); break;
         case 0xb0: /* ldir */
             Ldi();
 
