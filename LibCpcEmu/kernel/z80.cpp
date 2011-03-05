@@ -604,6 +604,16 @@ void Z80::executeOpCode()
             }
             break;
         case 0xfb: /* ei */         RegisterSet::IFF1 = RegisterSet::IFF2 = 1; m_eiDelay = 2; break;
+        case 0xfc: /* call m,nn */
+            if (REGISTER_F & S_FLAG)
+            {
+                Call();
+            }
+            else
+            {
+                REGISTER_PC += 2;
+            }
+            break;
         case 0xfe: /* cp n */       Cp(ConstantByte()); break;
         case 0xff: /* rst 0x38 */   Rst(0x0038); break;
 
@@ -638,6 +648,66 @@ void Z80::executeOpCodeCB()
         case 0x0b: /* rrc e */      Rrc(REGISTER_E); break;
         case 0x0c: /* rrc h */      Rrc(REGISTER_H); break;
         case 0x0d: /* rrc l */      Rrc(REGISTER_L); break;
+
+        case 0x10: Rl(REGISTER_B); break;
+        case 0x11: Rl(REGISTER_C); break;
+        case 0x12: Rl(REGISTER_D); break;
+        case 0x13: Rl(REGISTER_E); break;
+        case 0x14: Rl(REGISTER_H); break;
+        case 0x15: Rl(REGISTER_L); break;
+        case 0x16: // rl (hl)
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Rl(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x17: Rl(REGISTER_A); break;
+
+        case 0x18: Rr(REGISTER_B); break;
+        case 0x19: Rr(REGISTER_C); break;
+        case 0x1a: Rr(REGISTER_D); break;
+        case 0x1b: Rr(REGISTER_E); break;
+        case 0x1c: Rr(REGISTER_H); break;
+        case 0x1d: Rr(REGISTER_L); break;
+        case 0x1e: // rr (hl)
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Rr(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x1f: Rr(REGISTER_A);  break;
+
+        case 0x20: Sla(REGISTER_B); break;
+        case 0x21: Sla(REGISTER_C); break;
+        case 0x22: Sla(REGISTER_D); break;
+        case 0x23: Sla(REGISTER_E); break;
+        case 0x24: Sla(REGISTER_H); break;
+        case 0x25: Sla(REGISTER_L); break;
+        case 0x26: // sla (hl)
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Sla(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x27: Sla(REGISTER_A); break;
+
+        case 0x28: Sra(REGISTER_B); break;
+        case 0x29: Sra(REGISTER_C); break;
+        case 0x2a: Sra(REGISTER_D); break;
+        case 0x2b: Sra(REGISTER_E); break;
+        case 0x2c: Sra(REGISTER_H); break;
+        case 0x2d: Sra(REGISTER_L); break;
+        case 0x2e: // sra (hl)
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Sra(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x2f: Sra(REGISTER_A); break;
 
         case 0x38: /* srl b */      Srl(REGISTER_B); break;
         case 0x39: /* srl c */      Srl(REGISTER_C); break;

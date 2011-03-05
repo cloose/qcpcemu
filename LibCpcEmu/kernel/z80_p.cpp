@@ -624,6 +624,26 @@ static inline void Rlc(byte_t& reg)
 /**
  * TODO: missing description
  */
+static inline void Rl(byte_t& reg)
+{
+    if( reg & 0x80 )
+    {
+        reg = (reg << 1) | (REGISTER_F & C_FLAG);
+        REGISTER_F = C_FLAG
+                                 | SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+    else
+    {
+        reg = (reg << 1) | (REGISTER_F & C_FLAG);
+        REGISTER_F = SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+}
+
+/**
+ * TODO: missing description
+ */
 static inline void Rrc(byte_t& reg)
 {
     REGISTER_F = reg & 0x01;
@@ -632,6 +652,52 @@ static inline void Rrc(byte_t& reg)
 
     REGISTER_F |= SignAndZeroTable[reg]
                | ParityTable[reg];
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Rr(byte_t& reg)
+{
+    if( reg & 0x01 )
+    {
+        reg = (reg >> 1) | (REGISTER_F << 7);
+        REGISTER_F = C_FLAG
+                                 | SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+    else
+    {
+        reg = (reg >> 1) | (REGISTER_F << 7);
+        REGISTER_F = SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Sla(byte_t& reg)
+{
+    REGISTER_F = reg >> 7;
+
+    reg <<= 1;
+
+    REGISTER_F |= SignAndZeroTable[reg]
+                             | ParityTable[reg];
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Sra(byte_t& reg)
+{
+    REGISTER_F = reg & C_FLAG;
+
+    reg = (reg >> 1) | (reg & 0x80);
+
+    REGISTER_F |= SignAndZeroTable[reg]
+                             | ParityTable[reg];
 }
 
 /**
