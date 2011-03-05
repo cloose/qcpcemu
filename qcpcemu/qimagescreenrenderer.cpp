@@ -145,13 +145,17 @@ void QImageScreenRenderer::drawMode1(byte_t displayByte1, byte_t displayByte2)
 
     for (int pixel = 0; pixel < 4; ++pixel)
     {
-        m_scanLine[m_xpos++] = m_inks[mode1[displayByte1]];
+        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
+        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
 
-        m_scanLine[m_xpos++] = m_inks[mode1[displayByte1]];
+        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
+        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
 
         displayByte1 <<= 1;
         displayByte2 <<= 1;
     }
+
+    m_xpos += 8;
 }
 
 void QImageScreenRenderer::drawMode2(byte_t displayByte1, byte_t displayByte2)
