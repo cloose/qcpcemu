@@ -3,11 +3,13 @@
 #include <QDebug>
 
 
-IoController::IoController()
-    : m_portA(0x00)
+IoController::IoController(QObject* parent)
+    : QObject(parent)
+    , m_portA(0x00)
     , m_portB(0x00)
     , m_portC(0x00)
     , m_control(0x00)
+    , m_vsyncActive(false)
 {
 }
 
@@ -35,6 +37,10 @@ bool IoController::in(word_t address, byte_t& value)
             if (m_control & 0x02)   // port B set to input?
             {
                 // TODO: missing implementation
+                // TODO: make manufacturer and screen refresh rate variable
+                m_portB = m_vsyncActive
+                        | SCHNEIDER
+                        | (Refresh50Hz << 4);
                 value = m_portB;
             }
             else
@@ -111,6 +117,7 @@ bool IoController::out(word_t address, byte_t value)
             else
             {
                 // TODO
+                qDebug() << "[PPI ] MISSING IMPLEMENTATION";
             }
             break;
     }
@@ -121,4 +128,9 @@ bool IoController::out(word_t address, byte_t value)
     }
 
     return handled;
+}
+
+void IoController::vSync(bool active)
+{
+    m_vsyncActive = active;
 }

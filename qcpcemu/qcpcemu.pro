@@ -15,11 +15,13 @@ INCLUDEPATH += ..\LibCpcEmu \
 SOURCES += main.cpp\
         mainwindow.cpp \
     debugform.cpp \
-    screenwidget.cpp
+    screenwidget.cpp \
+    qimagescreenrenderer.cpp
 
 HEADERS  += mainwindow.h \
     debugform.h \
-    screenwidget.h
+    screenwidget.h \
+    qimagescreenrenderer.h
 
 FORMS    += mainwindow.ui \
     debugform.ui

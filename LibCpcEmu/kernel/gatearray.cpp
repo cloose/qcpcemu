@@ -3,13 +3,66 @@
 #include <QDebug>
 
 #include "memory.h"
+#include "screenrenderer.h"
+#include "videocontroller.h"
+#include "z80.h"
 
 
-GateArray::GateArray()
-    : m_currentPen(0)
+GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
+    : QObject(parent)
+    , m_currentPen(0)
     , m_scanlineCounter(0)
     , m_screenMode(0)
+    , m_frameCycleCount(4000000/50)
+    , m_cpu(cpu)
+    , m_crtc(crtc)
+    , m_renderer(0)
 {
+    connect(m_crtc, SIGNAL(hSync(bool)),
+            this, SLOT(hSync(bool)));
+    connect(m_crtc, SIGNAL(vSync(bool)),
+            this, SLOT(vSync(bool)));
+}
+
+void GateArray::run()
+{
+    int cycleCount = m_cpu->step();
+
+    // wait states
+    if (cycleCount)
+    {
+        int cycles = cycleCount >> 2;
+        while (cycles)
+        {
+            m_crtc->run();
+            word_t videoAddress = ((m_crtc->memoryAddress() & 0x3000) << 2)  // MA13 & MA12
+                                | ((m_crtc->rowAddress() & 0x07) << 11)      // RA2 - RA0
+                                | ((m_crtc->memoryAddress() & 0x03ff) << 1); // MA9 - MA0
+
+            byte_t displayByte1 = Memory::ram[videoAddress++];
+            byte_t displayByte2 = Memory::ram[videoAddress];
+
+            if (m_renderer)
+            {
+                m_renderer->draw(displayByte1, displayByte2);
+            }
+
+            cycles--;
+        }
+        m_frameCycleCount -= cycleCount;
+    }
+
+    m_cpu->checkInterrupt();
+
+    if (m_frameCycleCount <= 0)
+    {
+        m_frameCycleCount += 4000000/50;
+    }
+}
+
+void GateArray::setRenderer(ScreenRenderer* renderer)
+{
+    m_renderer = renderer;
 }
 
 bool GateArray::in(word_t address, byte_t& value)
@@ -57,6 +110,27 @@ bool GateArray::out(word_t address, byte_t value)
     return handled;
 }
 
+void GateArray::hSync(bool active)
+{
+    if (active)
+    {
+        m_scanlineCounter++;
+
+        if (m_scanlineCounter >= 52)
+        {
+            m_cpu->setInterruptPending();
+            m_scanlineCounter = 0;
+        }
+
+        m_renderer->hSync();
+    }
+}
+
+void GateArray::vSync(bool active)
+{
+    m_renderer->vSync(active);
+}
+
 void GateArray::selectPen(byte_t value)
 {
     // bit 4 set --> change border ink
@@ -96,4 +170,11 @@ void GateArray::setRomConfiguration(byte_t value)
                                        : memory.ram + 0xc000;
 
     qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
+
+    // bit 4: 1=clear scan line counter
+    if (value & 0x10)
+    {
+        m_scanlineCounter = 0;
+        qDebug() << "[GA  ] clear scan line counter to delay interrupt generation";
+    }
 }

@@ -61,13 +61,17 @@ void CpcSystemPrivate::setupHardware()
     memory.blocks[2] = memory.ram + 0x8000;
     memory.blocks[3] = memory.basicRom;
 
-    gateArray = new GateArray();
-
     ioController = new IoController();
 
     videoController = new VideoController();
 
-    cpu = new Z80(videoController);
+    QObject::connect(videoController, SIGNAL(vSync(bool)),
+                     ioController, SLOT(vSync(bool)));
+
+    cpu = new Z80();
+
+    gateArray = new GateArray(cpu, videoController);
+
     cpu->registerIoPort(gateArray);
     cpu->registerIoPort(ioController);
     cpu->registerIoPort(videoController);

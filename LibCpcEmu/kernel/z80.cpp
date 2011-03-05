@@ -6,7 +6,6 @@
 #include "ioport.h"
 #include "memory.h"
 #include "registerset.h"
-#include "videocontroller.h"
 #include "z80_tables.h"
 
 
@@ -16,11 +15,9 @@ static const byte_t PREFIX_ED = 0xed;
 static const byte_t PREFIX_FD = 0xfd;
 
 
-Z80::Z80(VideoController* crtc)
-    : m_crtc(crtc)
-    , m_opCode(0x00)
+Z80::Z80()
+    : m_opCode(0x00)
     , m_cycleCount(0)
-    , m_frameCycleCount(4000000/50)
     , m_interruptMode(0)
     , m_eiDelay(0)
     , m_interruptPending(false)
@@ -57,7 +54,7 @@ void Z80::reset()
     m_interruptMode = 0;
 }
 
-void Z80::step()
+int Z80::step()
 {
     m_opCode = fetchInstruction();
     m_cycleCount = Cycles[m_opCode];
@@ -89,8 +86,11 @@ void Z80::step()
             break;
     }
 
-    waitStates();
+    return m_cycleCount;
+}
 
+void Z80::checkInterrupt()
+{
     // after an EI instruction, we need to process
     // one more instruction because of possible RET
     if (m_eiDelay)
@@ -109,26 +109,16 @@ void Z80::step()
     {
         interruptHandler();
     }
+}
 
-    if (m_frameCycleCount <= 0)
-    {
-        m_frameCycleCount += 4000000/50;
-    }
+void Z80::setInterruptPending()
+{
+    m_interruptPending = true;
 }
 
 byte_t Z80::fetchInstruction()
 {
     return ReadByteFromMemory(REGISTER_PC++);
-}
-
-void Z80::waitStates()
-{
-    if (m_cycleCount)
-    {
-        m_crtc->run(m_cycleCount >> 2);
-
-        m_frameCycleCount -= m_cycleCount;
-    }
 }
 
 void Z80::interruptHandler()
@@ -148,6 +138,12 @@ void Z80::interruptHandler()
             REGISTER_PC++;
         }
 
+        switch (m_interruptMode)
+        {
+            case 1:
+                Rst(0x0038);
+                break;
+        }
     }
 }
 
@@ -239,7 +235,7 @@ void Z80::executeOpCode()
             }
             break;
         case 0x29: /* add hl,hl */  Add(REGISTER_HL, REGISTER_HL); break;
-        case 0x2a: /* ld hl,(nn) */ Load(REGISTER_HL, MemoryLocationWordR(ConstantWord()));
+        case 0x2a: /* ld hl,(nn) */ Load(REGISTER_HL, MemoryLocationWordR(ConstantWord())); break;
         case 0x2b: /* dec hl */     Dec(REGISTER_HL); break;
         case 0x2c: /* inc l */      Inc(REGISTER_L); break;
         case 0x2d: /* dec l */      Dec(REGISTER_L); break;
@@ -543,7 +539,10 @@ void Z80::executeOpCode()
         case 0xe1: /* pop hl */     REGISTER_HL = Pop(); break;
         case 0xe5: /* push hl */    Push(REGISTER_HL); break;
         case 0xe6: /* and n */      And(ConstantByte()); break;
+        case 0xe7: /* rst 0x20 */   Rst(0x0020); break;
+        case 0xe9: /* jp (hl) */    REGISTER_PC = REGISTER_HL; break;
         case 0xeb: /* ex de,hl */   qSwap(REGISTER_DE, REGISTER_HL); break;
+        case 0xef: /* rst 0x28 */   Rst(0x0028); break;
 
         case 0xf1: /* pop af */     REGISTER_AF = Pop(); break;
         case 0xf2: /* jp p,nn */
@@ -559,6 +558,17 @@ void Z80::executeOpCode()
         case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
         case 0xf5: /* push af */    Push(REGISTER_AF); break;
         case 0xf6: /* or n */       Or(ConstantByte()); break;
+        case 0xf9: /* ld sp,hl */   Load(REGISTER_SP, REGISTER_HL); break;
+        case 0xfa: /* jp m,nn */
+            if (REGISTER_F & S_FLAG)
+            {
+                Jump();
+            }
+            else
+            {
+                REGISTER_PC += 2;
+            }
+            break;
         case 0xfb: /* ei */         RegisterSet::IFF1 = RegisterSet::IFF2 = 1; m_eiDelay = 2; break;
         case 0xfe: /* cp n */       Cp(ConstantByte()); break;
         case 0xff: /* rst 0x38 */   Rst(0x0038); break;
@@ -573,6 +583,28 @@ void Z80::executeOpCodeCB()
 {
     switch (m_opCode)
     {
+        case 0x00: /* rlc b */      Rlc(REGISTER_B); break;
+        case 0x01: /* rlc c */      Rlc(REGISTER_C); break;
+        case 0x02: /* rlc d */      Rlc(REGISTER_D); break;
+        case 0x03: /* rlc e */      Rlc(REGISTER_E); break;
+        case 0x04: /* rlc h */      Rlc(REGISTER_H); break;
+        case 0x05: /* rlc l */      Rlc(REGISTER_L); break;
+        case 0x06: /* rlc (hl) */
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Rlc(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x07: /* rlc a */      Rlc(REGISTER_A); break;
+
+        case 0x08: /* rrc b */      Rrc(REGISTER_B); break;
+        case 0x09: /* rrc c */      Rrc(REGISTER_C); break;
+        case 0x0a: /* rrc d */      Rrc(REGISTER_D); break;
+        case 0x0b: /* rrc e */      Rrc(REGISTER_E); break;
+        case 0x0c: /* rrc h */      Rrc(REGISTER_H); break;
+        case 0x0d: /* rrc l */      Rrc(REGISTER_L); break;
+
         case 0x38: /* srl b */      Srl(REGISTER_B); break;
         case 0x39: /* srl c */      Srl(REGISTER_C); break;
         case 0x3a: /* srl d */      Srl(REGISTER_D); break;
@@ -720,8 +752,21 @@ void Z80::executeOpCodeED()
     {
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case 0x53: /* ld (nn),de */
+            // TODO: new LoadXXX() function?
+            {
+                // retrieve address
+                byte_t low  = ReadByteFromMemory(REGISTER_PC++);
+                byte_t high = ReadByteFromMemory(REGISTER_PC++);
+                word_t address = WORD(low, high);
+
+                // store register content at address
+                WriteByteToMemory(address++, LOBYTE(REGISTER_DE));
+                WriteByteToMemory(address, HIBYTE(REGISTER_DE));
+            }
+            break;
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
-        case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord()));
+        case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
         case 0x78: /* in a,(c) */
             REGISTER_A = emitInputRequest(REGISTER_BC);

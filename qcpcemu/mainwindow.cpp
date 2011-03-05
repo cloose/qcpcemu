@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <QDockWidget>
+#include <QTimer>
 
 #include "cpcsystem.h"
 #include "debugform.h"
@@ -21,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
+
+    QTimer::singleShot(0, this, SLOT(delayedInit()));
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +42,11 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MainWindow::delayedInit()
+{
+    m_system->setRenderer(ui->screenWidget->renderer());
 }
 
 void MainWindow::debugRun()

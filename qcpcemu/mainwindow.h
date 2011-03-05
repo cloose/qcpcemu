@@ -23,6 +23,7 @@ protected:
     void changeEvent(QEvent *e);
 
 private slots:
+    void delayedInit();
     void debugRun();
     void debugStep();
     void setBreakpoint(quint16 address);
