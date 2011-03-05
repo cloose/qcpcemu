@@ -3,6 +3,9 @@
 
 #include <QtGui\qwidget.h>
 
+class QImageScreenRenderer;
+class ScreenRenderer;
+
 
 class ScreenWidget : public QWidget
 {
@@ -11,8 +14,14 @@ class ScreenWidget : public QWidget
 public:
     explicit ScreenWidget(QWidget* parent = 0);
 
+    ScreenRenderer* renderer() const;
+
+    virtual QSize minimumSizeHint() const;
+
 protected:
     virtual void paintEvent(QPaintEvent* event);
+
+    QImageScreenRenderer* m_renderer;
 };
 
 #endif // SCREENWIDGET_H

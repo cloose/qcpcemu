@@ -19,14 +19,21 @@ void CpcSystem::run()
 {
     do
     {
-        d->cpu->step();
+        //d->cpu->step();
+        d->gateArray->run();
     }
     while (!d->breakpoints.contains(REGISTER_PC));
 }
 
 void CpcSystem::step()
 {
-    d->cpu->step();
+//    d->cpu->step();
+    d->gateArray->run();
+}
+
+void CpcSystem::setRenderer(ScreenRenderer* renderer)
+{
+    d->gateArray->setRenderer(renderer);
 }
 
 void CpcSystem::addBreakpoint(word_t address)

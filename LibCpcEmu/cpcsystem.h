@@ -5,7 +5,7 @@
 #include "types.h"
 
 class CpcSystemPrivate;
-
+class ScreenRenderer;
 
 class LIBCPCEMUSHARED_EXPORT CpcSystem
 {
@@ -15,6 +15,8 @@ public:
 
     void run();
     void step();
+
+    void setRenderer(ScreenRenderer* renderer);
 
     void addBreakpoint(word_t address);
 
