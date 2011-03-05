@@ -181,9 +181,7 @@ static inline void Ldi()
 //----------------------------------------------------------------------------
 
 /**
- * The s operand is subtracted from the contents of the Accumulator, and the
- * result is stored in the Accumulator.
- * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ * TODO: missing description
  *
  * Condition Bits Affected:
  *     S is set if result is negative; reset otherwise
@@ -196,6 +194,31 @@ static inline void Ldi()
 static inline void Add(byte_t value)
 {
     word_t result = REGISTER_A + value;
+
+    REGISTER_F = (~(REGISTER_A ^ value) & (value ^ LOBYTE(result)) & 0x80 ? V_FLAG : 0)
+               | HIBYTE(result)
+               | SignAndZeroTable[LOBYTE(result)]
+               | ((REGISTER_A ^ value ^ LOBYTE(result)) & H_FLAG);
+
+    REGISTER_A = LOBYTE(result);
+}
+
+/**
+ * The s operand, along with the Carry Flag (C in the F register) is added to the
+ * contents of the Accumulator, and the result is stored in the Accumulator.
+ * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ *
+ * Condition Bits Affected:
+ *     S is set if result is negative; reset otherwise
+ *     Z is set if result is zero; reset otherwise
+ *     H is set if carry from bit 3; reset otherwise
+ *     P/V is set if overflow; reset otherwise
+ *     N is reset
+ *     C is set if carry from bit 7; reset otherwise
+ */
+static inline void Adc(byte_t value)
+{
+    word_t result = REGISTER_A + value + (REGISTER_F & C_FLAG);
 
     REGISTER_F = (~(REGISTER_A ^ value) & (value ^ LOBYTE(result)) & 0x80 ? V_FLAG : 0)
                | HIBYTE(result)

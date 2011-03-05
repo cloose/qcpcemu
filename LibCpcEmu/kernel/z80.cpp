@@ -1,6 +1,7 @@
 #include "z80.h"
 #include "z80_p.cpp"
 
+#include <QCoreApplication>
 #include <QDebug>
 
 #include "ioport.h"
@@ -371,6 +372,15 @@ void Z80::executeOpCode()
         case 0x86: /* add a,(hl) */ Add(MemoryLocationR(REGISTER_HL)); break;
         case 0x87: /* add a,a */    Add(REGISTER_A); break;
 
+        case 0x88: /* adc b */      Adc(REGISTER_B); break;
+        case 0x89: /* adc c */      Adc(REGISTER_C); break;
+        case 0x8a: /* adc d */      Adc(REGISTER_D); break;
+        case 0x8b: /* adc e */      Adc(REGISTER_E); break;
+        case 0x8c: /* adc h */      Adc(REGISTER_H); break;
+        case 0x8d: /* adc l */      Adc(REGISTER_L); break;
+        case 0x8e: /* adc (hl) */   Adc(MemoryLocationR(REGISTER_HL)); break;
+        case 0x8f: /* adc a */      Adc(REGISTER_A); break;
+
         case 0x90: /* sub b */      Sub(REGISTER_B); break;
         case 0x91: /* sub c */      Sub(REGISTER_C); break;
         case 0x92: /* sub d */      Sub(REGISTER_D); break;
@@ -533,6 +543,16 @@ void Z80::executeOpCode()
                 REGISTER_PC += 2;
             }
             break;
+        case 0xdc: /* call c,nn */
+            if (REGISTER_F & C_FLAG)
+            {
+                Call();
+            }
+            else
+            {
+                REGISTER_PC += 2;
+            }
+            break;
         case 0xde: /* sbc a,n */    Sbc(ConstantByte()); break;
         case 0xdf: /* rst 0x18 */   Rst(0x0018); break;
 
@@ -542,8 +562,15 @@ void Z80::executeOpCode()
         case 0xe7: /* rst 0x20 */   Rst(0x0020); break;
         case 0xe9: /* jp (hl) */    REGISTER_PC = REGISTER_HL; break;
         case 0xeb: /* ex de,hl */   qSwap(REGISTER_DE, REGISTER_HL); break;
+        case 0xee: /* xor n */      Xor(ConstantByte()); break;
         case 0xef: /* rst 0x28 */   Rst(0x0028); break;
 
+        case 0xf0: /* ret p */
+            if (!(REGISTER_F & S_FLAG))
+            {
+                REGISTER_PC = Pop();
+            }
+            break;
         case 0xf1: /* pop af */     REGISTER_AF = Pop(); break;
         case 0xf2: /* jp p,nn */
             if (REGISTER_F & S_FLAG)
@@ -558,6 +585,13 @@ void Z80::executeOpCode()
         case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
         case 0xf5: /* push af */    Push(REGISTER_AF); break;
         case 0xf6: /* or n */       Or(ConstantByte()); break;
+        case 0xf7: /* rst 0x30 */   Rst(0x0030); break;
+        case 0xf8: /* ret m */
+            if (REGISTER_F & S_FLAG)
+            {
+                REGISTER_PC = Pop();
+            }
+            break;
         case 0xf9: /* ld sp,hl */   Load(REGISTER_SP, REGISTER_HL); break;
         case 0xfa: /* jp m,nn */
             if (REGISTER_F & S_FLAG)
@@ -619,6 +653,78 @@ void Z80::executeOpCodeCB()
             }
             break;
         case 0x3f: /* srl a */      Srl(REGISTER_A); break;
+
+        case 0x40: Bit(0, REGISTER_B); break;
+        case 0x41: Bit(0, REGISTER_C); break;
+        case 0x42: Bit(0, REGISTER_D); break;
+        case 0x43: Bit(0, REGISTER_E); break;
+        case 0x44: Bit(0, REGISTER_H); break;
+        case 0x45: Bit(0, REGISTER_L); break;
+        case 0x46: Bit(0, MemoryLocationR(REGISTER_HL)); break;
+        case 0x47: Bit(0, REGISTER_A); break;
+
+        case 0x48: Bit(1, REGISTER_B); break;
+        case 0x49: Bit(1, REGISTER_C); break;
+        case 0x4a: Bit(1, REGISTER_D); break;
+        case 0x4b: Bit(1, REGISTER_E); break;
+        case 0x4c: Bit(1, REGISTER_H); break;
+        case 0x4d: Bit(1, REGISTER_L); break;
+        case 0x4e: Bit(1, MemoryLocationR(REGISTER_HL)); break;
+        case 0x4f: Bit(1, REGISTER_A); break;
+
+        case 0x50: Bit(2, REGISTER_B); break;
+        case 0x51: Bit(2, REGISTER_C); break;
+        case 0x52: Bit(2, REGISTER_D); break;
+        case 0x53: Bit(2, REGISTER_E); break;
+        case 0x54: Bit(2, REGISTER_H); break;
+        case 0x55: Bit(2, REGISTER_L); break;
+        case 0x56: Bit(2, MemoryLocationR(REGISTER_HL)); break;
+        case 0x57: Bit(2, REGISTER_A); break;
+
+        case 0x58: Bit(3, REGISTER_B); break;
+        case 0x59: Bit(3, REGISTER_C); break;
+        case 0x5a: Bit(3, REGISTER_D); break;
+        case 0x5b: Bit(3, REGISTER_E); break;
+        case 0x5c: Bit(3, REGISTER_H); break;
+        case 0x5d: Bit(3, REGISTER_L); break;
+        case 0x5e: Bit(3, MemoryLocationR(REGISTER_HL)); break;
+        case 0x5f: Bit(3, REGISTER_A); break;
+
+        case 0x60: Bit(4, REGISTER_B); break;
+        case 0x61: Bit(4, REGISTER_C); break;
+        case 0x62: Bit(4, REGISTER_D); break;
+        case 0x63: Bit(4, REGISTER_E); break;
+        case 0x64: Bit(4, REGISTER_H); break;
+        case 0x65: Bit(4, REGISTER_L); break;
+        case 0x66: Bit(4, MemoryLocationR(REGISTER_HL)); break;
+        case 0x67: Bit(4, REGISTER_A); break;
+
+        case 0x68: Bit(5, REGISTER_B); break;
+        case 0x69: Bit(5, REGISTER_C); break;
+        case 0x6a: Bit(5, REGISTER_D); break;
+        case 0x6b: Bit(5, REGISTER_E); break;
+        case 0x6c: Bit(5, REGISTER_H); break;
+        case 0x6d: Bit(5, REGISTER_L); break;
+        case 0x6e: Bit(5, MemoryLocationR(REGISTER_HL)); break;
+        case 0x6f: Bit(5, REGISTER_A); break;
+
+        case 0x70: Bit(6, REGISTER_B); break;
+        case 0x71: Bit(6, REGISTER_C); break;
+        case 0x72: Bit(6, REGISTER_D); break;
+        case 0x73: Bit(6, REGISTER_E); break;
+        case 0x74: Bit(6, REGISTER_H); break;
+        case 0x75: Bit(6, REGISTER_L); break;
+        case 0x76: Bit(6, MemoryLocationR(REGISTER_HL)); break;
+        case 0x77: Bit(6, REGISTER_A); break;
+
+        case 0x78: Bit(7, REGISTER_B); break;
+        case 0x79: Bit(7, REGISTER_C); break;
+        case 0x7a: Bit(7, REGISTER_D); break;
+        case 0x7b: Bit(7, REGISTER_E); break;
+        case 0x7c: Bit(7, REGISTER_H); break;
+        case 0x7d: Bit(7, REGISTER_L); break;
+        case 0x7e: Bit(7, MemoryLocationR(REGISTER_HL)); break;
+        case 0x7f: Bit(7, REGISTER_A); break;
 
         case 0x80: Res(0, REGISTER_B); break;
         case 0x81: Res(0, REGISTER_C); break;
@@ -739,6 +845,126 @@ void Z80::executeOpCodeCB()
             }
             break;
         case 0xbf: Res(7, REGISTER_A); break;
+
+        case 0xc0: Set(0, REGISTER_B); break;
+        case 0xc1: Set(0, REGISTER_C); break;
+        case 0xc2: Set(0, REGISTER_D); break;
+        case 0xc3: Set(0, REGISTER_E); break;
+        case 0xc4: Set(0, REGISTER_H); break;
+        case 0xc5: Set(0, REGISTER_L); break;
+        case 0xc6:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(0, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xc7: Set(0, REGISTER_A); break;
+
+        case 0xc8: Set(1, REGISTER_B); break;
+        case 0xc9: Set(1, REGISTER_C); break;
+        case 0xca: Set(1, REGISTER_D); break;
+        case 0xcb: Set(1, REGISTER_E); break;
+        case 0xcc: Set(1, REGISTER_H); break;
+        case 0xcd: Set(1, REGISTER_L); break;
+        case 0xce:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(1, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xcf: Set(1, REGISTER_A); break;
+
+        case 0xd0: Set(2, REGISTER_B); break;
+        case 0xd1: Set(2, REGISTER_C); break;
+        case 0xd2: Set(2, REGISTER_D); break;
+        case 0xd3: Set(2, REGISTER_E); break;
+        case 0xd4: Set(2, REGISTER_H); break;
+        case 0xd5: Set(2, REGISTER_L); break;
+        case 0xd6:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(2, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xd7: Set(2, REGISTER_A); break;
+
+        case 0xd8: Set(3, REGISTER_B); break;
+        case 0xd9: Set(3, REGISTER_C); break;
+        case 0xda: Set(3, REGISTER_D); break;
+        case 0xdb: Set(3, REGISTER_E); break;
+        case 0xdc: Set(3, REGISTER_H); break;
+        case 0xdd: Set(3, REGISTER_L); break;
+        case 0xde:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(3, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xdf: Set(3, REGISTER_A); break;
+
+        case 0xe0: Set(4, REGISTER_B); break;
+        case 0xe1: Set(4, REGISTER_C); break;
+        case 0xe2: Set(4, REGISTER_D); break;
+        case 0xe3: Set(4, REGISTER_E); break;
+        case 0xe4: Set(4, REGISTER_H); break;
+        case 0xe5: Set(4, REGISTER_L); break;
+        case 0xe6:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(4, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xe7: Set(4, REGISTER_A); break;
+
+        case 0xe8: Set(5, REGISTER_B); break;
+        case 0xe9: Set(5, REGISTER_C); break;
+        case 0xea: Set(5, REGISTER_D); break;
+        case 0xeb: Set(5, REGISTER_E); break;
+        case 0xec: Set(5, REGISTER_H); break;
+        case 0xed: Set(5, REGISTER_L); break;
+        case 0xee:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(5, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xef: Set(5, REGISTER_A); break;
+
+        case 0xf0: Set(6, REGISTER_B); break;
+        case 0xf1: Set(6, REGISTER_C); break;
+        case 0xf2: Set(6, REGISTER_D); break;
+        case 0xf3: Set(6, REGISTER_E); break;
+        case 0xf4: Set(6, REGISTER_H); break;
+        case 0xf5: Set(6, REGISTER_L); break;
+        case 0xf6:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(6, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xf7: Set(6, REGISTER_A); break;
+
+        case 0xf8: Set(7, REGISTER_B); break;
+        case 0xf9: Set(7, REGISTER_C); break;
+        case 0xfa: Set(7, REGISTER_D); break;
+        case 0xfb: Set(7, REGISTER_E); break;
+        case 0xfc: Set(7, REGISTER_H); break;
+        case 0xfd: Set(7, REGISTER_L); break;
+        case 0xfe:
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Set(7, value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0xff: Set(7, REGISTER_A); break;
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
