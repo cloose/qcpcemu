@@ -126,6 +126,11 @@ void QImageScreenRenderer::vSync(bool active)
     }
 }
 
+void QImageScreenRenderer::setColor(uchar penNum, uchar colorNum)
+{
+    m_inks[penNum] = colorNum;
+}
+
 void QImageScreenRenderer::drawMode0(byte_t displayByte1, byte_t displayByte2)
 {
 

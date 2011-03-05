@@ -145,6 +145,7 @@ void GateArray::selectPen(byte_t value)
 void GateArray::selectColorForPen(byte_t value)
 {
     m_inkValues[m_currentPen] = value & 0x1f;
+    m_renderer->setColor(m_currentPen, value & 0x1f);
     qDebug() << "[GA  ] select color" << m_inkValues[m_currentPen] << "for pen" << m_currentPen;
 }
 
