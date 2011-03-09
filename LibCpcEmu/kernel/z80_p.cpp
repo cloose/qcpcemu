@@ -122,7 +122,7 @@ static inline word_t Pop()
     byte_t high = ReadByteFromMemory(REGISTER_SP++);
 
     // make sure Pop() and Push() is in balance
-    Q_ASSERT(REGISTER_SP <= 0xc000);
+    Q_ASSERT_X(REGISTER_SP <= 0xc000, "Pop", "Pop and Push not in balance");
 
     return WORD(low, high);
 }
@@ -470,12 +470,36 @@ static inline void Cpl()
  *     N is reset
  *     C is set if carry from bit 15; reset otherwise
  */
-static inline void Add(word_t destination, word_t source)
+static inline void Add(word_t& destination, word_t source)
 {
     dword_t result = destination + source;
 
     REGISTER_F = (REGISTER_F & (S_FLAG | Z_FLAG | V_FLAG))
                | ((destination ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (result & 0x10000 ? C_FLAG : 0);
+
+    destination = (result & 0xffff);
+}
+
+/**
+ * TODO: missing description!
+ */
+static inline void Sbc(word_t& destination, word_t source)
+{
+    dword_t result = destination - source - (REGISTER_F & C_FLAG);
+
+    // Condition Bits Affected:
+    // S is set if result is negative; reset otherwise
+    // Z is set if result is zero; reset otherwise
+    // H is set if a borrow from bit 12; reset otherwise
+    // P/V is set if overflow; reset otherwise
+    // N is set
+    // C is set if borrow; reset otherwise
+    REGISTER_F = (result & 0x8000 ? S_FLAG : 0)
+               | (result & 0xffff ? 0 : Z_FLAG)
+               | ((REGISTER_HL ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (((source ^ REGISTER_HL) & (REGISTER_HL ^ result) & 0x8000) >> 13)
+               | N_FLAG
                | (result & 0x10000 ? C_FLAG : 0);
 
     destination = (result & 0xffff);

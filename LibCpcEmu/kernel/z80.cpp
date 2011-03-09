@@ -173,6 +173,7 @@ void Z80::executeOpCode()
         case 0x10: /* djnz e */
             if( --REGISTER_B )
             {
+                m_cycleCount += cc_ex[m_opCode];
                 JumpRelative();
             }
             else
@@ -203,6 +204,7 @@ void Z80::executeOpCode()
             }
             else
             {
+                m_cycleCount += cc_ex[m_opCode];
                 JumpRelative();
             }
             break;
@@ -228,6 +230,7 @@ void Z80::executeOpCode()
         case 0x28: /* jr z,e */
             if( REGISTER_F & Z_FLAG )
             {
+                m_cycleCount += cc_ex[m_opCode];
                 JumpRelative();
             }
             else
@@ -250,6 +253,7 @@ void Z80::executeOpCode()
             }
             else
             {
+                m_cycleCount += cc_ex[m_opCode];
                 JumpRelative();
             }
             break;
@@ -278,6 +282,7 @@ void Z80::executeOpCode()
         case 0x38: /* jr c,e */
             if( REGISTER_F & C_FLAG )
             {
+                m_cycleCount += cc_ex[m_opCode];
                 JumpRelative();
             }
             else
@@ -291,6 +296,11 @@ void Z80::executeOpCode()
         case 0x3c: /* inc a */      Inc(REGISTER_A); break;
         case 0x3d: /* dec a */      Dec(REGISTER_A); break;
         case 0x3e: /* ld a,n */     Load(REGISTER_A, ConstantByte()); break;
+        case 0x3f: // ccf
+            REGISTER_F ^= C_FLAG;
+            ResetFlag(N_FLAG|H_FLAG);
+            REGISTER_F |= REGISTER_F & C_FLAG ? 0 : H_FLAG;
+            break;
 
         case 0x40: /* ld b,b */     Load(REGISTER_B, REGISTER_B); break;
         case 0x41: /* ld b,c */     Load(REGISTER_B, REGISTER_C); break;
@@ -438,6 +448,7 @@ void Z80::executeOpCode()
         case 0xc0: /* ret nz */
             if (!(REGISTER_F & Z_FLAG))
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -460,6 +471,7 @@ void Z80::executeOpCode()
             }
             else
             {
+                m_cycleCount += cc_ex[m_opCode];
                 Call();
             }
             break;
@@ -469,6 +481,7 @@ void Z80::executeOpCode()
         case 0xc8: /* ret z */
             if (REGISTER_F & Z_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -486,6 +499,7 @@ void Z80::executeOpCode()
         case 0xcc: /* call z,nn */
             if (REGISTER_F & Z_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 Call();
             }
             else
@@ -500,6 +514,7 @@ void Z80::executeOpCode()
         case 0xd0: /* ret nc */
             if (!(REGISTER_F & C_FLAG))
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -521,6 +536,7 @@ void Z80::executeOpCode()
             }
             else
             {
+                m_cycleCount += cc_ex[m_opCode];
                 Call();
             }
             break;
@@ -530,6 +546,7 @@ void Z80::executeOpCode()
         case 0xd8: /* ret c */
             if (REGISTER_F & C_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -547,6 +564,7 @@ void Z80::executeOpCode()
         case 0xdc: /* call c,nn */
             if (REGISTER_F & C_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 Call();
             }
             else
@@ -580,6 +598,7 @@ void Z80::executeOpCode()
         case 0xf0: /* ret p */
             if (!(REGISTER_F & S_FLAG))
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -601,6 +620,7 @@ void Z80::executeOpCode()
         case 0xf8: /* ret m */
             if (REGISTER_F & S_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC = Pop();
             }
             break;
@@ -619,6 +639,7 @@ void Z80::executeOpCode()
         case 0xfc: /* call m,nn */
             if (REGISTER_F & S_FLAG)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 Call();
             }
             else
@@ -1061,6 +1082,7 @@ void Z80::executeOpCodeED()
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
+        case 0x52: /* sbc hl,de */  Sbc(REGISTER_HL, REGISTER_DE); break;
         case 0x53: /* ld (nn),de */
             // TODO: new LoadXXX() function?
             {
@@ -1103,6 +1125,7 @@ void Z80::executeOpCodeED()
 
             if (REGISTER_BC != 0)
             {
+                m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC -= 2;
             }
             break;
