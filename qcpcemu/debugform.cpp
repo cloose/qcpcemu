@@ -32,8 +32,17 @@ void DebugForm::update()
     ui->regDE1Edit->setText(QString("%1").arg(REGISTER_DE1, 4, 16, QLatin1Char('0')));
     ui->regHL1Edit->setText(QString("%1").arg(REGISTER_HL1, 4, 16, QLatin1Char('0')));
 
+    ui->regIEdit->setText(QString("%1").arg(REGISTER_I, 2, 16, QLatin1Char('0')));
+    ui->regREdit->setText(QString("%1").arg(REGISTER_R, 2, 16, QLatin1Char('0')));
+
+    ui->regIXEdit->setText(QString("%1").arg(REGISTER_IX, 4, 16, QLatin1Char('0')));
+    ui->regIYEdit->setText(QString("%1").arg(REGISTER_IY, 4, 16, QLatin1Char('0')));
+
     ui->regPCEdit->setText(QString("%1").arg(REGISTER_PC, 4, 16, QLatin1Char('0')));
     ui->regSPEdit->setText(QString("%1").arg(REGISTER_SP, 4, 16, QLatin1Char('0')));
+
+    ui->regIFF1Edit->setText(QString("%1").arg(RegisterSet::IFF1, 2, 16, QLatin1Char('0')));
+    ui->regIFF2Edit->setText(QString("%1").arg(RegisterSet::IFF2, 2, 16, QLatin1Char('0')));
 }
 
 void DebugForm::changeEvent(QEvent *e)

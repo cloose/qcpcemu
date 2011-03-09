@@ -40,8 +40,6 @@ struct LIBCPCEMUSHARED_EXPORT RegisterSet
 #define REGISTER_BC  RegisterSet::BC.pair
 #define REGISTER_DE  RegisterSet::DE.pair
 #define REGISTER_HL  RegisterSet::HL.pair
-#define REGISTER_PC  RegisterSet::PC.pair
-#define REGISTER_SP  RegisterSet::SP.pair
 
 #define REGISTER_A   RegisterSet::AF.high
 #define REGISTER_F   RegisterSet::AF.low
@@ -57,8 +55,14 @@ struct LIBCPCEMUSHARED_EXPORT RegisterSet
 #define REGISTER_DE1 RegisterSet::DE1.pair
 #define REGISTER_HL1 RegisterSet::HL1.pair
 
+#define REGISTER_I   RegisterSet::I
+#define REGISTER_R   RegisterSet::R
+
 #define REGISTER_IX RegisterSet::IX
 #define REGISTER_IY RegisterSet::IY
+
+#define REGISTER_PC  RegisterSet::PC.pair
+#define REGISTER_SP  RegisterSet::SP.pair
 
 // macros for the flag register
 #define S_FLAG 0x80     // sign flag      (1: result negative)
