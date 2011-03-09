@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createDockWindows();
 
+    connect(qApp, SIGNAL(lastWindowClosed()),
+            m_system, SLOT(stopSystem()));
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
 

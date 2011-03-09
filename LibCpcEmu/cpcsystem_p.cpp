@@ -15,6 +15,8 @@ public:
 
     void setupHardware();
 
+    bool done;
+
     GateArray* gateArray;
     IoController* ioController;
     VideoController* videoController;
