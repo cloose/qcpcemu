@@ -29,6 +29,7 @@ public:
 public slots:
     void hSync(bool active);
     void vSync(bool active);
+    void endOfFrame();
 
 private:
     void selectPen(byte_t value);

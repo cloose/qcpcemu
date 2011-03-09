@@ -12,12 +12,14 @@ class QImageScreenRenderer : public ScreenRenderer
 public:
     explicit QImageScreenRenderer(QWidget* widget);
 
-//    QImage* screenBuffer() const;
     const QImage screenBuffer() const;
 
     virtual void draw(byte_t displayByte1, byte_t displayByte2);
+
     virtual void hSync();
     virtual void vSync(bool active);
+
+    virtual void setColor(uchar penNum, uchar colorNum);
 
 private:
     void drawMode0(byte_t displayByte1, byte_t displayByte2);

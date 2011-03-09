@@ -1,5 +1,6 @@
 #include "qimagescreenrenderer.h"
 
+#include <QDebug>
 #include <QImage>
 #include <QWidget>
 
@@ -80,7 +81,7 @@ QImageScreenRenderer::QImageScreenRenderer(QWidget* widget)
     : m_widget(widget)
     , m_xpos(0)
     , m_ypos(0)
-    , m_screenBuffer(new QImage(620, 200, QImage::Format_Indexed8))
+    , m_screenBuffer(new QImage(640, 200, QImage::Format_Indexed8))
     , m_scanLine(0)
     , m_drawFuncPtr(&QImageScreenRenderer::drawMode1)
 {
@@ -107,6 +108,9 @@ const QImage QImageScreenRenderer::screenBuffer() const
 
 void QImageScreenRenderer::draw(byte_t displayByte1, byte_t displayByte2)
 {
+//    m_xpos = charPos << 4;
+//    if (m_xpos >= WIDTH) return;
+//    if (m_ypos >= HEIGHT) return;
     (this->*m_drawFuncPtr)(displayByte1, displayByte2);
 }
 
@@ -126,27 +130,37 @@ void QImageScreenRenderer::vSync(bool active)
     }
 }
 
+void QImageScreenRenderer::setColor(uchar penNum, uchar colorNum)
+{
+    m_inks[penNum] = colorNum;
+}
+
 void QImageScreenRenderer::drawMode0(byte_t displayByte1, byte_t displayByte2)
 {
 
 }
 
+// Mode 1 = 4 px per display byte, 4 colors, 320x200 px, 40x25 characters
 void QImageScreenRenderer::drawMode1(byte_t displayByte1, byte_t displayByte2)
 {
     Q_CHECK_PTR(m_scanLine);
 
-    if (m_xpos >= 620) return;
-    if (m_ypos >= 200) return;
+    if (m_xpos >= m_screenBuffer->width()) return;
+    if (m_ypos >= m_screenBuffer->height()) return;
 
     for (int pixel = 0; pixel < 4; ++pixel)
     {
-        m_scanLine[m_xpos++] = m_inks[mode1[displayByte1]];
+        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
+        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
 
-        m_scanLine[m_xpos++] = m_inks[mode1[displayByte1]];
+        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
+        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
 
         displayByte1 <<= 1;
         displayByte2 <<= 1;
     }
+
+    m_xpos += 8;
 }
 
 void QImageScreenRenderer::drawMode2(byte_t displayByte1, byte_t displayByte2)

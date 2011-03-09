@@ -122,7 +122,7 @@ static inline word_t Pop()
     byte_t high = ReadByteFromMemory(REGISTER_SP++);
 
     // make sure Pop() and Push() is in balance
-    Q_ASSERT(REGISTER_SP <= 0xc000);
+    Q_ASSERT_X(REGISTER_SP <= 0xc000, "Pop", "Pop and Push not in balance");
 
     return WORD(low, high);
 }
@@ -181,9 +181,7 @@ static inline void Ldi()
 //----------------------------------------------------------------------------
 
 /**
- * The s operand is subtracted from the contents of the Accumulator, and the
- * result is stored in the Accumulator.
- * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ * TODO: missing description
  *
  * Condition Bits Affected:
  *     S is set if result is negative; reset otherwise
@@ -196,6 +194,31 @@ static inline void Ldi()
 static inline void Add(byte_t value)
 {
     word_t result = REGISTER_A + value;
+
+    REGISTER_F = (~(REGISTER_A ^ value) & (value ^ LOBYTE(result)) & 0x80 ? V_FLAG : 0)
+               | HIBYTE(result)
+               | SignAndZeroTable[LOBYTE(result)]
+               | ((REGISTER_A ^ value ^ LOBYTE(result)) & H_FLAG);
+
+    REGISTER_A = LOBYTE(result);
+}
+
+/**
+ * The s operand, along with the Carry Flag (C in the F register) is added to the
+ * contents of the Accumulator, and the result is stored in the Accumulator.
+ * The s operand is any of r, n, (HL), (IX+d), or (IY+d).
+ *
+ * Condition Bits Affected:
+ *     S is set if result is negative; reset otherwise
+ *     Z is set if result is zero; reset otherwise
+ *     H is set if carry from bit 3; reset otherwise
+ *     P/V is set if overflow; reset otherwise
+ *     N is reset
+ *     C is set if carry from bit 7; reset otherwise
+ */
+static inline void Adc(byte_t value)
+{
+    word_t result = REGISTER_A + value + (REGISTER_F & C_FLAG);
 
     REGISTER_F = (~(REGISTER_A ^ value) & (value ^ LOBYTE(result)) & 0x80 ? V_FLAG : 0)
                | HIBYTE(result)
@@ -447,12 +470,36 @@ static inline void Cpl()
  *     N is reset
  *     C is set if carry from bit 15; reset otherwise
  */
-static inline void Add(word_t destination, word_t source)
+static inline void Add(word_t& destination, word_t source)
 {
     dword_t result = destination + source;
 
     REGISTER_F = (REGISTER_F & (S_FLAG | Z_FLAG | V_FLAG))
                | ((destination ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (result & 0x10000 ? C_FLAG : 0);
+
+    destination = (result & 0xffff);
+}
+
+/**
+ * TODO: missing description!
+ */
+static inline void Sbc(word_t& destination, word_t source)
+{
+    dword_t result = destination - source - (REGISTER_F & C_FLAG);
+
+    // Condition Bits Affected:
+    // S is set if result is negative; reset otherwise
+    // Z is set if result is zero; reset otherwise
+    // H is set if a borrow from bit 12; reset otherwise
+    // P/V is set if overflow; reset otherwise
+    // N is set
+    // C is set if borrow; reset otherwise
+    REGISTER_F = (result & 0x8000 ? S_FLAG : 0)
+               | (result & 0xffff ? 0 : Z_FLAG)
+               | ((REGISTER_HL ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (((source ^ REGISTER_HL) & (REGISTER_HL ^ result) & 0x8000) >> 13)
+               | N_FLAG
                | (result & 0x10000 ? C_FLAG : 0);
 
     destination = (result & 0xffff);
@@ -601,6 +648,26 @@ static inline void Rlc(byte_t& reg)
 /**
  * TODO: missing description
  */
+static inline void Rl(byte_t& reg)
+{
+    if( reg & 0x80 )
+    {
+        reg = (reg << 1) | (REGISTER_F & C_FLAG);
+        REGISTER_F = C_FLAG
+                                 | SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+    else
+    {
+        reg = (reg << 1) | (REGISTER_F & C_FLAG);
+        REGISTER_F = SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+}
+
+/**
+ * TODO: missing description
+ */
 static inline void Rrc(byte_t& reg)
 {
     REGISTER_F = reg & 0x01;
@@ -609,6 +676,52 @@ static inline void Rrc(byte_t& reg)
 
     REGISTER_F |= SignAndZeroTable[reg]
                | ParityTable[reg];
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Rr(byte_t& reg)
+{
+    if( reg & 0x01 )
+    {
+        reg = (reg >> 1) | (REGISTER_F << 7);
+        REGISTER_F = C_FLAG
+                                 | SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+    else
+    {
+        reg = (reg >> 1) | (REGISTER_F << 7);
+        REGISTER_F = SignAndZeroTable[reg]
+                                 | ParityTable[reg];
+    }
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Sla(byte_t& reg)
+{
+    REGISTER_F = reg >> 7;
+
+    reg <<= 1;
+
+    REGISTER_F |= SignAndZeroTable[reg]
+                             | ParityTable[reg];
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Sra(byte_t& reg)
+{
+    REGISTER_F = reg & C_FLAG;
+
+    reg = (reg >> 1) | (reg & 0x80);
+
+    REGISTER_F |= SignAndZeroTable[reg]
+                             | ParityTable[reg];
 }
 
 /**

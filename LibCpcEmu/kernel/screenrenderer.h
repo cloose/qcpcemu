@@ -11,6 +11,8 @@ public:
 
     virtual void hSync() = 0;
     virtual void vSync(bool active) = 0;
+
+    virtual void setColor(uchar penNum, uchar colorNum) = 0;
 };
 
 #endif // SCREENRENDERER_H
