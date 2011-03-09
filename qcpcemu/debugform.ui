@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugForm</class>
+ <widget class="QWidget" name="DebugForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>250</width>
+    <height>371</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>5</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Z80 CPU</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="regAFLabel">
+        <property name="text">
+         <string>AF:</string>
+        </property>
+        <property name="buddy">
+         <cstring>regAFEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="regAFEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="regBCLabel">
+        <property name="text">
+         <string>BC:</string>
+        </property>
+        <property name="buddy">
+         <cstring>regBCEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="regBCEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="regDELabel">
+        <property name="text">
+         <string>DE:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="regDEEdit"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="regHLLabel">
+        <property name="text">
+         <string>HL:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="regHLEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="regAF1Label">
+        <property name="text">
+         <string>AF':</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="regAF1Edit"/>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="regBC1Label">
+        <property name="text">
+         <string>BC':</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="regBC1Edit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="regDE1Label">
+        <property name="text">
+         <string>DE':</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="regPCLabel">
+        <property name="text">
+         <string>PC:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="regPCEdit"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="regDE1Edit"/>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="regHL1Label">
+        <property name="text">
+         <string>HL':</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLineEdit" name="regHL1Edit"/>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="regSPLabel">
+        <property name="text">
+         <string>SP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLineEdit" name="regSPEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Debug</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="breakpointLabel">
+        <property name="text">
+         <string>Breakpoint</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="breakpointEdit"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Set</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

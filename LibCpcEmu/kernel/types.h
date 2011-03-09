@@ -5,6 +5,8 @@
 
 typedef quint8 byte_t;
 typedef quint16 word_t;
+typedef quint32 dword_t;
+typedef signed char offset_t;
 
 union register_pair_t
 {
