@@ -1,5 +1,6 @@
 #include "gatearray.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 
 #include "memory.h"
@@ -22,6 +23,16 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
             this, SLOT(hSync(bool)));
     connect(m_crtc, SIGNAL(vSync(bool)),
             this, SLOT(vSync(bool)));
+    connect(m_crtc, SIGNAL(endOfFrame()),
+            this, SLOT(endOfFrame()));
+}
+
+static inline byte_t ReadByteFromMemory(word_t address)
+{
+    quint8 block = (address >> 14);
+    quint16 addressOffset = block * 0x4000;
+
+    return Memory::blocks[block][address - addressOffset];
 }
 
 void GateArray::run()
@@ -39,12 +50,14 @@ void GateArray::run()
                                 | ((m_crtc->rowAddress() & 0x07) << 11)      // RA2 - RA0
                                 | ((m_crtc->memoryAddress() & 0x03ff) << 1); // MA9 - MA0
 
+            Q_ASSERT_X(m_crtc->rowAddress() < 8, "GateArray::run", "Rowaddress muss kleiner 8 sein");
+
             byte_t displayByte1 = Memory::ram[videoAddress++];
             byte_t displayByte2 = Memory::ram[videoAddress];
 
-            if (m_renderer)
+            if (m_renderer && m_crtc->displayEnabled())
             {
-                m_renderer->draw(displayByte1, displayByte2);
+                 m_renderer->draw(displayByte1, displayByte2);
             }
 
             cycles--;
@@ -128,7 +141,13 @@ void GateArray::hSync(bool active)
 
 void GateArray::vSync(bool active)
 {
-    m_renderer->vSync(active);
+//    m_renderer->vSync(active);
+}
+
+void GateArray::endOfFrame()
+{
+    m_renderer->vSync(false);
+    qApp->processEvents();
 }
 
 void GateArray::selectPen(byte_t value)

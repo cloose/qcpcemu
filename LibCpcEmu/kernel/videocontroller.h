@@ -26,20 +26,14 @@ public:
 
     word_t memoryAddress() const;
     byte_t rowAddress() const;
+    bool displayEnabled() const;
 
 signals:
     void hSync(bool active);
     void vSync(bool active);
+    void endOfFrame();
 
 private:
-    byte_t readRegisterValue();
-    void writeRegisterValue(byte_t value);
-
-    void activateHSyncSignal();
-    void deactivateHSyncSignal();
-    void activateVSyncSignal();
-    void deactivateVSyncSignal();
-
     VideoControllerPrivate* const d;
     friend class VideoControllerPrivate;
 };
