@@ -2,6 +2,7 @@
 
 #include "gatearray.h"
 #include "iocontroller.h"
+#include "keyboard.h"
 #include "memory.h"
 #include "romimagefile.h"
 #include "videocontroller.h"
@@ -19,6 +20,7 @@ public:
 
     GateArray* gateArray;
     IoController* ioController;
+    Keyboard* keyboard;
     VideoController* videoController;
     Z80* cpu;
 
@@ -32,6 +34,7 @@ CpcSystemPrivate::~CpcSystemPrivate()
 {
     delete cpu;
     delete videoController;
+    delete keyboard;
     delete ioController;
     delete gateArray;
     delete systemRom;
@@ -63,7 +66,9 @@ void CpcSystemPrivate::setupHardware()
     memory.blocks[2] = memory.ram + 0x8000;
     memory.blocks[3] = memory.basicRom;
 
-    ioController = new IoController();
+    keyboard = new Keyboard();
+
+    ioController = new IoController(keyboard);
 
     videoController = new VideoController();
 

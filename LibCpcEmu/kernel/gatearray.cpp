@@ -136,6 +136,7 @@ void GateArray::hSync(bool active)
         }
 
         m_renderer->hSync();
+        qApp->processEvents();
     }
 }
 

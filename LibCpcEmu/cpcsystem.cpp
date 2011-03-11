@@ -30,6 +30,11 @@ void CpcSystem::step()
     d->gateArray->run();
 }
 
+Keyboard* CpcSystem::keyboard() const
+{
+    return d->keyboard;
+}
+
 void CpcSystem::setRenderer(ScreenRenderer* renderer)
 {
     d->gateArray->setRenderer(renderer);

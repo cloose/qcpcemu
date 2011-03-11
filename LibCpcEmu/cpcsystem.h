@@ -6,6 +6,7 @@
 #include "types.h"
 
 class CpcSystemPrivate;
+class Keyboard;
 class ScreenRenderer;
 
 class LIBCPCEMUSHARED_EXPORT CpcSystem : public QObject
@@ -18,6 +19,8 @@ public:
 
     void run();
     void step();
+
+    Keyboard* keyboard() const;
 
     void setRenderer(ScreenRenderer* renderer);
 
