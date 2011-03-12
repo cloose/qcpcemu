@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+#QT       -= gui
 
 TARGET = LibCpcEmu
 TEMPLATE = lib

@@ -614,6 +614,17 @@ void Z80::executeOpCode()
             }
             break;
         case 0xf3: /* di */         RegisterSet::IFF1 = RegisterSet::IFF2 = 0; m_eiDelay = 0; break;
+        case 0xf4: /* call p,nn */
+            if (REGISTER_F & S_FLAG)
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                m_cycleCount += cc_ex[m_opCode];
+                Call();
+            }
+            break;
         case 0xf5: /* push af */    Push(REGISTER_AF); break;
         case 0xf6: /* or n */       Or(ConstantByte()); break;
         case 0xf7: /* rst 0x30 */   Rst(0x0030); break;
@@ -1080,6 +1091,12 @@ void Z80::executeOpCodeED()
     switch (m_opCode)
     {
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
+        case 0x48: /* in c,(c) */
+            REGISTER_C = emitInputRequest(REGISTER_BC);
+            REGISTER_F = (REGISTER_F & C_FLAG)
+                       | SignAndZeroTable[REGISTER_C]
+                       | ParityTable[REGISTER_C];
+            break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
         case 0x52: /* sbc hl,de */  Sbc(REGISTER_HL, REGISTER_DE); break;
@@ -1120,10 +1137,21 @@ void Z80::executeOpCodeED()
             break;
         case 0x79: /* out (c),a */  emitOutputRequest(REGISTER_BC, REGISTER_A); break;
         case 0x7b: /* ld sp,(nn) */ Load(REGISTER_SP, MemoryLocationWordR(ConstantWord())); break;
+        case 0xa0: /* ldi */        Ldi(); break;
+        case 0xa8: /* ldd */        Ldd(); break;
         case 0xb0: /* ldir */
             Ldi();
 
             if (REGISTER_BC != 0)
+            {
+                m_cycleCount += cc_ex[m_opCode];
+                REGISTER_PC -= 2;
+            }
+            break;
+        case 0xb8: /* lddr */
+            Ldd();
+
+            if (REGISTER_BC)
             {
                 m_cycleCount += cc_ex[m_opCode];
                 REGISTER_PC -= 2;
@@ -1140,26 +1168,131 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
 {
     switch (m_opCode)
     {
-        case 0x36: /* ld (i?+d),n */
+        case 0x09: /* add ix,bc */  Add(destinationRegister, REGISTER_BC); break;
+        case 0x19: /* add ix,de */  Add(destinationRegister, REGISTER_DE); break;
+        case 0x21: /* ld ix,nn */   Load(destinationRegister, ConstantWord()); break;
+        case 0x34: /* inc (ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Inc(value);
+                WriteByteToMemory(destinationRegister+offset, value);
+            }
+            break;
+        case 0x35: /* dec (ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Dec(value);
+                WriteByteToMemory(destinationRegister+offset, value);
+            }
+            break;
+        case 0x36: /* ld (ix+d),n */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 WriteByteToMemory(destinationRegister+offset, ConstantByte());
             }
             break;
-        case 0x7e: /* ld a,(i?+d) */
+        case 0x4e: /* ld c,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_C = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x56: /* ld d,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_D = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x5e: /* ld e,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_E = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x66: /* ld h,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_H = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x6e: /* ld l,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_L = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x70: /* ld (ix+d),b */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_B);
+            }
+            break;
+        case 0x71: /* ld (ix+d),c */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_C);
+            }
+            break;
+        case 0x72: /* ld (ix+d),d */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_D);
+            }
+            break;
+        case 0x73: /* ld (ix+d),e */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_E);
+            }
+            break;
+        case 0x74: /* ld (ix+d),h */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_H);
+            }
+            break;
+        case 0x75: /* ld (ix+d),l */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_L);
+            }
+            break;
+        case 0x77: /* ld (ix+d),a */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                WriteByteToMemory(destinationRegister+offset, REGISTER_A);
+            }
+            break;
+        case 0x7e: /* ld a,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 REGISTER_A = ReadByteFromMemory(destinationRegister+offset);
             }
             break;
-        case 0xb6: /* or (i?+d) */
+        case 0x86: /* add a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Add(value);
+            }
+            break;
+        case 0xb6: /* or (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 Or(ReadByteFromMemory(destinationRegister+offset));
             }
             break;
-        case 0xe1: /* pop i? */     destinationRegister = Pop(); break;
-        case 0xe5: /* push i? */    Push(destinationRegister); break;
+        case 0xbe: // cp (ix+d)
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Cp(value);
+            }
+            break;
+        case 0xe1: /* pop ix */     destinationRegister = Pop(); break;
+        case 0xe5: /* push ix */    Push(destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             break;

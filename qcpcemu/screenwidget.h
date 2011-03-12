@@ -13,6 +13,7 @@ class ScreenWidget : public QWidget
 
 public:
     explicit ScreenWidget(QWidget* parent = 0);
+    ~ScreenWidget();
 
     ScreenRenderer* renderer() const;
 

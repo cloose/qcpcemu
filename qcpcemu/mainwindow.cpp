@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #include "cpcsystem.h"
+#include "keyboard.h"
 #include "debugform.h"
 
 
@@ -20,8 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createDockWindows();
 
+    connect(qApp, SIGNAL(lastWindowClosed()),
+            m_system, SLOT(stopSystem()));
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
+
+    // install event filter for key events
+    ui->screenWidget->installEventFilter(m_system->keyboard());
 
     QTimer::singleShot(0, this, SLOT(delayedInit()));
 }
@@ -48,6 +54,7 @@ void MainWindow::changeEvent(QEvent *e)
 void MainWindow::delayedInit()
 {
     m_system->setRenderer(ui->screenWidget->renderer());
+    ui->screenWidget->setFocus(Qt::OtherFocusReason);
 }
 
 void MainWindow::debugRun()

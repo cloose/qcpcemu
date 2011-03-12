@@ -175,6 +175,27 @@ static inline void Ldi()
         REGISTER_F |= V_FLAG;
 }
 
+/**
+ * TODO: missing description
+ */
+static inline void Ldd()
+{
+    // transfer data from (HL) to (DE)
+    WriteByteToMemory(REGISTER_DE, ReadByteFromMemory(REGISTER_HL));
+
+    REGISTER_HL--;
+    REGISTER_DE--;
+    REGISTER_BC--;
+
+    // reset H, P and N flag
+    // flags S, Z and C are not affected
+    REGISTER_F &= ~(N_FLAG|H_FLAG|P_FLAG);
+
+    // set P flag if BC not equal 0
+    if( REGISTER_BC != 0 )
+        REGISTER_F |= P_FLAG;
+}
+
 
 //----------------------------------------------------------------------------
 //- 8-Bit Arithmetic Group

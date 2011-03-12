@@ -7,6 +7,7 @@
 CpcSystem::CpcSystem()
     : d(new CpcSystemPrivate)
 {
+    d->done = false;
     d->setupHardware();
 }
 
@@ -19,16 +20,19 @@ void CpcSystem::run()
 {
     do
     {
-        //d->cpu->step();
         d->gateArray->run();
     }
-    while (!d->breakpoints.contains(REGISTER_PC));
+    while (!d->done && !d->breakpoints.contains(REGISTER_PC));
 }
 
 void CpcSystem::step()
 {
-//    d->cpu->step();
     d->gateArray->run();
+}
+
+Keyboard* CpcSystem::keyboard() const
+{
+    return d->keyboard;
 }
 
 void CpcSystem::setRenderer(ScreenRenderer* renderer)
@@ -39,4 +43,9 @@ void CpcSystem::setRenderer(ScreenRenderer* renderer)
 void CpcSystem::addBreakpoint(word_t address)
 {
     d->breakpoints.append(address);
+}
+
+void CpcSystem::stopSystem()
+{
+    d->done = true;
 }

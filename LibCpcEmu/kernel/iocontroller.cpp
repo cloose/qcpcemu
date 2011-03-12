@@ -2,14 +2,17 @@
 
 #include <QDebug>
 
+#include "keyboard.h"
 
-IoController::IoController(QObject* parent)
+
+IoController::IoController(Keyboard* keyboard, QObject* parent)
     : QObject(parent)
     , m_portA(0x00)
     , m_portB(0x00)
     , m_portC(0x00)
     , m_control(0x00)
     , m_vsyncActive(false)
+    , m_keyboard(keyboard)
 {
 }
 
@@ -23,6 +26,11 @@ bool IoController::in(word_t address, byte_t& value)
         // 0xf400: 8255 port A (AY-3-8912 PSG data bus)
         case 0x0000:
             handled = true;
+
+            if (m_control & 0x10)
+            {
+                value = m_keyboard->pressedKey();
+            }
             // TODO: missing implementation
             break;
 
@@ -99,6 +107,11 @@ bool IoController::out(word_t address, byte_t value)
             handled = true;
 
             // TODO: keyboard
+            if( !(m_control & 0x01) )    // output low order 4 bits
+            {
+                m_keyboard->setRow(value & 0x0f);
+            }
+
             // TODO: sound card
             break;
 

@@ -11,7 +11,8 @@ HEADERS += \
     kernel/iocontroller.h \
     kernel/z80_tables.h \
     kernel/videocontroller.h \
-    kernel/screenrenderer.h
+    kernel/screenrenderer.h \
+    kernel/keyboard.h
 
 SOURCES += \
     kernel/gatearray.cpp \
@@ -21,4 +22,5 @@ SOURCES += \
     kernel/z80_p.cpp \
     kernel/memory.cpp \
     kernel/videocontroller.cpp \
-    kernel/videocontroller_p.cpp
+    kernel/videocontroller_p.cpp \
+    kernel/keyboard.cpp
