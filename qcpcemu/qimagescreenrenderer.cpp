@@ -101,6 +101,11 @@ QImageScreenRenderer::QImageScreenRenderer(QWidget* widget)
     m_scanLine = m_screenBuffer->scanLine(m_ypos);
 }
 
+QImageScreenRenderer::~QImageScreenRenderer()
+{
+    delete m_screenBuffer;
+}
+
 const QImage QImageScreenRenderer::screenBuffer() const
 {
     return m_screenBuffer->convertToFormat(QImage::Format_ARGB32_Premultiplied);
