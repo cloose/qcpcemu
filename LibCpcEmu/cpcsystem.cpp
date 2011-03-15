@@ -9,6 +9,7 @@ CpcSystem::CpcSystem()
 {
     d->done = false;
     d->setupHardware();
+
 }
 
 CpcSystem::~CpcSystem()
@@ -35,9 +36,19 @@ Keyboard* CpcSystem::keyboard() const
     return d->keyboard;
 }
 
+void CpcSystem::attachDiskDrive(uint number, FloppyDiskDrive* drive)
+{
+    d->floppyController->attachDiskDrive(number, drive);
+}
+
 void CpcSystem::setRenderer(ScreenRenderer* renderer)
 {
     d->gateArray->setRenderer(renderer);
+}
+
+void CpcSystem::loadExternalRom(quint8 romNumber, const QString& fileName)
+{
+    d->loadExternalRom(romNumber, fileName);
 }
 
 void CpcSystem::addBreakpoint(word_t address)

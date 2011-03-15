@@ -6,8 +6,10 @@
 #include "types.h"
 
 class CpcSystemPrivate;
+class FloppyDiskDrive;
 class Keyboard;
 class ScreenRenderer;
+
 
 class LIBCPCEMUSHARED_EXPORT CpcSystem : public QObject
 {
@@ -22,7 +24,9 @@ public:
 
     Keyboard* keyboard() const;
 
+    void attachDiskDrive(uint number, FloppyDiskDrive* drive);
     void setRenderer(ScreenRenderer* renderer);
+    void loadExternalRom(quint8 romNumber, const QString& fileName);
 
     void addBreakpoint(word_t address);
 
