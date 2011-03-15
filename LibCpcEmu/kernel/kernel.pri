@@ -12,7 +12,10 @@ HEADERS += \
     kernel/z80_tables.h \
     kernel/videocontroller.h \
     kernel/screenrenderer.h \
-    kernel/keyboard.h
+    kernel/keyboard.h \
+    kernel/diskimagefile.h \
+    kernel/floppycontroller.h \
+    kernel/floppydiskdrive.h
 
 SOURCES += \
     kernel/gatearray.cpp \
@@ -23,4 +26,7 @@ SOURCES += \
     kernel/memory.cpp \
     kernel/videocontroller.cpp \
     kernel/videocontroller_p.cpp \
-    kernel/keyboard.cpp
+    kernel/keyboard.cpp \
+    kernel/diskimagefile.cpp \
+    kernel/floppycontroller.cpp \
+    kernel/floppydiskdrive.cpp
