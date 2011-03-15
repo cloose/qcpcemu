@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "memory.h"
+#include "romimagefile.h"
 #include "screenrenderer.h"
 #include "videocontroller.h"
 #include "z80.h"
@@ -115,6 +116,14 @@ bool GateArray::out(word_t address, byte_t value)
         handled = true;
     }
 
+    // 0xDFxx: select upper rom number
+    // FIXME actually not part of GA. find better place
+    if( (address & 0x2000) == 0x0000 )
+    {
+        selectUpperRom(value);
+        handled = true;
+    }
+
     if (handled)
     {
         qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
@@ -197,5 +206,23 @@ void GateArray::setRomConfiguration(byte_t value)
     {
         m_scanlineCounter = 0;
         qDebug() << "[GA  ] clear scan line counter to delay interrupt generation";
+    }
+}
+
+void GateArray::selectUpperRom(quint8 romNumber)
+{
+    qDebug() << "[GA  ] select upper rom" << romNumber;
+
+    // if there is no such external ROM use basic ROM
+    if (!Memory::externalRoms.contains(romNumber))
+        romNumber = 0;
+
+    if (romNumber == 0)
+    {
+        Memory::blocks[3] = Memory::basicRom;
+    }
+    else
+    {
+        Memory::blocks[3] = Memory::externalRoms[romNumber]->constData();
     }
 }
