@@ -126,7 +126,7 @@ bool GateArray::out(word_t address, byte_t value)
 
     if (handled)
     {
-        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
+//        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
     }
 
     return handled;
@@ -185,21 +185,21 @@ void GateArray::setRomConfiguration(byte_t value)
     // bit 0 & 1: screen mode selection
     m_screenMode = value & 0x03;
 
-    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
+//    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
 
     // bit 2: 0=enabled 1=disabled
     bool lowerRomEnabled = !(value & 0x04);
     memory.blocks[0] = lowerRomEnabled ? memory.kernelRom
                                        : memory.ram;
 
-    qDebug() << "[GA  ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
+//    qDebug() << "[GA  ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
 
     // bit 3: 0=enabled 1=disabled
     bool upperRomEnabled = !(value & 0x08);
     memory.blocks[3] = upperRomEnabled ? memory.basicRom
                                        : memory.ram + 0xc000;
 
-    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
+//    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
 
     // bit 4: 1=clear scan line counter
     if (value & 0x10)

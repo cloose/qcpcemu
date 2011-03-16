@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+#include "exceptions.h"
 #include "ioport.h"
 #include "memory.h"
 #include "registerset.h"
@@ -296,7 +297,7 @@ void Z80::executeOpCode()
         case 0x3c: /* inc a */      Inc(REGISTER_A); break;
         case 0x3d: /* dec a */      Dec(REGISTER_A); break;
         case 0x3e: /* ld a,n */     Load(REGISTER_A, ConstantByte()); break;
-        case 0x3f: // ccf
+        case 0x3f: /* ccf */
             REGISTER_F ^= C_FLAG;
             ResetFlag(N_FLAG|H_FLAG);
             REGISTER_F |= REGISTER_F & C_FLAG ? 0 : H_FLAG;
@@ -663,6 +664,7 @@ void Z80::executeOpCode()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
+            throw NotImplementedException("unhandled opcode");
             break;
     }
 }
@@ -693,20 +695,20 @@ void Z80::executeOpCodeCB()
         case 0x0c: /* rrc h */      Rrc(REGISTER_H); break;
         case 0x0d: /* rrc l */      Rrc(REGISTER_L); break;
 
-        case 0x10: Rl(REGISTER_B); break;
-        case 0x11: Rl(REGISTER_C); break;
-        case 0x12: Rl(REGISTER_D); break;
-        case 0x13: Rl(REGISTER_E); break;
-        case 0x14: Rl(REGISTER_H); break;
-        case 0x15: Rl(REGISTER_L); break;
-        case 0x16: // rl (hl)
+        case 0x10: /* rl b */       Rl(REGISTER_B); break;
+        case 0x11: /* rl c */       Rl(REGISTER_C); break;
+        case 0x12: /* rl d */       Rl(REGISTER_D); break;
+        case 0x13: /* rl e */       Rl(REGISTER_E); break;
+        case 0x14: /* rl h */       Rl(REGISTER_H); break;
+        case 0x15: /* rl l */       Rl(REGISTER_L); break;
+        case 0x16: /* rl (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
                 Rl(value);
                 WriteByteToMemory(REGISTER_HL, value);
             }
             break;
-        case 0x17: Rl(REGISTER_A); break;
+        case 0x17: /* rl a */       Rl(REGISTER_A); break;
 
         case 0x18: Rr(REGISTER_B); break;
         case 0x19: Rr(REGISTER_C); break;
@@ -1082,6 +1084,7 @@ void Z80::executeOpCodeCB()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
+            throw NotImplementedException("unhandled opcode");
             break;
     }
 }
@@ -1160,6 +1163,7 @@ void Z80::executeOpCodeED()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xed" << hex << m_opCode << "at PC" << REGISTER_PC-2;
+            throw NotImplementedException("unhandled opcode");
             break;
     }
 }
@@ -1295,6 +1299,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
         case 0xe5: /* push ix */    Push(destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
+            throw NotImplementedException("unhandled opcode");
             break;
     }
 }
@@ -1302,12 +1307,18 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
 byte_t Z80::emitInputRequest(word_t address)
 {
     byte_t result = 0x00;
+    bool handled = false;
 
     foreach (IoPort* port, m_ioPorts)
     {
-        if (port->in(address, result))
+        handled = port->in(address, result);
+        //if (port->in(address, result))
+        if (handled)
             break;
     }
+
+    if (!handled)
+        throw NotImplementedException(QString("unhandled IN request for address %1").arg(address, 0, 16).toStdString());
 
     return result;
 }

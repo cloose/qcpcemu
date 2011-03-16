@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <QDockWidget>
+#include <QMessageBox>
 #include <QTimer>
 
 #include "cpcsystem.h"
@@ -67,8 +68,15 @@ void MainWindow::delayedInit()
 
 void MainWindow::debugRun()
 {
-    m_system->run();
-    m_debugForm->update();
+    try
+    {
+        m_system->run();
+        m_debugForm->update();
+    }
+    catch (std::exception& ex)
+    {
+        QMessageBox::critical(this, "", ex.what());
+    }
 }
 
 void MainWindow::debugStep()

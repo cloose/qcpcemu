@@ -65,6 +65,7 @@ bool FloppyController::in(word_t address, byte_t& value)
         // 0xfb7e: read FDC main status register
         case 0x0100:
             value = m_mainStatusRegister;
+            handled = true;
             break;
 
         // 0xfb7f: read FDC data register
