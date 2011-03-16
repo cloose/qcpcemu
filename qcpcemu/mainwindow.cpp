@@ -3,9 +3,11 @@
 
 #include <QDebug>
 #include <QDockWidget>
+#include <QMessageBox>
 #include <QTimer>
 
 #include "cpcsystem.h"
+#include "floppydiskdrive.h"
 #include "keyboard.h"
 #include "debugform.h"
 
@@ -14,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , m_system(new CpcSystem())
+    , m_driveA(new FloppyDiskDrive())
+    , m_driveB(new FloppyDiskDrive())
     , m_debugForm(new DebugForm(this))
 {
     ui->setupUi(this);
@@ -53,14 +57,26 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::delayedInit()
 {
+    m_system->loadExternalRom(7, "amsdos.rom");
+    m_system->attachDiskDrive(0, m_driveA);
+    m_system->attachDiskDrive(1, m_driveB);
     m_system->setRenderer(ui->screenWidget->renderer());
     ui->screenWidget->setFocus(Qt::OtherFocusReason);
+
+    m_driveA->insertDisk("elitee.dsk");
 }
 
 void MainWindow::debugRun()
 {
-    m_system->run();
-    m_debugForm->update();
+    try
+    {
+        m_system->run();
+        m_debugForm->update();
+    }
+    catch (std::exception& ex)
+    {
+        QMessageBox::critical(this, "", ex.what());
+    }
 }
 
 void MainWindow::debugStep()

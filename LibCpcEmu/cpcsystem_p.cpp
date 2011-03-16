@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "floppycontroller.h"
 #include "gatearray.h"
 #include "iocontroller.h"
 #include "keyboard.h"
@@ -15,6 +16,7 @@ public:
     ~CpcSystemPrivate();
 
     void setupHardware();
+    void loadExternalRom(quint8 romNumber, const QString& fileName);
 
     bool done;
 
@@ -22,6 +24,7 @@ public:
     IoController* ioController;
     Keyboard* keyboard;
     VideoController* videoController;
+    FloppyController* floppyController;
     Z80* cpu;
 
     QList<word_t> breakpoints;
@@ -32,7 +35,9 @@ public:
 
 CpcSystemPrivate::~CpcSystemPrivate()
 {
+    // TODO: remove external ROMs
     delete cpu;
+    delete floppyController;
     delete videoController;
     delete keyboard;
     delete ioController;
@@ -45,7 +50,8 @@ void CpcSystemPrivate::setupHardware()
 {
     // load the system ROM image from file
     // TODO: image name should be variable and depend on the CPC system
-    systemRom = new RomImageFile("cpc464.rom");
+//    systemRom = new RomImageFile("cpc464.rom");
+    systemRom = new RomImageFile("cpc664.rom");
     if (!systemRom->load())
     {
         // TODO: missing error handling and reporting
@@ -75,11 +81,22 @@ void CpcSystemPrivate::setupHardware()
     QObject::connect(videoController, SIGNAL(vSync(bool)),
                      ioController, SLOT(vSync(bool)));
 
+    floppyController = new FloppyController();
+
     cpu = new Z80();
 
     gateArray = new GateArray(cpu, videoController);
 
     cpu->registerIoPort(gateArray);
-    cpu->registerIoPort(ioController);
     cpu->registerIoPort(videoController);
+    cpu->registerIoPort(ioController);
+    cpu->registerIoPort(floppyController);
+}
+
+void CpcSystemPrivate::loadExternalRom(quint8 romNumber, const QString& fileName)
+{
+    RomImageFile* romImage = new RomImageFile(fileName);
+    romImage->load();
+
+    Memory::externalRoms[romNumber] = romImage;
 }

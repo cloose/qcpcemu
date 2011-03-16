@@ -68,7 +68,7 @@ bool VideoController::in(word_t address, byte_t& value)
 
     if (handled)
     {
-        qDebug() << "[CRTC] IN request at address" << hex << address << "returned value" << hex << value;
+//        qDebug() << "[CRTC] IN request at address" << hex << address << "returned value" << hex << value;
     }
 
     return handled;
@@ -85,20 +85,20 @@ bool VideoController::out(word_t address, byte_t value)
         case 0x0000:
             d->addressRegister = value;
             handled = true;
-            qDebug() << "[CRTC] select register" << value;
+//            qDebug() << "[CRTC] select register" << value;
             break;
 
         // 0xbd00: write 6845 register data
         case 0x0100:
             d->writeRegisterValue(value);
             handled = true;
-            qDebug() << "[CRTC] set register" << d->addressRegister << "to value" << hex << value;
+//            qDebug() << "[CRTC] set register" << d->addressRegister << "to value" << hex << value;
             break;
     }
 
     if (handled)
     {
-        qDebug() << "[CRTC] OUT request at address" << hex << address << "with value" << hex << value;
+//        qDebug() << "[CRTC] OUT request at address" << hex << address << "with value" << hex << value;
     }
 
     return handled;

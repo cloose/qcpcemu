@@ -251,6 +251,8 @@ void Keyboard::reset()
     keyMapping.insert(Qt::Key_BraceLeft, cpcKeyList[CPC_BRACE_LEFT]);
     keyMapping.insert(Qt::Key_Return, cpcKeyList[CPC_RETURN]);
     // ...
+    keyMapping.insert(Qt::Key_At, cpcKeyList[CPC_AT]);
+    keyMapping.insert(Qt::Key_Bar, cpcKeyList[CPC_BAR]);
     keyMapping.insert(Qt::Key_P, cpcKeyList[CPC_P]);
     // ...
     keyMapping.insert(Qt::Key_0, cpcKeyList[CPC_0]);
