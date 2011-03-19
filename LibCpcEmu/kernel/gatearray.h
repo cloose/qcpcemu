@@ -35,6 +35,7 @@ private:
     void selectPen(byte_t value);
     void selectColorForPen(byte_t value);
     void setRomConfiguration(byte_t value);
+    void selectUpperRom(quint8 romNumber);
 
     byte_t m_inkValues[17];
     byte_t m_currentPen;

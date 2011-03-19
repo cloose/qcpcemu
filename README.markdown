@@ -6,16 +6,23 @@ This code is not useful ATM.
 Milestones
 ----------
 
-* M1 goals
+* M1 goals (reached)
 
   * most non-prefix Z80 opcodes are handled
   * startup message is shown
 
-* M2 goals
+* M2 goals (reached)
 
   * all non-prefix Z80 opcodes are handled
   * keyboard input is working
 
+* M3 goals
+
+  * all prefix CB Z80 opcodes are handled
+  * keyboard input is complete
+  * UI improved (menu and status bar)
+  * files can be loaded from a DSK image file
+  
 Dependencies
 ------------
 

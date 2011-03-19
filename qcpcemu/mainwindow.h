@@ -5,6 +5,7 @@
 
 class CpcSystem;
 class DebugForm;
+class FloppyDiskDrive;
 
 namespace Ui {
     class MainWindow;
@@ -34,6 +35,8 @@ private:
 
     Ui::MainWindow *ui;
     CpcSystem* m_system;
+    FloppyDiskDrive* m_driveA;
+    FloppyDiskDrive* m_driveB;
     DebugForm* m_debugForm;
 
     QAction* m_debugRunAction;

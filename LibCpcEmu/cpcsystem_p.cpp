@@ -1,7 +1,9 @@
 #include <cstring>
 
+#include "floppycontroller.h"
 #include "gatearray.h"
 #include "iocontroller.h"
+#include "keyboard.h"
 #include "memory.h"
 #include "romimagefile.h"
 #include "videocontroller.h"
@@ -13,11 +15,16 @@ class CpcSystemPrivate
 public:
     ~CpcSystemPrivate();
 
-    void setupHardware();
+    void setupHardware(const QString& romFileName);
+    void loadExternalRom(quint8 romNumber, const QString& fileName);
+
+    bool done;
 
     GateArray* gateArray;
     IoController* ioController;
+    Keyboard* keyboard;
     VideoController* videoController;
+    FloppyController* floppyController;
     Z80* cpu;
 
     QList<word_t> breakpoints;
@@ -28,19 +35,38 @@ public:
 
 CpcSystemPrivate::~CpcSystemPrivate()
 {
-    delete cpu;
-    delete videoController;
-    delete ioController;
     delete gateArray;
+
+    delete cpu;
+
+    delete floppyController;
+
+    delete videoController;
+
+    delete ioController;
+
+    delete keyboard;
+
+    Memory memory;
+    delete[] memory.ram;
+    memory.ram = 0;
+    memory.kernelRom = 0;
+    memory.basicRom = 0;
+    memory.blocks[0] = 0;
+    memory.blocks[1] = 0;
+    memory.blocks[2] = 0;
+    memory.blocks[3] = 0;
+
+    // TODO: remove external ROMs
+
     delete systemRom;
 }
 
 
-void CpcSystemPrivate::setupHardware()
+void CpcSystemPrivate::setupHardware(const QString& romFileName)
 {
     // load the system ROM image from file
-    // TODO: image name should be variable and depend on the CPC system
-    systemRom = new RomImageFile("cpc464.rom");
+    systemRom = new RomImageFile(romFileName);
     if (!systemRom->load())
     {
         // TODO: missing error handling and reporting
@@ -61,18 +87,31 @@ void CpcSystemPrivate::setupHardware()
     memory.blocks[2] = memory.ram + 0x8000;
     memory.blocks[3] = memory.basicRom;
 
-    ioController = new IoController();
+    keyboard = new Keyboard();
+
+    ioController = new IoController(keyboard);
 
     videoController = new VideoController();
 
     QObject::connect(videoController, SIGNAL(vSync(bool)),
                      ioController, SLOT(vSync(bool)));
 
+    floppyController = new FloppyController();
+
     cpu = new Z80();
 
     gateArray = new GateArray(cpu, videoController);
 
     cpu->registerIoPort(gateArray);
-    cpu->registerIoPort(ioController);
     cpu->registerIoPort(videoController);
+    cpu->registerIoPort(ioController);
+    cpu->registerIoPort(floppyController);
+}
+
+void CpcSystemPrivate::loadExternalRom(quint8 romNumber, const QString& fileName)
+{
+    RomImageFile* romImage = new RomImageFile(fileName);
+    romImage->load();
+
+    Memory::externalRoms[romNumber] = romImage;
 }

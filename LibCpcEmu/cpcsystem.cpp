@@ -7,7 +7,10 @@
 CpcSystem::CpcSystem()
     : d(new CpcSystemPrivate)
 {
-    d->setupHardware();
+    d->done = false;
+    // TODO: image name should be variable and depend on the CPC system
+    d->setupHardware("cpc664.rom");
+
 }
 
 CpcSystem::~CpcSystem()
@@ -19,16 +22,24 @@ void CpcSystem::run()
 {
     do
     {
-        //d->cpu->step();
         d->gateArray->run();
     }
-    while (!d->breakpoints.contains(REGISTER_PC));
+    while (!d->done && !d->breakpoints.contains(REGISTER_PC));
 }
 
 void CpcSystem::step()
 {
-//    d->cpu->step();
     d->gateArray->run();
+}
+
+Keyboard* CpcSystem::keyboard() const
+{
+    return d->keyboard;
+}
+
+void CpcSystem::attachDiskDrive(uint number, FloppyDiskDrive* drive)
+{
+    d->floppyController->attachDiskDrive(number, drive);
 }
 
 void CpcSystem::setRenderer(ScreenRenderer* renderer)
@@ -36,7 +47,17 @@ void CpcSystem::setRenderer(ScreenRenderer* renderer)
     d->gateArray->setRenderer(renderer);
 }
 
+void CpcSystem::loadExternalRom(quint8 romNumber, const QString& fileName)
+{
+    d->loadExternalRom(romNumber, fileName);
+}
+
 void CpcSystem::addBreakpoint(word_t address)
 {
     d->breakpoints.append(address);
+}
+
+void CpcSystem::stopSystem()
+{
+    d->done = true;
 }

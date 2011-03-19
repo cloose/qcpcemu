@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "memory.h"
+#include "romimagefile.h"
 #include "screenrenderer.h"
 #include "videocontroller.h"
 #include "z80.h"
@@ -25,14 +26,6 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
             this, SLOT(vSync(bool)));
     connect(m_crtc, SIGNAL(endOfFrame()),
             this, SLOT(endOfFrame()));
-}
-
-static inline byte_t ReadByteFromMemory(word_t address)
-{
-    quint8 block = (address >> 14);
-    quint16 addressOffset = block * 0x4000;
-
-    return Memory::blocks[block][address - addressOffset];
 }
 
 void GateArray::run()
@@ -115,9 +108,17 @@ bool GateArray::out(word_t address, byte_t value)
         handled = true;
     }
 
+    // 0xDFxx: select upper rom number
+    // FIXME actually not part of GA. find better place
+    if( (address & 0x2000) == 0x0000 )
+    {
+        selectUpperRom(value);
+        handled = true;
+    }
+
     if (handled)
     {
-        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
+//        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
     }
 
     return handled;
@@ -136,6 +137,7 @@ void GateArray::hSync(bool active)
         }
 
         m_renderer->hSync();
+        qApp->processEvents();
     }
 }
 
@@ -175,26 +177,44 @@ void GateArray::setRomConfiguration(byte_t value)
     // bit 0 & 1: screen mode selection
     m_screenMode = value & 0x03;
 
-    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
+//    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
 
     // bit 2: 0=enabled 1=disabled
     bool lowerRomEnabled = !(value & 0x04);
     memory.blocks[0] = lowerRomEnabled ? memory.kernelRom
                                        : memory.ram;
 
-    qDebug() << "[GA  ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
+//    qDebug() << "[GA  ] set ROM configuration: lower ROM enabled is" << lowerRomEnabled;
 
     // bit 3: 0=enabled 1=disabled
     bool upperRomEnabled = !(value & 0x08);
     memory.blocks[3] = upperRomEnabled ? memory.basicRom
                                        : memory.ram + 0xc000;
 
-    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
+//    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
 
     // bit 4: 1=clear scan line counter
     if (value & 0x10)
     {
         m_scanlineCounter = 0;
         qDebug() << "[GA  ] clear scan line counter to delay interrupt generation";
+    }
+}
+
+void GateArray::selectUpperRom(quint8 romNumber)
+{
+    qDebug() << "[GA  ] select upper rom" << romNumber;
+
+    // if there is no such external ROM use basic ROM
+    if (!Memory::externalRoms.contains(romNumber))
+        romNumber = 0;
+
+    if (romNumber == 0)
+    {
+        Memory::blocks[3] = Memory::basicRom;
+    }
+    else
+    {
+        Memory::blocks[3] = Memory::externalRoms[romNumber]->constData();
     }
 }

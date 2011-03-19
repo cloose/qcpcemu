@@ -3,6 +3,8 @@
 #include "registerset.h"
 #include "z80_tables.h"
 
+#include <QString>
+
 // high order byte of a word
 #define HIBYTE(word)       ((word >> 8) & 0xff)
 
@@ -31,6 +33,7 @@ static inline void ResetFlag(byte_t flag)
 static inline byte_t ReadByteFromMemory(word_t address)
 {
     quint8 block = (address >> 14);
+    Q_ASSERT_X(block <= 3, "ReadByteFromMemory", QString("block is greater than 3: %1").arg(address, 0, 16).toLatin1());
     quint16 addressOffset = block * 0x4000;
 
     return Memory::blocks[block][address - addressOffset];
@@ -41,7 +44,7 @@ static inline word_t ReadWordFromMemory(word_t address)
     byte_t low = ReadByteFromMemory(address++);
     byte_t high = ReadByteFromMemory(address);
 
-    return (low | (high << 8));
+    return WORD(low, high);
 }
 
 static inline void WriteByteToMemory(word_t address, byte_t value)
@@ -173,6 +176,27 @@ static inline void Ldi()
     // set overflow flag if BC not equal 0
     if (REGISTER_BC != 0)
         REGISTER_F |= V_FLAG;
+}
+
+/**
+ * TODO: missing description
+ */
+static inline void Ldd()
+{
+    // transfer data from (HL) to (DE)
+    WriteByteToMemory(REGISTER_DE, ReadByteFromMemory(REGISTER_HL));
+
+    REGISTER_HL--;
+    REGISTER_DE--;
+    REGISTER_BC--;
+
+    // reset H, P and N flag
+    // flags S, Z and C are not affected
+    REGISTER_F &= ~(N_FLAG|H_FLAG|P_FLAG);
+
+    // set P flag if BC not equal 0
+    if( REGISTER_BC != 0 )
+        REGISTER_F |= P_FLAG;
 }
 
 

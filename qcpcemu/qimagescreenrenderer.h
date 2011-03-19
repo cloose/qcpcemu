@@ -11,6 +11,7 @@ class QImageScreenRenderer : public ScreenRenderer
 {
 public:
     explicit QImageScreenRenderer(QWidget* widget);
+    ~QImageScreenRenderer();
 
     const QImage screenBuffer() const;
 
