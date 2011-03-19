@@ -16,6 +16,7 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
     , m_scanlineCounter(0)
     , m_screenMode(0)
     , m_frameCycleCount(4000000/50)
+    , m_upperRomNumber(0)
     , m_cpu(cpu)
     , m_crtc(crtc)
     , m_renderer(0)
@@ -26,6 +27,13 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
             this, SLOT(vSync(bool)));
     connect(m_crtc, SIGNAL(endOfFrame()),
             this, SLOT(endOfFrame()));
+}
+
+word_t GetVideoMemoryAddress(VideoController* crtc)
+{
+    return ((crtc->memoryAddress() & 0x3000) << 2)  // MA13 & MA12
+         | ((crtc->rowAddress() & 0x07) << 11)      // RA2 - RA0
+         | ((crtc->memoryAddress() & 0x03ff) << 1); // MA9 - MA0
 }
 
 void GateArray::run()
@@ -39,18 +47,14 @@ void GateArray::run()
         while (cycles)
         {
             m_crtc->run();
-            word_t videoAddress = ((m_crtc->memoryAddress() & 0x3000) << 2)  // MA13 & MA12
-                                | ((m_crtc->rowAddress() & 0x07) << 11)      // RA2 - RA0
-                                | ((m_crtc->memoryAddress() & 0x03ff) << 1); // MA9 - MA0
-
-            Q_ASSERT_X(m_crtc->rowAddress() < 8, "GateArray::run", "Rowaddress muss kleiner 8 sein");
+            word_t videoAddress = GetVideoMemoryAddress(m_crtc);
 
             byte_t displayByte1 = Memory::ram[videoAddress++];
             byte_t displayByte2 = Memory::ram[videoAddress];
 
             if (m_renderer && m_crtc->displayEnabled())
             {
-                 m_renderer->draw(displayByte1, displayByte2);
+                m_renderer->draw(displayByte1, displayByte2);
             }
 
             cycles--;
@@ -137,7 +141,6 @@ void GateArray::hSync(bool active)
         }
 
         m_renderer->hSync();
-        qApp->processEvents();
     }
 }
 
@@ -188,8 +191,14 @@ void GateArray::setRomConfiguration(byte_t value)
 
     // bit 3: 0=enabled 1=disabled
     bool upperRomEnabled = !(value & 0x08);
-    memory.blocks[3] = upperRomEnabled ? memory.basicRom
-                                       : memory.ram + 0xc000;
+    if (upperRomEnabled)
+    {
+        selectUpperRom(m_upperRomNumber);
+    }
+    else
+    {
+        memory.blocks[3] = memory.ram + 0xc000;
+    }
 
 //    qDebug() << "[GA  ] set ROM configuration: upper ROM enabled is" << upperRomEnabled;
 
@@ -217,4 +226,6 @@ void GateArray::selectUpperRom(quint8 romNumber)
     {
         Memory::blocks[3] = Memory::externalRoms[romNumber]->constData();
     }
+
+    m_upperRomNumber = romNumber;
 }
