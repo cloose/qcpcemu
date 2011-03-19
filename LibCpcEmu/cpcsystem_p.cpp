@@ -15,7 +15,7 @@ class CpcSystemPrivate
 public:
     ~CpcSystemPrivate();
 
-    void setupHardware();
+    void setupHardware(const QString& romFileName);
     void loadExternalRom(quint8 romNumber, const QString& fileName);
 
     bool done;
@@ -35,23 +35,38 @@ public:
 
 CpcSystemPrivate::~CpcSystemPrivate()
 {
-    // TODO: remove external ROMs
-    delete cpu;
-    delete floppyController;
-    delete videoController;
-    delete keyboard;
-    delete ioController;
     delete gateArray;
+
+    delete cpu;
+
+    delete floppyController;
+
+    delete videoController;
+
+    delete ioController;
+
+    delete keyboard;
+
+    Memory memory;
+    delete[] memory.ram;
+    memory.ram = 0;
+    memory.kernelRom = 0;
+    memory.basicRom = 0;
+    memory.blocks[0] = 0;
+    memory.blocks[1] = 0;
+    memory.blocks[2] = 0;
+    memory.blocks[3] = 0;
+
+    // TODO: remove external ROMs
+
     delete systemRom;
 }
 
 
-void CpcSystemPrivate::setupHardware()
+void CpcSystemPrivate::setupHardware(const QString& romFileName)
 {
     // load the system ROM image from file
-    // TODO: image name should be variable and depend on the CPC system
-//    systemRom = new RomImageFile("cpc464.rom");
-    systemRom = new RomImageFile("cpc664.rom");
+    systemRom = new RomImageFile(romFileName);
     if (!systemRom->load())
     {
         // TODO: missing error handling and reporting

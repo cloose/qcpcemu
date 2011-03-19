@@ -164,7 +164,6 @@ bool IoController::out(word_t address, byte_t value)
                 //     bit 0:   definition of input/output of port C (low order 4 bits)
                 //                0 = output, 1=input
                 m_control = value;
-                handled = true;
 
                 // TODO: is this correct?
                 m_portA = 0x00;
@@ -208,6 +207,7 @@ bool IoController::out(word_t address, byte_t value)
                     qDebug() << "[PPI ] MISSING IMPLEMENTATION";
                 }
             }
+            handled = true;
             break;
     }
 

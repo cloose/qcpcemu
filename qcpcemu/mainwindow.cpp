@@ -38,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete m_driveB;
+    delete m_driveA;
     delete m_system;
     delete ui;
 }

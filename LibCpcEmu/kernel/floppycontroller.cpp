@@ -93,7 +93,7 @@ bool FloppyController::out(word_t address, byte_t value)
             // bit 0: state of FDD motor
             //            0 = inactive, 1 = active
             m_motorsActive = ((value & 0x01) == 1);
-            handled = false;
+            handled = true;
             break;
 
         // 0xfb7f: write FDC data register

@@ -8,7 +8,8 @@ CpcSystem::CpcSystem()
     : d(new CpcSystemPrivate)
 {
     d->done = false;
-    d->setupHardware();
+    // TODO: image name should be variable and depend on the CPC system
+    d->setupHardware("cpc664.rom");
 
 }
 

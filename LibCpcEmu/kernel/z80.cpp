@@ -6,6 +6,7 @@
 
 #include "exceptions.h"
 #include "ioport.h"
+#include "logger.h"
 #include "memory.h"
 #include "registerset.h"
 #include "z80_tables.h"
@@ -40,14 +41,19 @@ void Z80::reset()
     REGISTER_BC = 0x0000;
     REGISTER_DE = 0x0000;
     REGISTER_HL = 0x0000;
-    REGISTER_PC = 0x0000;
-    REGISTER_SP = 0xc000;
 
     // shadow registers
     REGISTER_AF1 = 0x0000;
     REGISTER_BC1 = 0x0000;
     REGISTER_DE1 = 0x0000;
     REGISTER_HL1 = 0x0000;
+
+    // index registers
+    REGISTER_IX = 0x0000;
+    REGISTER_IY = 0x0000;
+
+    REGISTER_PC = 0x0000;
+    REGISTER_SP = 0xc000;
 
     // disable interrupts on reset (Z80 manual  p.23)
     RegisterSet::IFF1 = RegisterSet::IFF2 = 0;
@@ -120,6 +126,7 @@ void Z80::setInterruptPending()
 
 byte_t Z80::fetchInstruction()
 {
+//    Logger::getInstance()->logProgramCounter(REGISTER_PC);
     return ReadByteFromMemory(REGISTER_PC++);
 }
 
@@ -199,7 +206,7 @@ void Z80::executeOpCode()
         case 0x1f: /* rra */        Rra(); break;
 
         case 0x20: /* jr nz,e */
-            if( REGISTER_F & Z_FLAG )
+            if (REGISTER_F & Z_FLAG)
             {
                 REGISTER_PC++;
             }
@@ -248,7 +255,7 @@ void Z80::executeOpCode()
         case 0x2f: /* cpl */        Cpl(); break;
 
         case 0x30: /* jr nc,e */
-            if( REGISTER_F & C_FLAG )
+            if (REGISTER_F & C_FLAG)
             {
                 REGISTER_PC++;
             }
@@ -363,6 +370,7 @@ void Z80::executeOpCode()
         case 0x73: /* ld (hl),e */  Load(MemoryLocationW(REGISTER_HL), REGISTER_E); break;
         case 0x74: /* ld (hl),h */  Load(MemoryLocationW(REGISTER_HL), REGISTER_H); break;
         case 0x75: /* ld (hl),l */  Load(MemoryLocationW(REGISTER_HL), REGISTER_L); break;
+        case 0x76: /* halt */       m_halt = true; REGISTER_PC--; break;
         case 0x77: /* ld (hl),a */  Load(MemoryLocationW(REGISTER_HL), REGISTER_A); break;
 
         case 0x78: /* ld a,b */     Load(REGISTER_A, REGISTER_B); break;
@@ -577,6 +585,16 @@ void Z80::executeOpCode()
         case 0xdf: /* rst 0x18 */   Rst(0x0018); break;
 
         case 0xe1: /* pop hl */     REGISTER_HL = Pop(); break;
+        case 0xe2: /* jp po,nn */
+            if (REGISTER_F & P_FLAG)
+            {
+                REGISTER_PC += 2;
+            }
+            else
+            {
+                Jump();
+            }
+            break;
         case 0xe3: /* ex (sp),hl */
              {
                  quint8 low  = ReadByteFromMemory(REGISTER_SP);
@@ -716,7 +734,7 @@ void Z80::executeOpCodeCB()
         case 0x1b: Rr(REGISTER_E); break;
         case 0x1c: Rr(REGISTER_H); break;
         case 0x1d: Rr(REGISTER_L); break;
-        case 0x1e: // rr (hl)
+        case 0x1e: /* rr (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
                 Rr(value);
@@ -731,7 +749,7 @@ void Z80::executeOpCodeCB()
         case 0x23: Sla(REGISTER_E); break;
         case 0x24: Sla(REGISTER_H); break;
         case 0x25: Sla(REGISTER_L); break;
-        case 0x26: // sla (hl)
+        case 0x26: /* sla (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
                 Sla(value);
@@ -746,7 +764,7 @@ void Z80::executeOpCodeCB()
         case 0x2b: Sra(REGISTER_E); break;
         case 0x2c: Sra(REGISTER_H); break;
         case 0x2d: Sra(REGISTER_L); break;
-        case 0x2e: // sra (hl)
+        case 0x2e: /* sra (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
                 Sra(value);
@@ -1325,9 +1343,16 @@ byte_t Z80::emitInputRequest(word_t address)
 
 void Z80::emitOutputRequest(word_t address, byte_t value)
 {
+    bool handled = false;
+
     foreach (IoPort* port, m_ioPorts)
     {
-        if (port->out(address, value))
+        handled = port->out(address, value);
+//        if (port->out(address, value))
+        if (handled)
             break;
     }
+
+    if (!handled && address != 0xef7f && address != 0xf8ff)
+        throw NotImplementedException(QString("unhandled OUT request for address %1").arg(address, 0, 16).toStdString());
 }
