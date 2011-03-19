@@ -98,12 +98,13 @@ QImageScreenRenderer::QImageScreenRenderer(QWidget* widget)
         m_screenBuffer->setColor(i, qRgb(r, g, b));
     }
 
+    m_screenBuffer->fill(0x00);
     m_scanLine = m_screenBuffer->scanLine(m_ypos);
 }
 
 QImageScreenRenderer::~QImageScreenRenderer()
 {
-    delete m_screenBuffer;
+    delete m_screenBuffer; m_screenBuffer = 0;
 }
 
 const QImage QImageScreenRenderer::screenBuffer() const
