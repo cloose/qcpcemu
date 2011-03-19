@@ -15,8 +15,7 @@ HEADERS += \
     kernel/keyboard.h \
     kernel/diskimagefile.h \
     kernel/floppycontroller.h \
-    kernel/floppydiskdrive.h \
-    kernel/exceptions.h
+    kernel/floppydiskdrive.h
 
 SOURCES += \
     kernel/gatearray.cpp \

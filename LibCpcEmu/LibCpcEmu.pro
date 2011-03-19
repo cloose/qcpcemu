@@ -11,6 +11,7 @@ TEMPLATE = lib
 
 DEFINES += LIBCPCEMU_LIBRARY
 HEADERS += LibCpcEmu_global.h \
+    exceptions.h \
     cpcsystem.h
 
 SOURCES += \
