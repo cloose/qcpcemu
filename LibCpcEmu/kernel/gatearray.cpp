@@ -28,14 +28,6 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
             this, SLOT(endOfFrame()));
 }
 
-static inline byte_t ReadByteFromMemory(word_t address)
-{
-    quint8 block = (address >> 14);
-    quint16 addressOffset = block * 0x4000;
-
-    return Memory::blocks[block][address - addressOffset];
-}
-
 void GateArray::run()
 {
     int cycleCount = m_cpu->step();
