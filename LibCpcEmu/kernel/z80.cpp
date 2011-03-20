@@ -1421,6 +1421,15 @@ void Z80::executeOpCodeXXCB(word_t address)
 {
     switch (m_opCode)
     {
+        case 0x46: /* bit 0,(ix+d) */ Bit(0, MemoryLocationR(address)); break;
+        case 0x4e: /* bit 1,(ix+d) */ Bit(1, MemoryLocationR(address)); break;
+        case 0x56: /* bit 2,(ix+d) */ Bit(2, MemoryLocationR(address)); break;
+        case 0x5e: /* bit 3,(ix+d) */ Bit(3, MemoryLocationR(address)); break;
+        case 0x66: /* bit 4,(ix+d) */ Bit(4, MemoryLocationR(address)); break;
+        case 0x6e: /* bit 5,(ix+d) */ Bit(5, MemoryLocationR(address)); break;
+        case 0x76: /* bit 6,(ix+d) */ Bit(6, MemoryLocationR(address)); break;
+        case 0x7e: /* bit 7,(ix+d) */ Bit(7, MemoryLocationR(address)); break;
+
         case 0xc6: // set 0,(ix+d)
             {
                 byte_t value = ReadByteFromMemory(address);
