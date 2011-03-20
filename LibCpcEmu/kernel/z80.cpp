@@ -1167,6 +1167,14 @@ void Z80::executeOpCodeED()
 {
     switch (m_opCode)
     {
+        case 0x42: /* sbc hl,bc */  Sbc(REGISTER_HL, REGISTER_BC); break;
+        case 0x43: /* ld (nn),bc */
+            {
+                word_t address = ConstantWord();
+                Load(MemoryLocationW(address++), LOBYTE(REGISTER_BC));
+                Load(MemoryLocationW(address), HIBYTE(REGISTER_BC));
+            }
+            break;
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x48: /* in c,(c) */
             REGISTER_C = emitInputRequest(REGISTER_BC);
@@ -1176,6 +1184,7 @@ void Z80::executeOpCodeED()
             break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
+        case 0x51: /* out (c),d */  emitOutputRequest(REGISTER_BC, REGISTER_D); break;
         case 0x52: /* sbc hl,de */  Sbc(REGISTER_HL, REGISTER_DE); break;
         case 0x53: /* ld (nn),de */
             // TODO: new LoadXXX() function?
@@ -1191,8 +1200,12 @@ void Z80::executeOpCodeED()
             }
             break;
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
+        case 0x59: /* out (c),e */  emitOutputRequest(REGISTER_BC, REGISTER_E); break;
         case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
+        case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
+        case 0x62: /* sbc hl,hl */  Sbc(REGISTER_HL, REGISTER_HL); break;
+        case 0x69: /* out (c),l */  emitOutputRequest(REGISTER_BC, REGISTER_L); break;
         case 0x73: /* ld (nn),sp */
             // TODO: new LoadXXX() function?
             {
@@ -1249,6 +1262,14 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
         case 0x09: /* add ix,bc */  Add(destinationRegister, REGISTER_BC); break;
         case 0x19: /* add ix,de */  Add(destinationRegister, REGISTER_DE); break;
         case 0x21: /* ld ix,nn */   Load(destinationRegister, ConstantWord()); break;
+        case 0x22: /* ld (nn),ix */
+            {
+                word_t address = ConstantWord();
+                Load(MemoryLocationW(address++), LOBYTE(destinationRegister));
+                Load(MemoryLocationW(address), HIBYTE(destinationRegister));
+            }
+            break;
+        case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
         case 0x34: /* inc (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1271,6 +1292,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 WriteByteToMemory(destinationRegister+offset, ConstantByte());
             }
             break;
+        case 0x39: /* add ix,sp */  Add(destinationRegister, REGISTER_SP); break;
         case 0x4e: /* ld c,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1354,6 +1376,13 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 byte_t value = ReadByteFromMemory(destinationRegister+offset);
                 Add(value);
+            }
+            break;
+        case 0x8e: /* adc a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Adc(value);
             }
             break;
         case 0xb6: /* or (ix+d) */

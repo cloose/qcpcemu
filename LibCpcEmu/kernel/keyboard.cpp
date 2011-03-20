@@ -4,112 +4,7 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-enum
-{
-    CPC_CURSOR_UP,
-    CPC_CURSOR_RIGHT,
-    CPC_CURSOR_DOWN,
-    CPC_F9,
-    CPC_F6,
-    CPC_F3,
-    CPC_ENTER,
-    CPC_KEYPAD_PERIOD,
-    CPC_CURSOR_LEFT,
-    CPC_COPY,
-    CPC_F7,
-    CPC_F8,
-    CPC_F5,
-    CPC_F1,
-    CPC_F2,
-    CPC_F0,
-    CPC_CLR,
-    CPC_BRACKET_LEFT,
-    CPC_BRACE_LEFT,
-    CPC_RETURN,
-    CPC_BRACKET_RIGHT,
-    CPC_BRACE_RIGHT,
-    CPC_F4,
-    CPC_SHIFT,
-    CPC_BACKSLASH,
-    CPC_GRAVE,
-    CPC_CTRL,
-    CPC_CIRCUMFLEX,
-    CPC_POUND,
-    CPC_MINUS,
-    CPC_EQUAL,
-    CPC_AT,
-    CPC_BAR,
-    CPC_P,
-    CPC_SEMICOLON,
-    CPC_PLUS,
-    CPC_COLON,
-    CPC_ASTERISK,
-    CPC_SLASH,
-    CPC_QUESTIONMARK,
-    CPC_PERIOD,
-    CPC_GREATER,
-    CPC_0,
-    CPC_UNDERSCORE,
-    CPC_9,
-    CPC_PARENTHESIS_RIGHT,
-    CPC_O,
-    CPC_I,
-    CPC_L,
-    CPC_K,
-    CPC_M,
-    CPC_COMMA,
-    CPC_LESS,
-    CPC_8,
-    CPC_PARENTHESIS_LEFT,
-    CPC_7,
-    CPC_APOSTROPHE,
-    CPC_U,
-    CPC_Y,
-    CPC_H,
-    CPC_J,
-    CPC_N,
-    CPC_SPACE,
-    CPC_6,
-    CPC_AMPERSAND,
-    CPC_5,
-    CPC_PERCENT,
-    CPC_R,
-    CPC_T,
-    CPC_G,
-    CPC_F,
-    CPC_B,
-    CPC_V,
-    CPC_4,
-    CPC_DOLLAR,
-    CPC_3,
-    CPC_NUMBERSIGN,
-    CPC_E,
-    CPC_W,
-    CPC_S,
-    CPC_D,
-    CPC_C,
-    CPC_X,
-    CPC_1,
-    CPC_EXCLAMATIONMARK,
-    CPC_2,
-    CPC_DOUBLEQUOTE,
-    CPC_ESC,
-    CPC_Q,
-    CPC_TAB,
-    CPC_A,
-    CPC_CAPS_LOCK,
-    CPC_Z,
-    CPC_JOY0_UP,
-    CPC_JOY0_DOWN,
-    CPC_JOY0_LEFT,
-    CPC_JOY0_RIGHT,
-    CPC_JOY0_FIRE_2,
-    CPC_JOY0_FIRE_1,
-    CPC_BACKSPACE,
-    CPC_LAST_KEY
-};
-
-static const Keyboard::CpcKey cpcKeyList[CPC_LAST_KEY] =
+const Keyboard::CpcKey Keyboard::cpcKeyList[CPC_LAST_KEY] =
 {
     { CPC_CURSOR_UP,         0, 0x01, false },
     { CPC_CURSOR_RIGHT,      0, 0x02, false },
@@ -255,13 +150,20 @@ void Keyboard::reset()
     keyMapping.insert(Qt::Key_Bar, cpcKeyList[CPC_BAR]);
     keyMapping.insert(Qt::Key_P, cpcKeyList[CPC_P]);
     // ...
+    keyMapping.insert(Qt::Key_Period, cpcKeyList[CPC_PERIOD]);
+    keyMapping.insert(Qt::Key_Greater, cpcKeyList[CPC_GREATER]);
     keyMapping.insert(Qt::Key_0, cpcKeyList[CPC_0]);
-    // ...
+    keyMapping.insert(Qt::Key_Underscore, cpcKeyList[CPC_UNDERSCORE]);
+    keyMapping.insert(Qt::Key_9, cpcKeyList[CPC_9]);
+    keyMapping.insert(Qt::Key_ParenRight, cpcKeyList[CPC_PARENTHESIS_RIGHT]);
     keyMapping.insert(Qt::Key_O, cpcKeyList[CPC_O]);
     keyMapping.insert(Qt::Key_I, cpcKeyList[CPC_I]);
     keyMapping.insert(Qt::Key_L, cpcKeyList[CPC_L]);
     keyMapping.insert(Qt::Key_K, cpcKeyList[CPC_K]);
     keyMapping.insert(Qt::Key_M, cpcKeyList[CPC_M]);
+    keyMapping.insert(Qt::Key_Comma, cpcKeyList[CPC_COMMA]);
+    keyMapping.insert(Qt::Key_Less, cpcKeyList[CPC_LESS]);
+    keyMapping.insert(Qt::Key_8, cpcKeyList[CPC_8]);
     // ...
     keyMapping.insert(Qt::Key_U, cpcKeyList[CPC_U]);
     keyMapping.insert(Qt::Key_Y, cpcKeyList[CPC_Y]);
