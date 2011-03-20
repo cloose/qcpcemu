@@ -1269,6 +1269,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Load(MemoryLocationW(address), HIBYTE(destinationRegister));
             }
             break;
+        case 0x23: /* inc ix */     Inc(destinationRegister); break;
         case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
         case 0x34: /* inc (ix+d) */
             {
