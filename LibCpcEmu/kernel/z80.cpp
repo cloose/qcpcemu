@@ -1238,6 +1238,15 @@ void Z80::executeOpCodeED()
                 REGISTER_PC -= 2;
             }
             break;
+        case 0xb1: /* cpir */
+            Cpi();
+
+            if (REGISTER_BC && !(REGISTER_F & Z_FLAG))
+            {
+                m_cycleCount += cc_ex[m_opCode];
+                REGISTER_PC -= 2;
+            }
+            break;
         case 0xb8: /* lddr */
             Ldd();
 
