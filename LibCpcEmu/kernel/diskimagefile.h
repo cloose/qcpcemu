@@ -74,6 +74,12 @@ public:
 
     bool isExtendedFormat() const;
 
+    // TODO: really open access to header from outside?
+    const DiskInformationBlock* header() const;
+    SectorInfo* sectorInfo(uint track, uint sector);
+    int sector(byte_t track, byte_t sectorId);
+    byte_t data(byte_t track, uint position);
+
 private:
     Q_DISABLE_COPY(DiskImageFile);
 

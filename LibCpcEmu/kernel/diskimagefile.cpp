@@ -65,6 +65,41 @@ bool DiskImageFile::isExtendedFormat() const
     return tag.startsWith("EXTENDED CPC DSK File");
 }
 
+const DiskInformationBlock* DiskImageFile::header() const
+{
+    return m_header;
+}
+
+SectorInfo* DiskImageFile::sectorInfo(uint track, uint sector)
+{
+    Q_ASSERT(track < m_header->numberOfTracks*m_header->numberOfSides);
+
+    if (sector >= m_tracks[track].header->numberOfSectors)
+        return 0;
+
+    return &m_tracks[track].header->sectorInfos[sector];
+}
+
+int DiskImageFile::sector(byte_t track, byte_t sectorId)
+{
+    int i = 0;
+
+    for( ; i < m_tracks[track].header->numberOfSectors; ++i )
+    {
+        if( m_tracks[track].header->sectorInfos[i].sectorId == sectorId )
+            break;
+    }
+
+    if( i == m_tracks[track].header->numberOfSectors ) i = -1;
+
+    return i;
+}
+
+byte_t DiskImageFile::data(byte_t track, uint position)
+{
+    return m_tracks[track].data[position];
+}
+
 DiskInformationBlock* DiskImageFile::readDiskInformationBlock(QDataStream& in)
 {
     DiskInformationBlock* diskInfo = new DiskInformationBlock;
