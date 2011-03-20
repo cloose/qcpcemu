@@ -1438,6 +1438,63 @@ void Z80::executeOpCodeXXCB(word_t address)
         case 0x76: /* bit 6,(ix+d) */ Bit(6, MemoryLocationR(address)); break;
         case 0x7e: /* bit 7,(ix+d) */ Bit(7, MemoryLocationR(address)); break;
 
+        case 0x86: /* res 0,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(0, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x8e: /* res 1,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(1, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x96: /* res 2,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(2, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x9e: /* res 3,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(3, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xa6: /* res 4,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(4, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xae: /* res 5,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(5, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xb6: /* res 6,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(6, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xbe: /* res 7,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(7, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
         case 0xc6: // set 0,(ix+d)
             {
                 byte_t value = ReadByteFromMemory(address);
@@ -1494,6 +1551,7 @@ void Z80::executeOpCodeXXCB(word_t address)
                 WriteByteToMemory(address, value);
             }
             break;
+
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             throw NotImplementedException("unhandled opcode");
