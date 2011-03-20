@@ -1303,6 +1303,12 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0x39: /* add ix,sp */  Add(destinationRegister, REGISTER_SP); break;
+        case 0x46: /* ld b,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_B = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
         case 0x4e: /* ld c,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
