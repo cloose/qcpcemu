@@ -1399,10 +1399,86 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Cp(value);
             }
             break;
+        case PREFIX_CB:
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                word_t address = destinationRegister+offset;
+
+                m_opCode = ConstantByte();
+                executeOpCodeXXCB(address);
+            }
+            break;
         case 0xe1: /* pop ix */     destinationRegister = Pop(); break;
         case 0xe5: /* push ix */    Push(destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
+            throw NotImplementedException("unhandled opcode");
+            break;
+    }
+}
+
+void Z80::executeOpCodeXXCB(word_t address)
+{
+    switch (m_opCode)
+    {
+        case 0xc6: // set 0,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(0, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xce: // set 1,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(1, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xd6: // set 2,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(2, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xde: // set 3,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(3, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xe6: // set 4,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(4, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xee: // set 5,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(5, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xf6: // set 6,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(6, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xfe: // set 7,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(7, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        default:
+            qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             throw NotImplementedException("unhandled opcode");
             break;
     }
