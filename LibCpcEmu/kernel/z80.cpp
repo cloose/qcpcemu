@@ -1238,6 +1238,15 @@ void Z80::executeOpCodeED()
                 REGISTER_PC -= 2;
             }
             break;
+        case 0xb1: /* cpir */
+            Cpi();
+
+            if (REGISTER_BC && !(REGISTER_F & Z_FLAG))
+            {
+                m_cycleCount += cc_ex[m_opCode];
+                REGISTER_PC -= 2;
+            }
+            break;
         case 0xb8: /* lddr */
             Ldd();
 
@@ -1269,6 +1278,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Load(MemoryLocationW(address), HIBYTE(destinationRegister));
             }
             break;
+        case 0x23: /* inc ix */     Inc(destinationRegister); break;
         case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
         case 0x34: /* inc (ix+d) */
             {
@@ -1293,6 +1303,12 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0x39: /* add ix,sp */  Add(destinationRegister, REGISTER_SP); break;
+        case 0x46: /* ld b,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                REGISTER_B = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
         case 0x4e: /* ld c,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1398,10 +1414,161 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Cp(value);
             }
             break;
+        case PREFIX_CB:
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                word_t address = destinationRegister+offset;
+
+                m_opCode = ConstantByte();
+                executeOpCodeXXCB(address);
+            }
+            break;
         case 0xe1: /* pop ix */     destinationRegister = Pop(); break;
         case 0xe5: /* push ix */    Push(destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
+            throw NotImplementedException("unhandled opcode");
+            break;
+    }
+}
+
+void Z80::executeOpCodeXXCB(word_t address)
+{
+    switch (m_opCode)
+    {
+        case 0x1e: /* rr (ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Rr(value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
+        case 0x46: /* bit 0,(ix+d) */ Bit(0, MemoryLocationR(address)); break;
+        case 0x4e: /* bit 1,(ix+d) */ Bit(1, MemoryLocationR(address)); break;
+        case 0x56: /* bit 2,(ix+d) */ Bit(2, MemoryLocationR(address)); break;
+        case 0x5e: /* bit 3,(ix+d) */ Bit(3, MemoryLocationR(address)); break;
+        case 0x66: /* bit 4,(ix+d) */ Bit(4, MemoryLocationR(address)); break;
+        case 0x6e: /* bit 5,(ix+d) */ Bit(5, MemoryLocationR(address)); break;
+        case 0x76: /* bit 6,(ix+d) */ Bit(6, MemoryLocationR(address)); break;
+        case 0x7e: /* bit 7,(ix+d) */ Bit(7, MemoryLocationR(address)); break;
+
+        case 0x86: /* res 0,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(0, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x8e: /* res 1,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(1, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x96: /* res 2,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(2, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x9e: /* res 3,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(3, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xa6: /* res 4,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(4, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xae: /* res 5,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(5, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xb6: /* res 6,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(6, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xbe: /* res 7,(ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Res(7, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
+        case 0xc6: // set 0,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(0, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xce: // set 1,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(1, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xd6: // set 2,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(2, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xde: // set 3,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(3, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xe6: // set 4,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(4, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xee: // set 5,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(5, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xf6: // set 6,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(6, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0xfe: // set 7,(ix+d)
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Set(7, value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
+        default:
+            qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             throw NotImplementedException("unhandled opcode");
             break;
     }

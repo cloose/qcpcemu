@@ -199,6 +199,24 @@ static inline void Ldd()
         REGISTER_F |= P_FLAG;
 }
 
+/**
+ * TODO: missing description
+ */
+static inline void Cpi()
+{
+    byte_t value  = ReadByteFromMemory(REGISTER_HL);
+    byte_t result = REGISTER_A - value;
+
+    REGISTER_HL++;
+    REGISTER_BC--;
+
+    REGISTER_F = N_FLAG                                    // N is set
+               | (REGISTER_F & C_FLAG)                     // C is not affected
+               | SignAndZeroTable[result]
+               | ((REGISTER_A ^ value ^ result) & H_FLAG)
+               | (REGISTER_BC ? P_FLAG : 0);               // P is set if BC <> 0
+}
+
 
 //----------------------------------------------------------------------------
 //- 8-Bit Arithmetic Group
