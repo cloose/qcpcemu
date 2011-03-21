@@ -25,6 +25,30 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="fileMenu">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="driveAMenu">
+     <property name="title">
+      <string>Drive A</string>
+     </property>
+     <addaction name="actInsertDiscA"/>
+     <addaction name="actEjectDiscA"/>
+    </widget>
+    <widget class="QMenu" name="driveBMenu">
+     <property name="title">
+      <string>Drive B</string>
+     </property>
+     <addaction name="actInsertDiscB"/>
+     <addaction name="actEjectDiscB"/>
+    </widget>
+    <addaction name="driveAMenu"/>
+    <addaction name="driveBMenu"/>
+    <addaction name="separator"/>
+    <addaction name="actQuit"/>
+   </widget>
+   <addaction name="fileMenu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -35,6 +59,31 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actInsertDiscA">
+   <property name="text">
+    <string>Insert disc...</string>
+   </property>
+  </action>
+  <action name="actEjectDiscA">
+   <property name="text">
+    <string>Eject disc</string>
+   </property>
+  </action>
+  <action name="actInsertDiscB">
+   <property name="text">
+    <string>Insert disc...</string>
+   </property>
+  </action>
+  <action name="actEjectDiscB">
+   <property name="text">
+    <string>Eject disc</string>
+   </property>
+  </action>
+  <action name="actQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -46,5 +95,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

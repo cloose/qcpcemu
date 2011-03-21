@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QCloseEvent>
 #include <QDebug>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -25,8 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createDockWindows();
 
-    connect(qApp, SIGNAL(lastWindowClosed()),
-            m_system, SLOT(stopSystem()));
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
 
@@ -55,6 +55,12 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    m_system->stopSystem();
+    event->accept();
 }
 
 void MainWindow::delayedInit()
@@ -92,8 +98,57 @@ void MainWindow::setBreakpoint(quint16 address)
     m_system->addBreakpoint(address);
 }
 
+void MainWindow::insertDiscToDriveA()
+{
+    // ask user for name of the disk image file
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Insert Disc into Drive A:"),
+                                                    QString(),
+                                                    tr("CPC Disk Image File (*.dsk)"));
+    if( !fileName.isEmpty() )
+    {
+        m_driveA->insertDisk(fileName);
+        statusBar()->showMessage(tr("Inserted disc '%1' into drive A:").arg(fileName));
+    }
+}
+
+void MainWindow::ejectDiscInDriveA()
+{
+    m_driveA->ejectDisk();
+    statusBar()->showMessage(tr("Ejected disc in drive A:"));
+}
+
+void MainWindow::insertDiscToDriveB()
+{
+    // ask user for name of the disk image file
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Insert Disc into Drive B:"),
+                                                    QString(),
+                                                    tr("CPC Disk Image File (*.dsk)"));
+    if( !fileName.isEmpty() )
+    {
+        m_driveB->insertDisk(fileName);
+        statusBar()->showMessage(tr("Inserted disc '%1' into drive B:").arg(fileName));
+    }
+}
+
+void MainWindow::ejectDiscInDriveB()
+{
+    m_driveB->ejectDisk();
+    statusBar()->showMessage(tr("Ejected disc in drive B:"));
+}
+
 void MainWindow::createActions()
 {
+    // file menu
+    connect(ui->actInsertDiscA, SIGNAL(triggered()),
+            this, SLOT(insertDiscToDriveA()));
+    connect(ui->actEjectDiscA, SIGNAL(triggered()),
+            this, SLOT(ejectDiscInDriveA()));
+
+    connect(ui->actInsertDiscB, SIGNAL(triggered()),
+            this, SLOT(insertDiscToDriveB()));
+    connect(ui->actEjectDiscB, SIGNAL(triggered()),
+            this, SLOT(ejectDiscInDriveB()));
+
     m_debugRunAction = new QAction(tr("Debug run"), this);
     connect(m_debugRunAction, SIGNAL(triggered()), this, SLOT(debugRun()));
     ui->mainToolBar->addAction(m_debugRunAction);

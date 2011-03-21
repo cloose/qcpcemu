@@ -22,12 +22,19 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void closeEvent(QCloseEvent* event);
 
 private slots:
     void delayedInit();
     void debugRun();
     void debugStep();
     void setBreakpoint(quint16 address);
+
+    void insertDiscToDriveA();
+    void ejectDiscInDriveA();
+
+    void insertDiscToDriveB();
+    void ejectDiscInDriveB();
 
 private:
     void createActions();
