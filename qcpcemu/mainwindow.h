@@ -6,6 +6,7 @@
 class CpcSystem;
 class DebugForm;
 class FloppyDiskDrive;
+class ScreenWidget;
 
 namespace Ui {
     class MainWindow;
@@ -41,6 +42,7 @@ private:
     void createDockWindows();
 
     Ui::MainWindow *ui;
+    ScreenWidget* m_screenWidget;
     CpcSystem* m_system;
     FloppyDiskDrive* m_driveA;
     FloppyDiskDrive* m_driveB;
