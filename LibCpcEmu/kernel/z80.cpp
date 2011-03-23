@@ -1424,6 +1424,17 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0xe1: /* pop ix */     destinationRegister = Pop(); break;
+        case 0xe3: /* ex (sp),ix */
+            {
+                byte_t low  = ReadByteFromMemory(REGISTER_SP);
+                WriteByteToMemory(REGISTER_SP++, LOBYTE(destinationRegister));
+
+                byte_t high = ReadByteFromMemory(REGISTER_SP);
+                WriteByteToMemory(REGISTER_SP--, HIBYTE(destinationRegister));
+
+                destinationRegister = WORD(low, high);
+            }
+            break;
         case 0xe5: /* push ix */    Push(destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
