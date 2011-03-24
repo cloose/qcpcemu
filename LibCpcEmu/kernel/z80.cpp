@@ -1477,6 +1477,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0xe5: /* push ix */    Push(destinationRegister); break;
+        case 0xf9: /* ld sp,ix */   Load(REGISTER_SP, destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             throw NotImplementedException("unhandled opcode");
