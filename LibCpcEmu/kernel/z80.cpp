@@ -1175,6 +1175,13 @@ void Z80::executeOpCodeED()
                 Load(MemoryLocationW(address), HIBYTE(REGISTER_BC));
             }
             break;
+        case 0x44: /* neg */
+            {
+                byte_t value = REGISTER_A;
+                REGISTER_A = 0;
+                Sub(value);
+            }
+            break;
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x48: /* in c,(c) */
             REGISTER_C = emitInputRequest(REGISTER_BC);
@@ -1206,6 +1213,8 @@ void Z80::executeOpCodeED()
         case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
         case 0x62: /* sbc hl,hl */  Sbc(REGISTER_HL, REGISTER_HL); break;
         case 0x69: /* out (c),l */  emitOutputRequest(REGISTER_BC, REGISTER_L); break;
+        case 0x6a: /* adc hl,hl */  Adc(REGISTER_HL, REGISTER_HL); break;
+        case 0x6f: /* rld */        Rld(); break;
         case 0x73: /* ld (nn),sp */
             // TODO: new LoadXXX() function?
             {
@@ -1401,6 +1410,15 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Adc(value);
             }
             break;
+        case 0xae: /* xor (ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                quint8 value = ReadByteFromMemory(destinationRegister+offset);
+                REGISTER_A  ^= value;
+                REGISTER_F   = SignAndZeroTable[REGISTER_A]
+                             | ParityTable[REGISTER_A];
+            }
+            break;
         case 0xb6: /* or (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1451,6 +1469,14 @@ void Z80::executeOpCodeXXCB(word_t address)
             {
                 byte_t value = ReadByteFromMemory(address);
                 Rr(value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
+        case 0x26: /* sla (ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Sla(value);
                 WriteByteToMemory(address, value);
             }
             break;

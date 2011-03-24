@@ -524,6 +524,22 @@ static inline void Add(word_t& destination, word_t source)
 }
 
 /**
+ * TODO: missing description
+ */
+static inline void Adc(word_t& destination, word_t source)
+{
+    dword_t result = destination + source + (REGISTER_F & C_FLAG);
+
+    REGISTER_F = (result & 0x8000 ? S_FLAG : 0)
+               | (result & 0xffff ? 0 : Z_FLAG)
+               | ((REGISTER_HL ^ result ^ source) & 0x1000 ? H_FLAG : 0)
+               | (((source ^ REGISTER_HL ^ 0x8000) & (source ^ result) & 0x8000) >> 13)
+               | (result & 0x10000 ? C_FLAG : 0);
+
+    destination = (result & 0xffff);
+}
+
+/**
  * TODO: missing description!
  */
 static inline void Sbc(word_t& destination, word_t source)
@@ -791,6 +807,20 @@ static inline void Srl(byte_t& m)
                | ParityTable[m];
 }
 
+/**
+ * TODO: missing description
+ */
+static inline void Rld()
+{
+    byte_t value = ReadByteFromMemory(REGISTER_HL);
+
+    WriteByteToMemory(REGISTER_HL, (value << 4) | (REGISTER_A & 0x0f));
+    REGISTER_A = (REGISTER_A & 0xf0) | (value >> 4);
+
+    REGISTER_F = (REGISTER_F & C_FLAG)
+               | SignAndZeroTable[REGISTER_A]
+               | ParityTable[REGISTER_A];
+}
 
 //----------------------------------------------------------------------------
 //- Bit Set, Reset, and Test Group
