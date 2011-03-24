@@ -783,6 +783,21 @@ static inline void Sra(byte_t& reg)
 }
 
 /**
+ * TODO: missing description
+ */
+static inline void Sll(byte_t& reg)
+{
+    // copy bit 7 to carry flag
+    REGISTER_F = reg >> 7;
+
+    // shift left 1-bit and set bit 0 to 1 (CPU BUG :-))
+    reg = (reg << 1) | 0x01;
+
+    REGISTER_F |= SignAndZeroTable[reg]
+               | ParityTable[reg];
+}
+
+/**
  * The contents of operand m are shifted right 1-bit position. The content of bit 0 is
  * copied to the Carry flag, and bit 7 is reset. Bit 0 is the least-significant bit.
  * The operand m is any of r, (HL), (IX+d), or (IY+d).
