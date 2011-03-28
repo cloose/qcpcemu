@@ -74,6 +74,8 @@ void MainWindow::delayedInit()
     m_system->attachDiskDrive(1, m_driveB);
     m_system->setRenderer(m_screenWidget->renderer());
     m_screenWidget->setFocus(Qt::OtherFocusReason);
+
+    debugRun();
 }
 
 void MainWindow::debugRun()
