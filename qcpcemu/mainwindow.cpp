@@ -12,17 +12,21 @@
 #include "floppydiskdrive.h"
 #include "keyboard.h"
 #include "debugform.h"
+#include "screenwidget.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_screenWidget(new ScreenWidget(this))
     , m_system(new CpcSystem())
     , m_driveA(new FloppyDiskDrive())
     , m_driveB(new FloppyDiskDrive())
     , m_debugForm(new DebugForm(this))
 {
     ui->setupUi(this);
+
+    setCentralWidget(m_screenWidget);
 
     createActions();
     createDockWindows();
@@ -31,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(setBreakpoint(quint16)));
 
     // install event filter for key events
-    ui->screenWidget->installEventFilter(m_system->keyboard());
+    m_screenWidget->installEventFilter(m_system->keyboard());
 
     QTimer::singleShot(0, this, SLOT(delayedInit()));
 }
@@ -59,7 +63,7 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    m_system->stopSystem();
+    m_system->stop();
     event->accept();
 }
 
@@ -68,10 +72,10 @@ void MainWindow::delayedInit()
     m_system->loadExternalRom(7, "amsdos.rom");
     m_system->attachDiskDrive(0, m_driveA);
     m_system->attachDiskDrive(1, m_driveB);
-    m_system->setRenderer(ui->screenWidget->renderer());
-    ui->screenWidget->setFocus(Qt::OtherFocusReason);
+    m_system->setRenderer(m_screenWidget->renderer());
+    m_screenWidget->setFocus(Qt::OtherFocusReason);
 
-    m_driveA->insertDisk("elitee.dsk");
+    debugRun();
 }
 
 void MainWindow::debugRun()
@@ -136,6 +140,11 @@ void MainWindow::ejectDiscInDriveB()
     statusBar()->showMessage(tr("Ejected disc in drive B:"));
 }
 
+void MainWindow::resetEmulation()
+{
+    m_system->reset();
+}
+
 void MainWindow::createActions()
 {
     // file menu
@@ -148,6 +157,10 @@ void MainWindow::createActions()
             this, SLOT(insertDiscToDriveB()));
     connect(ui->actEjectDiscB, SIGNAL(triggered()),
             this, SLOT(ejectDiscInDriveB()));
+
+    // emulation menu
+    connect(ui->actResetEmulation, SIGNAL(triggered()),
+            this, SLOT(resetEmulation()));
 
     m_debugRunAction = new QAction(tr("Debug run"), this);
     connect(m_debugRunAction, SIGNAL(triggered()), this, SLOT(debugRun()));

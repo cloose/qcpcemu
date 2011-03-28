@@ -13,9 +13,7 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="ScreenWidget" name="screenWidget">
-   <layout class="QVBoxLayout" name="verticalLayout"/>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -48,7 +46,14 @@
     <addaction name="separator"/>
     <addaction name="actQuit"/>
    </widget>
+   <widget class="QMenu" name="emulationMenu">
+    <property name="title">
+     <string>Emulation</string>
+    </property>
+    <addaction name="actResetEmulation"/>
+   </widget>
    <addaction name="fileMenu"/>
+   <addaction name="emulationMenu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -63,6 +68,9 @@
    <property name="text">
     <string>Insert disc...</string>
    </property>
+   <property name="toolTip">
+    <string>Insert disc into floppy drive A:</string>
+   </property>
   </action>
   <action name="actEjectDiscA">
    <property name="text">
@@ -72,6 +80,9 @@
   <action name="actInsertDiscB">
    <property name="text">
     <string>Insert disc...</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert disc into floppy drive B:</string>
    </property>
   </action>
   <action name="actEjectDiscB">
@@ -84,16 +95,13 @@
     <string>&amp;Quit</string>
    </property>
   </action>
+  <action name="actResetEmulation">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>ScreenWidget</class>
-   <extends>QWidget</extends>
-   <header>screenwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

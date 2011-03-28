@@ -132,6 +132,8 @@ void QImageScreenRenderer::vSync(bool active)
     if (!active)
     {
         m_ypos = 0;
+        m_scanLine = m_screenBuffer->scanLine(m_ypos);
+
         m_widget->update();
     }
 }
@@ -139,6 +141,11 @@ void QImageScreenRenderer::vSync(bool active)
 void QImageScreenRenderer::setColor(uchar penNum, uchar colorNum)
 {
     m_inks[penNum] = colorNum;
+}
+
+QColor QImageScreenRenderer::borderColor() const
+{
+    return QColor(m_screenBuffer->color(m_inks[16]));
 }
 
 void QImageScreenRenderer::drawMode0(byte_t displayByte1, byte_t displayByte2)

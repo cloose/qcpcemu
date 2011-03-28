@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+class QColor;
+
 
 class ScreenRenderer
 {
@@ -13,6 +15,7 @@ public:
     virtual void vSync(bool active) = 0;
 
     virtual void setColor(uchar penNum, uchar colorNum) = 0;
+    virtual QColor borderColor() const = 0;
 };
 
 #endif // SCREENRENDERER_H

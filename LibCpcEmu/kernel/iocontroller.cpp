@@ -92,7 +92,7 @@ bool IoController::in(word_t address, byte_t& value)
 
     if (handled)
     {
-        qDebug() << "[PPI ] IN request at address" << hex << address << "returned value" << hex << value;
+//        qDebug() << "[PPI ] IN request at address" << hex << address << "returned value" << hex << value;
     }
 
     return handled;
@@ -213,7 +213,7 @@ bool IoController::out(word_t address, byte_t value)
 
     if (handled)
     {
-        qDebug() << "[PPI ] OUT request at address" << hex << address << "with value" << hex << value;
+//        qDebug() << "[PPI ] OUT request at address" << hex << address << "with value" << hex << value;
     }
 
     return handled;

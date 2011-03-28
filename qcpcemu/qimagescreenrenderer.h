@@ -21,6 +21,7 @@ public:
     virtual void vSync(bool active);
 
     virtual void setColor(uchar penNum, uchar colorNum);
+    virtual QColor borderColor() const;
 
 private:
     void drawMode0(byte_t displayByte1, byte_t displayByte2);

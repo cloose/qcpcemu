@@ -768,6 +768,14 @@ void Z80::executeOpCodeCB()
         case 0x0b: /* rrc e */      Rrc(REGISTER_E); break;
         case 0x0c: /* rrc h */      Rrc(REGISTER_H); break;
         case 0x0d: /* rrc l */      Rrc(REGISTER_L); break;
+        case 0x0e: /* rrc (hl) */
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Rrc(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x0f: /* rrc a */      Rrc(REGISTER_A); break;
 
         case 0x10: /* rl b */       Rl(REGISTER_B); break;
         case 0x11: /* rl c */       Rl(REGISTER_C); break;
@@ -784,12 +792,12 @@ void Z80::executeOpCodeCB()
             break;
         case 0x17: /* rl a */       Rl(REGISTER_A); break;
 
-        case 0x18: Rr(REGISTER_B); break;
-        case 0x19: Rr(REGISTER_C); break;
-        case 0x1a: Rr(REGISTER_D); break;
-        case 0x1b: Rr(REGISTER_E); break;
-        case 0x1c: Rr(REGISTER_H); break;
-        case 0x1d: Rr(REGISTER_L); break;
+        case 0x18: /* rr b */       Rr(REGISTER_B); break;
+        case 0x19: /* rr c */       Rr(REGISTER_C); break;
+        case 0x1a: /* rr d */       Rr(REGISTER_D); break;
+        case 0x1b: /* rr e */       Rr(REGISTER_E); break;
+        case 0x1c: /* rr h */       Rr(REGISTER_H); break;
+        case 0x1d: /* rr l */       Rr(REGISTER_L); break;
         case 0x1e: /* rr (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
@@ -797,14 +805,14 @@ void Z80::executeOpCodeCB()
                 WriteByteToMemory(REGISTER_HL, value);
             }
             break;
-        case 0x1f: Rr(REGISTER_A);  break;
+        case 0x1f: /* rr a */       Rr(REGISTER_A);  break;
 
-        case 0x20: Sla(REGISTER_B); break;
-        case 0x21: Sla(REGISTER_C); break;
-        case 0x22: Sla(REGISTER_D); break;
-        case 0x23: Sla(REGISTER_E); break;
-        case 0x24: Sla(REGISTER_H); break;
-        case 0x25: Sla(REGISTER_L); break;
+        case 0x20: /* sla b */      Sla(REGISTER_B); break;
+        case 0x21: /* sla c */      Sla(REGISTER_C); break;
+        case 0x22: /* sla d */      Sla(REGISTER_D); break;
+        case 0x23: /* sla e */      Sla(REGISTER_E); break;
+        case 0x24: /* sla h */      Sla(REGISTER_H); break;
+        case 0x25: /* sla l */      Sla(REGISTER_L); break;
         case 0x26: /* sla (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
@@ -812,14 +820,14 @@ void Z80::executeOpCodeCB()
                 WriteByteToMemory(REGISTER_HL, value);
             }
             break;
-        case 0x27: Sla(REGISTER_A); break;
+        case 0x27: /* sla a */      Sla(REGISTER_A); break;
 
-        case 0x28: Sra(REGISTER_B); break;
-        case 0x29: Sra(REGISTER_C); break;
-        case 0x2a: Sra(REGISTER_D); break;
-        case 0x2b: Sra(REGISTER_E); break;
-        case 0x2c: Sra(REGISTER_H); break;
-        case 0x2d: Sra(REGISTER_L); break;
+        case 0x28: /* sra b */      Sra(REGISTER_B); break;
+        case 0x29: /* sra c */      Sra(REGISTER_C); break;
+        case 0x2a: /* sra d */      Sra(REGISTER_D); break;
+        case 0x2b: /* sra e */      Sra(REGISTER_E); break;
+        case 0x2c: /* sra h */      Sra(REGISTER_H); break;
+        case 0x2d: /* sra l */      Sra(REGISTER_L); break;
         case 0x2e: /* sra (hl) */
             {
                 byte_t value = ReadByteFromMemory(REGISTER_HL);
@@ -827,7 +835,22 @@ void Z80::executeOpCodeCB()
                 WriteByteToMemory(REGISTER_HL, value);
             }
             break;
-        case 0x2f: Sra(REGISTER_A); break;
+        case 0x2f: /* sra a */      Sra(REGISTER_A); break;
+
+        case 0x30: /* sll b */      Sll(REGISTER_B); break;
+        case 0x31: /* sll c */      Sll(REGISTER_C); break;
+        case 0x32: /* sll d */      Sll(REGISTER_D); break;
+        case 0x33: /* sll e */      Sll(REGISTER_E); break;
+        case 0x34: /* sll h */      Sll(REGISTER_H); break;
+        case 0x35: /* sll l */      Sll(REGISTER_L); break;
+        case 0x36: /* sll (hl) */
+            {
+                byte_t value = ReadByteFromMemory(REGISTER_HL);
+                Sll(value);
+                WriteByteToMemory(REGISTER_HL, value);
+            }
+            break;
+        case 0x37: /* sll a */      Sll(REGISTER_A); break;
 
         case 0x38: /* srl b */      Srl(REGISTER_B); break;
         case 0x39: /* srl c */      Srl(REGISTER_C); break;
@@ -844,14 +867,14 @@ void Z80::executeOpCodeCB()
             break;
         case 0x3f: /* srl a */      Srl(REGISTER_A); break;
 
-        case 0x40: Bit(0, REGISTER_B); break;
-        case 0x41: Bit(0, REGISTER_C); break;
-        case 0x42: Bit(0, REGISTER_D); break;
-        case 0x43: Bit(0, REGISTER_E); break;
-        case 0x44: Bit(0, REGISTER_H); break;
-        case 0x45: Bit(0, REGISTER_L); break;
-        case 0x46: Bit(0, MemoryLocationR(REGISTER_HL)); break;
-        case 0x47: Bit(0, REGISTER_A); break;
+        case 0x40: /* bit 0,b */    Bit(0, REGISTER_B); break;
+        case 0x41: /* bit 0,c */    Bit(0, REGISTER_C); break;
+        case 0x42: /* bit 0,d */    Bit(0, REGISTER_D); break;
+        case 0x43: /* bit 0,e */    Bit(0, REGISTER_E); break;
+        case 0x44: /* bit 0,h */    Bit(0, REGISTER_H); break;
+        case 0x45: /* bit 0,l */    Bit(0, REGISTER_L); break;
+        case 0x46: /* bit 0,(hl) */ Bit(0, MemoryLocationR(REGISTER_HL)); break;
+        case 0x47: /* bit 0,a */    Bit(0, REGISTER_A); break;
 
         case 0x48: Bit(1, REGISTER_B); break;
         case 0x49: Bit(1, REGISTER_C); break;
@@ -1175,6 +1198,13 @@ void Z80::executeOpCodeED()
                 Load(MemoryLocationW(address), HIBYTE(REGISTER_BC));
             }
             break;
+        case 0x44: /* neg */
+            {
+                byte_t value = REGISTER_A;
+                REGISTER_A = 0;
+                Sub(value);
+            }
+            break;
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
         case 0x48: /* in c,(c) */
             REGISTER_C = emitInputRequest(REGISTER_BC);
@@ -1206,6 +1236,8 @@ void Z80::executeOpCodeED()
         case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
         case 0x62: /* sbc hl,hl */  Sbc(REGISTER_HL, REGISTER_HL); break;
         case 0x69: /* out (c),l */  emitOutputRequest(REGISTER_BC, REGISTER_L); break;
+        case 0x6a: /* adc hl,hl */  Adc(REGISTER_HL, REGISTER_HL); break;
+        case 0x6f: /* rld */        Rld(); break;
         case 0x73: /* ld (nn),sp */
             // TODO: new LoadXXX() function?
             {
@@ -1279,6 +1311,11 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0x23: /* inc ix */     Inc(destinationRegister); break;
+        case 0x26: /* ld ixh,n - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), ConstantByte());
+            }
+            break;
         case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
         case 0x34: /* inc (ix+d) */
             {
@@ -1327,6 +1364,28 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 REGISTER_E = ReadByteFromMemory(destinationRegister+offset);
             }
             break;
+
+        case 0x60: /* ld ixh,b - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_B);
+            }
+            break;
+        case 0x61: /* ld ixh,c - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_C);
+            }
+            break;
+        case 0x62: /* ld ixh,d - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_D);
+            }
+            break;
+        case 0x63: /* ld ixh,e - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_E);
+            }
+            break;
+
         case 0x66: /* ld h,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1337,6 +1396,11 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 REGISTER_L = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x6f: /* ld ixl,a - undocumented */
+            {
+                destinationRegister = WORD(REGISTER_A, HIBYTE(destinationRegister));
             }
             break;
         case 0x70: /* ld (ix+d),b */
@@ -1401,6 +1465,29 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Adc(value);
             }
             break;
+        case 0x96: /* sub a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Sub(value);
+            }
+            break;
+        case 0x9e: /* sbc a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Sbc(value);
+            }
+            break;
+        case 0xae: /* xor (ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                quint8 value = ReadByteFromMemory(destinationRegister+offset);
+                REGISTER_A  ^= value;
+                REGISTER_F   = SignAndZeroTable[REGISTER_A]
+                             | ParityTable[REGISTER_A];
+            }
+            break;
         case 0xb6: /* or (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1424,7 +1511,19 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0xe1: /* pop ix */     destinationRegister = Pop(); break;
+        case 0xe3: /* ex (sp),ix */
+            {
+                byte_t low  = ReadByteFromMemory(REGISTER_SP);
+                WriteByteToMemory(REGISTER_SP++, LOBYTE(destinationRegister));
+
+                byte_t high = ReadByteFromMemory(REGISTER_SP);
+                WriteByteToMemory(REGISTER_SP--, HIBYTE(destinationRegister));
+
+                destinationRegister = WORD(low, high);
+            }
+            break;
         case 0xe5: /* push ix */    Push(destinationRegister); break;
+        case 0xf9: /* ld sp,ix */   Load(REGISTER_SP, destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
             throw NotImplementedException("unhandled opcode");
@@ -1440,6 +1539,14 @@ void Z80::executeOpCodeXXCB(word_t address)
             {
                 byte_t value = ReadByteFromMemory(address);
                 Rr(value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+
+        case 0x26: /* sla (ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Sla(value);
                 WriteByteToMemory(address, value);
             }
             break;

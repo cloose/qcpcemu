@@ -16,11 +16,13 @@ class LIBCPCEMUSHARED_EXPORT CpcSystem : public QObject
     Q_OBJECT
 
 public:
-    CpcSystem();
+    explicit CpcSystem(QObject* parent = 0);
     ~CpcSystem();
 
     void run();
     void step();
+    void stop();
+    void reset();
 
     Keyboard* keyboard() const;
 
@@ -29,9 +31,6 @@ public:
     void loadExternalRom(quint8 romNumber, const QString& fileName);
 
     void addBreakpoint(word_t address);
-
-public slots:
-    void stopSystem();
 
 private:
     CpcSystemPrivate* const d;
