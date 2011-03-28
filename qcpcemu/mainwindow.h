@@ -31,11 +31,14 @@ private slots:
     void debugStep();
     void setBreakpoint(quint16 address);
 
+    // file menu
     void insertDiscToDriveA();
     void ejectDiscInDriveA();
-
     void insertDiscToDriveB();
     void ejectDiscInDriveB();
+
+    // emulation menu
+    void resetEmulation();
 
 private:
     void createActions();

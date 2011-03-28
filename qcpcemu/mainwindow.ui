@@ -46,7 +46,14 @@
     <addaction name="separator"/>
     <addaction name="actQuit"/>
    </widget>
+   <widget class="QMenu" name="emulationMenu">
+    <property name="title">
+     <string>Emulation</string>
+    </property>
+    <addaction name="actResetEmulation"/>
+   </widget>
    <addaction name="fileMenu"/>
+   <addaction name="emulationMenu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -61,6 +68,9 @@
    <property name="text">
     <string>Insert disc...</string>
    </property>
+   <property name="toolTip">
+    <string>Insert disc into floppy drive A:</string>
+   </property>
   </action>
   <action name="actEjectDiscA">
    <property name="text">
@@ -71,6 +81,9 @@
    <property name="text">
     <string>Insert disc...</string>
    </property>
+   <property name="toolTip">
+    <string>Insert disc into floppy drive B:</string>
+   </property>
   </action>
   <action name="actEjectDiscB">
    <property name="text">
@@ -80,6 +93,11 @@
   <action name="actQuit">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actResetEmulation">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>

@@ -63,7 +63,7 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    m_system->stopSystem();
+    m_system->stop();
     event->accept();
 }
 
@@ -74,8 +74,6 @@ void MainWindow::delayedInit()
     m_system->attachDiskDrive(1, m_driveB);
     m_system->setRenderer(m_screenWidget->renderer());
     m_screenWidget->setFocus(Qt::OtherFocusReason);
-
-    m_driveA->insertDisk("elitee.dsk");
 }
 
 void MainWindow::debugRun()
@@ -140,6 +138,11 @@ void MainWindow::ejectDiscInDriveB()
     statusBar()->showMessage(tr("Ejected disc in drive B:"));
 }
 
+void MainWindow::resetEmulation()
+{
+    m_system->reset();
+}
+
 void MainWindow::createActions()
 {
     // file menu
@@ -152,6 +155,10 @@ void MainWindow::createActions()
             this, SLOT(insertDiscToDriveB()));
     connect(ui->actEjectDiscB, SIGNAL(triggered()),
             this, SLOT(ejectDiscInDriveB()));
+
+    // emulation menu
+    connect(ui->actResetEmulation, SIGNAL(triggered()),
+            this, SLOT(resetEmulation()));
 
     m_debugRunAction = new QAction(tr("Debug run"), this);
     connect(m_debugRunAction, SIGNAL(triggered()), this, SLOT(debugRun()));
