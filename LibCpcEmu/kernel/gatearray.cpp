@@ -212,7 +212,7 @@ void GateArray::setRomConfiguration(byte_t value)
 
 void GateArray::selectUpperRom(quint8 romNumber)
 {
-    qDebug() << "[GA  ] select upper rom" << romNumber;
+//    qDebug() << "[GA  ] select upper rom" << romNumber;
 
     // if there is no such external ROM use basic ROM
     if (!Memory::externalRoms.contains(romNumber))
