@@ -1311,6 +1311,11 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0x23: /* inc ix */     Inc(destinationRegister); break;
+        case 0x26: /* ld ixh,n - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), ConstantByte());
+            }
+            break;
         case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
         case 0x34: /* inc (ix+d) */
             {
@@ -1359,6 +1364,28 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 REGISTER_E = ReadByteFromMemory(destinationRegister+offset);
             }
             break;
+
+        case 0x60: /* ld ixh,b - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_B);
+            }
+            break;
+        case 0x61: /* ld ixh,c - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_C);
+            }
+            break;
+        case 0x62: /* ld ixh,d - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_D);
+            }
+            break;
+        case 0x63: /* ld ixh,e - undocumented */
+            {
+                destinationRegister = WORD(LOBYTE(destinationRegister), REGISTER_E);
+            }
+            break;
+
         case 0x66: /* ld h,(ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1369,6 +1396,11 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 REGISTER_L = ReadByteFromMemory(destinationRegister+offset);
+            }
+            break;
+        case 0x6f: /* ld ixl,a - undocumented */
+            {
+                destinationRegister = WORD(REGISTER_A, HIBYTE(destinationRegister));
             }
             break;
         case 0x70: /* ld (ix+d),b */
@@ -1431,6 +1463,20 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 offset_t offset = static_cast<offset_t>(ConstantByte());
                 byte_t value = ReadByteFromMemory(destinationRegister+offset);
                 Adc(value);
+            }
+            break;
+        case 0x96: /* sub a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Sub(value);
+            }
+            break;
+        case 0x9e: /* sbc a,(ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                byte_t value = ReadByteFromMemory(destinationRegister+offset);
+                Sbc(value);
             }
             break;
         case 0xae: /* xor (ix+d) */
