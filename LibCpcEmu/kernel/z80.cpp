@@ -1231,6 +1231,7 @@ void Z80::executeOpCodeED()
             break;
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
         case 0x59: /* out (c),e */  emitOutputRequest(REGISTER_BC, REGISTER_E); break;
+        case 0x5a: /* adc hl,de */  Adc(REGISTER_HL, REGISTER_DE); break;
         case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
         case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
@@ -1547,6 +1548,13 @@ void Z80::executeOpCodeXXCB(word_t address)
             {
                 byte_t value = ReadByteFromMemory(address);
                 Sla(value);
+                WriteByteToMemory(address, value);
+            }
+            break;
+        case 0x3e: /* srl (ix+d) */
+            {
+                byte_t value = ReadByteFromMemory(address);
+                Srl(value);
                 WriteByteToMemory(address, value);
             }
             break;
