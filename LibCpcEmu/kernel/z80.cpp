@@ -1181,7 +1181,7 @@ void Z80::executeOpCodeCB()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode");
+            throw NotImplementedException("unhandled opcode 0xcb ");
             break;
     }
 }
@@ -1214,6 +1214,7 @@ void Z80::executeOpCodeED()
             break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
+        case 0x4f: /* ld r,a */     Load(REGISTER_R, REGISTER_A); break;
         case 0x51: /* out (c),d */  emitOutputRequest(REGISTER_BC, REGISTER_D); break;
         case 0x52: /* sbc hl,de */  Sbc(REGISTER_HL, REGISTER_DE); break;
         case 0x53: /* ld (nn),de */
@@ -1292,7 +1293,7 @@ void Z80::executeOpCodeED()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xed" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode");
+            throw NotImplementedException("unhandled opcode 0xed ");
             break;
     }
 }
@@ -1527,7 +1528,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
         case 0xf9: /* ld sp,ix */   Load(REGISTER_SP, destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode");
+            throw NotImplementedException("unhandled opcode 0xdd/0xfd ");
             break;
     }
 }
@@ -1684,7 +1685,7 @@ void Z80::executeOpCodeXXCB(word_t address)
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode");
+            throw NotImplementedException("unhandled opcode 0xdd/0xfd 0xcb ");
             break;
     }
 }
