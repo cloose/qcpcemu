@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QCloseEvent>
 #include <QDebug>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -10,11 +12,13 @@
 #include "floppydiskdrive.h"
 #include "keyboard.h"
 #include "debugform.h"
+#include "screenwidget.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_screenWidget(new ScreenWidget(this))
     , m_system(new CpcSystem())
     , m_driveA(new FloppyDiskDrive())
     , m_driveB(new FloppyDiskDrive())
@@ -22,16 +26,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setCentralWidget(m_screenWidget);
+
     createActions();
     createDockWindows();
 
-    connect(qApp, SIGNAL(lastWindowClosed()),
-            m_system, SLOT(stopSystem()));
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
 
     // install event filter for key events
-    ui->screenWidget->installEventFilter(m_system->keyboard());
+    m_screenWidget->installEventFilter(m_system->keyboard());
 
     QTimer::singleShot(0, this, SLOT(delayedInit()));
 }
@@ -57,15 +61,21 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    m_system->stop();
+    event->accept();
+}
+
 void MainWindow::delayedInit()
 {
     m_system->loadExternalRom(7, "amsdos.rom");
     m_system->attachDiskDrive(0, m_driveA);
     m_system->attachDiskDrive(1, m_driveB);
-    m_system->setRenderer(ui->screenWidget->renderer());
-    ui->screenWidget->setFocus(Qt::OtherFocusReason);
+    m_system->setRenderer(m_screenWidget->renderer());
+    m_screenWidget->setFocus(Qt::OtherFocusReason);
 
-    m_driveA->insertDisk("elitee.dsk");
+    debugRun();
 }
 
 void MainWindow::debugRun()
@@ -92,8 +102,66 @@ void MainWindow::setBreakpoint(quint16 address)
     m_system->addBreakpoint(address);
 }
 
+void MainWindow::insertDiscToDriveA()
+{
+    // ask user for name of the disk image file
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Insert Disc into Drive A:"),
+                                                    QString(),
+                                                    tr("CPC Disk Image File (*.dsk)"));
+    if( !fileName.isEmpty() )
+    {
+        m_driveA->insertDisk(fileName);
+        statusBar()->showMessage(tr("Inserted disc '%1' into drive A:").arg(fileName));
+    }
+}
+
+void MainWindow::ejectDiscInDriveA()
+{
+    m_driveA->ejectDisk();
+    statusBar()->showMessage(tr("Ejected disc in drive A:"));
+}
+
+void MainWindow::insertDiscToDriveB()
+{
+    // ask user for name of the disk image file
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Insert Disc into Drive B:"),
+                                                    QString(),
+                                                    tr("CPC Disk Image File (*.dsk)"));
+    if( !fileName.isEmpty() )
+    {
+        m_driveB->insertDisk(fileName);
+        statusBar()->showMessage(tr("Inserted disc '%1' into drive B:").arg(fileName));
+    }
+}
+
+void MainWindow::ejectDiscInDriveB()
+{
+    m_driveB->ejectDisk();
+    statusBar()->showMessage(tr("Ejected disc in drive B:"));
+}
+
+void MainWindow::resetEmulation()
+{
+    m_system->reset();
+}
+
 void MainWindow::createActions()
 {
+    // file menu
+    connect(ui->actInsertDiscA, SIGNAL(triggered()),
+            this, SLOT(insertDiscToDriveA()));
+    connect(ui->actEjectDiscA, SIGNAL(triggered()),
+            this, SLOT(ejectDiscInDriveA()));
+
+    connect(ui->actInsertDiscB, SIGNAL(triggered()),
+            this, SLOT(insertDiscToDriveB()));
+    connect(ui->actEjectDiscB, SIGNAL(triggered()),
+            this, SLOT(ejectDiscInDriveB()));
+
+    // emulation menu
+    connect(ui->actResetEmulation, SIGNAL(triggered()),
+            this, SLOT(resetEmulation()));
+
     m_debugRunAction = new QAction(tr("Debug run"), this);
     connect(m_debugRunAction, SIGNAL(triggered()), this, SLOT(debugRun()));
     ui->mainToolBar->addAction(m_debugRunAction);

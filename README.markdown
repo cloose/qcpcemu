@@ -3,6 +3,8 @@ qcpcemu - An Amstrad CPC emulator based on Qt
 
 This code is not useful ATM.
 
+![screenshot M2](https://github.com/cloose/qcpcemu/raw/develop/images/qcpcemu-M2.png)
+
 Milestones
 ----------
 

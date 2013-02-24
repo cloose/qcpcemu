@@ -6,6 +6,7 @@
 class CpcSystem;
 class DebugForm;
 class FloppyDiskDrive;
+class ScreenWidget;
 
 namespace Ui {
     class MainWindow;
@@ -22,6 +23,7 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void closeEvent(QCloseEvent* event);
 
 private slots:
     void delayedInit();
@@ -29,11 +31,21 @@ private slots:
     void debugStep();
     void setBreakpoint(quint16 address);
 
+    // file menu
+    void insertDiscToDriveA();
+    void ejectDiscInDriveA();
+    void insertDiscToDriveB();
+    void ejectDiscInDriveB();
+
+    // emulation menu
+    void resetEmulation();
+
 private:
     void createActions();
     void createDockWindows();
 
     Ui::MainWindow *ui;
+    ScreenWidget* m_screenWidget;
     CpcSystem* m_system;
     FloppyDiskDrive* m_driveA;
     FloppyDiskDrive* m_driveB;

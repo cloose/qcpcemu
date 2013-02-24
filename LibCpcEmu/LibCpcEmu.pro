@@ -11,6 +11,7 @@ TEMPLATE = lib
 
 DEFINES += LIBCPCEMU_LIBRARY
 HEADERS += LibCpcEmu_global.h \
+    exceptions.h \
     cpcsystem.h
 
 SOURCES += \
@@ -19,3 +20,5 @@ SOURCES += \
 
 include(kernel/kernel.pri)
 include(utils/utils.pri)
+
+INCLUDEPATH += $$PWD\kernel

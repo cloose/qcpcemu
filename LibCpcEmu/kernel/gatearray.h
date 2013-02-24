@@ -42,6 +42,7 @@ private:
     byte_t m_scanlineCounter;
     byte_t m_screenMode;
     int    m_frameCycleCount;
+    byte_t m_upperRomNumber;
 
     Z80* m_cpu;
     VideoController* m_crtc;

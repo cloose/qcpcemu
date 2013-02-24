@@ -6,11 +6,10 @@
 
 QT       += core gui
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TARGET = qcpcemu
 TEMPLATE = app
-
-INCLUDEPATH += ..\LibCpcEmu \
-               ..\LibCpcEmu\kernel
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -26,4 +25,10 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     debugform.ui
 
-win32:LIBS += ../LibCpcEmu-build-desktop/debug/LibCpcEmu.dll
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../LibCpcEmu/release/ -lLibCpcEmu
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../LibCpcEmu/debug/ -lLibCpcEmu
+else:unix: LIBS += -L$$OUT_PWD/../LibCpcEmu/ -lLibCpcEmu
+
+INCLUDEPATH += $$PWD/../LibCpcEmu \
+               $$PWD/../LibCpcEmu/kernel
+DEPENDPATH += $$PWD/../LibCpcEmu

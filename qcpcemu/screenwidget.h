@@ -1,7 +1,7 @@
 #ifndef SCREENWIDGET_H
 #define SCREENWIDGET_H
 
-#include <QtGui\qwidget.h>
+#include <QtWidgets/qwidget.h>
 
 class QImageScreenRenderer;
 class ScreenRenderer;

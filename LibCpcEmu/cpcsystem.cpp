@@ -4,8 +4,9 @@
 #include "registerset.h"
 
 
-CpcSystem::CpcSystem()
-    : d(new CpcSystemPrivate)
+CpcSystem::CpcSystem(QObject* parent)
+    : QObject(parent)
+    , d(new CpcSystemPrivate)
 {
     d->done = false;
     // TODO: image name should be variable and depend on the CPC system
@@ -32,6 +33,16 @@ void CpcSystem::step()
     d->gateArray->run();
 }
 
+void CpcSystem::stop()
+{
+    d->done = true;
+}
+
+void CpcSystem::reset()
+{
+    d->resetHardware();
+}
+
 Keyboard* CpcSystem::keyboard() const
 {
     return d->keyboard;
@@ -55,9 +66,4 @@ void CpcSystem::loadExternalRom(quint8 romNumber, const QString& fileName)
 void CpcSystem::addBreakpoint(word_t address)
 {
     d->breakpoints.append(address);
-}
-
-void CpcSystem::stopSystem()
-{
-    d->done = true;
 }

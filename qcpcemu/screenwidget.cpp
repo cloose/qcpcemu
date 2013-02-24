@@ -30,6 +30,8 @@ void ScreenWidget::paintEvent(QPaintEvent* event)
 
     QPainter painter(this);
 
+    painter.fillRect(event->rect(), m_renderer->borderColor());
+
     int screenHeight = 200 * 2;
     int screenWidth = 640;
 

@@ -1,3 +1,4 @@
+*.pro.user*
 LibCpcEmu-build-desktop
 qcpcemu-build-desktop
 z80-build-desktop

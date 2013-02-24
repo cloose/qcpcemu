@@ -2,36 +2,36 @@
 #define REGISTERSET_H
 
 #include "LibCpcEmu_global.h"
-#include"types.h"
+#include "types.h"
 
 
 struct LIBCPCEMUSHARED_EXPORT RegisterSet
 {
     /* main register set */
-    static register_pair_t AF,      // 16-bit register pair containing A and flags
-                           BC,      // 16-bit register pair containing B and C
-                           DE,      // 16-bit register pair containing D and E
-                           HL;      // 16-bit register pair containing H and L
+    static register_pair_t AF;      // 16-bit register pair containing A and flags
+    static register_pair_t BC;      // 16-bit register pair containing B and C
+    static register_pair_t DE;      // 16-bit register pair containing D and E
+    static register_pair_t HL;      // 16-bit register pair containing H and L
 
     /* shadow register set */
-    static register_pair_t AF1,     // 16-bit register pair containing A and flags
-                           BC1,     // 16-bit register pair containing B and C
-                           DE1,     // 16-bit register pair containing D and E
-                           HL1;     // 16-bit register pair containing H and L
+    static register_pair_t AF1;     // 16-bit register pair containing A and flags
+    static register_pair_t BC1;     // 16-bit register pair containing B and C
+    static register_pair_t DE1;     // 16-bit register pair containing D and E
+    static register_pair_t HL1;     // 16-bit register pair containing H and L
 
-    static byte_t I,                // 8-bit Interrupt Vector
-                  R;                // 8-bit Memory Refresh
+    static byte_t I;                // 8-bit Interrupt Vector
+    static byte_t R;                // 8-bit Memory Refresh
 
     /* index registers */
-    static word_t IX,               // 16-bit Index Register X
-                  IY;               // 16-bit Index Register Y
+    static word_t IX;               // 16-bit Index Register X
+    static word_t IY;               // 16-bit Index Register Y
 
-    static register_pair_t PC,      // 16-bit Program Counter register
-                           SP;      // 16-bit Stack Pointer register
+    static register_pair_t PC;      // 16-bit Program Counter register
+    static register_pair_t SP;      // 16-bit Stack Pointer register
 
     /* interrupt flip-flops */
-    static byte_t IFF1,             // IFF1: used to disable interrupts
-                  IFF2;             // IFF2: temporary storage for IFF1
+    static byte_t IFF1;             // IFF1: used to disable interrupts
+    static byte_t IFF2;             // IFF2: temporary storage for IFF1
 };
 
 
