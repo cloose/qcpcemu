@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     LibCpcEmu \
-    qcpcemu
+    qcpcemu \
+    tests
