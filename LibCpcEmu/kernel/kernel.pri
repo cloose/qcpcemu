@@ -1,5 +1,5 @@
 # LibCpcEmu kernel module
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD\..
 
 HEADERS += \
     kernel/types.h \

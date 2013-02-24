@@ -20,3 +20,5 @@ SOURCES += \
 
 include(kernel/kernel.pri)
 include(utils/utils.pri)
+
+INCLUDEPATH += $$PWD\kernel

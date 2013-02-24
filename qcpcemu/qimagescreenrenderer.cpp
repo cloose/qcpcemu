@@ -89,7 +89,7 @@ QImageScreenRenderer::QImageScreenRenderer(QWidget* widget)
     for (int i = 0; i < 17; ++i)
         m_inks[i] = 0x00;
 
-    m_screenBuffer->setNumColors(32);
+    m_screenBuffer->setColorCount(32);
     for( int i = 0; i < 32; i++ )
     {
         int r = (cpc_palette[i][0]);
