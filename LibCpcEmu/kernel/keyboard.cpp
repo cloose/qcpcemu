@@ -235,12 +235,30 @@ bool Keyboard::eventFilter(QObject* watched, QEvent* event)
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+        // ignore Alt, AltGr und Ctrl keys
+        if (keyEvent->key() == Qt::Key_Alt ||
+            keyEvent->key() == Qt::Key_AltGr ||
+            keyEvent->key() == Qt::Key_Control) {
+            keyEvent->ignore();
+            return false;
+        }
+
         keyPressEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
     else if (event->type() == QEvent::KeyRelease)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+        // ignore Alt, AltGr und Ctrl keys
+        if (keyEvent->key() == Qt::Key_Alt ||
+            keyEvent->key() == Qt::Key_AltGr ||
+            keyEvent->key() == Qt::Key_Control) {
+            keyEvent->ignore();
+            return false;
+        }
+
         keyReleaseEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
@@ -255,11 +273,6 @@ bool Keyboard::eventFilter(QObject* watched, QEvent* event)
 void Keyboard::keyPressEvent(int key, Qt::KeyboardModifiers modifier)
 {
     CpcKey cpcKey = keyMapping[key];
-
-    if (key == Qt::Key_Return)
-    {
-        qDebug() << "ENTER PRESSED" << cpcKey.row << cpcKey.bit;
-    }
 
     // activate the bit in the keyboard matrix
     m_keymatrix[cpcKey.row] &= ~cpcKey.bit;
