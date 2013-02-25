@@ -215,7 +215,7 @@ void GateArray::selectUpperRom(quint8 romNumber)
 //    qDebug() << "[GA  ] select upper rom" << romNumber;
 
     // if there is no such external ROM use basic ROM
-    if (!Memory::externalRoms.contains(romNumber))
+    if (!Memory::extensionRoms[romNumber])
         romNumber = 0;
 
     if (romNumber == 0)
@@ -224,7 +224,7 @@ void GateArray::selectUpperRom(quint8 romNumber)
     }
     else
     {
-        Memory::blocks[3] = Memory::externalRoms[romNumber]->constData();
+        Memory::blocks[3] = Memory::extensionRoms[romNumber]->constData();
     }
 
     m_upperRomNumber = romNumber;

@@ -147,11 +147,15 @@ void Keyboard::reset()
     keyMapping.insert(Qt::Key_Return, cpcKeyList[CPC_RETURN]);
     keyMapping.insert(Qt::Key_BracketRight, cpcKeyList[CPC_BRACKET_RIGHT]);
     keyMapping.insert(Qt::Key_BraceRight, cpcKeyList[CPC_BRACE_RIGHT]);
-    // ...
+    keyMapping.insert(Qt::Key_F4, cpcKeyList[CPC_F4]);
     keyMapping.insert(Qt::Key_Shift, cpcKeyList[CPC_SHIFT]);
-    // ...
+    keyMapping.insert(Qt::Key_Backslash, cpcKeyList[CPC_BACKSLASH]);
+    // CPC_GRAVE
     keyMapping.insert(Qt::Key_Control, cpcKeyList[CPC_CTRL]);
-    // ...
+    // CPC_CIRCUMFLEX
+    // CPC_POUND
+    keyMapping.insert(Qt::Key_Minus, cpcKeyList[CPC_MINUS]);
+    keyMapping.insert(Qt::Key_Equal, cpcKeyList[CPC_EQUAL]);
     keyMapping.insert(Qt::Key_At, cpcKeyList[CPC_AT]);
     keyMapping.insert(Qt::Key_Bar, cpcKeyList[CPC_BAR]);
     keyMapping.insert(Qt::Key_P, cpcKeyList[CPC_P]);
