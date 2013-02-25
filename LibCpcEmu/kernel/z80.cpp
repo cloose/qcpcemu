@@ -738,7 +738,7 @@ void Z80::executeOpCode()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode" << hex << m_opCode << "at PC" << REGISTER_PC-1;
-            throw NotImplementedException("unhandled opcode");
+            throw NotImplementedException(QString("unhandled opcode %1").arg(m_opCode, 0, 16).toStdString());
             break;
     }
 }
@@ -1181,7 +1181,7 @@ void Z80::executeOpCodeCB()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode 0xcb ");
+            throw NotImplementedException(QString("unhandled opcode 0xcb %1").arg(m_opCode, 0, 16).toStdString());
             break;
     }
 }
@@ -1237,6 +1237,7 @@ void Z80::executeOpCodeED()
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
         case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
         case 0x62: /* sbc hl,hl */  Sbc(REGISTER_HL, REGISTER_HL); break;
+        case 0x67: /* rrd */        Rrd(); break;
         case 0x69: /* out (c),l */  emitOutputRequest(REGISTER_BC, REGISTER_L); break;
         case 0x6a: /* adc hl,hl */  Adc(REGISTER_HL, REGISTER_HL); break;
         case 0x6f: /* rld */        Rld(); break;
@@ -1293,7 +1294,7 @@ void Z80::executeOpCodeED()
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xed" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode 0xed ");
+            throw NotImplementedException(QString("unhandled opcode 0xed %1").arg(m_opCode, 0, 16).toStdString());
             break;
     }
 }
@@ -1481,6 +1482,15 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
                 Sbc(value);
             }
             break;
+        case 0xa6: /* and (ix+d) */
+            {
+                offset_t offset = static_cast<offset_t>(ConstantByte());
+                quint8 value = ReadByteFromMemory(destinationRegister+offset);
+                REGISTER_A  &= value;
+                REGISTER_F   = SignAndZeroTable[REGISTER_A]
+                             | ParityTable[REGISTER_A];
+            }
+            break;
         case 0xae: /* xor (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
@@ -1528,7 +1538,7 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
         case 0xf9: /* ld sp,ix */   Load(REGISTER_SP, destinationRegister); break;
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode 0xdd/0xfd ");
+            throw NotImplementedException(QString("unhandled opcode 0xdd/0xfd %1").arg(m_opCode, 0, 16).toStdString());
             break;
     }
 }
@@ -1685,7 +1695,7 @@ void Z80::executeOpCodeXXCB(word_t address)
 
         default:
             qCritical() << "[Z80 ] unhandled opcode 0xdd/0xfd 0xcb" << hex << m_opCode << "at PC" << REGISTER_PC-2;
-            throw NotImplementedException("unhandled opcode 0xdd/0xfd 0xcb ");
+            throw NotImplementedException(QString("unhandled opcode 0xdd/0xfd 0xcb %1").arg(m_opCode, 0, 16).toStdString());
             break;
     }
 }
