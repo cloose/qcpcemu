@@ -33,7 +33,7 @@ public:
     void addBreakpoint(word_t address);
 
 private:
-    CpcSystemPrivate* const d;
+    const QScopedPointer<CpcSystemPrivate> d;
 };
 
 #endif // CPCSYSTEM_H

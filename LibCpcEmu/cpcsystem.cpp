@@ -16,7 +16,7 @@ CpcSystem::CpcSystem(QObject* parent)
 
 CpcSystem::~CpcSystem()
 {
-    delete d;
+//    delete d;
 }
 
 void CpcSystem::run()
