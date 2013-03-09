@@ -837,6 +837,22 @@ static inline void Rld()
                | ParityTable[REGISTER_A];
 }
 
+/**
+ * TODO: missing description
+ */
+static inline void Rrd()
+{
+    byte_t value = ReadByteFromMemory(REGISTER_HL);
+
+    word_t tmp = (value >> 4) + ((REGISTER_A & 0x0f) << 4) + (value << 8);
+    WriteByteToMemory(REGISTER_HL, tmp);
+    REGISTER_A = (REGISTER_A & 0xf0) | ((tmp >> 8) & 0x0f);
+
+    REGISTER_F = (REGISTER_F & C_FLAG)
+               | SignAndZeroTable[REGISTER_A]
+               | ParityTable[REGISTER_A];
+}
+
 //----------------------------------------------------------------------------
 //- Bit Set, Reset, and Test Group
 //----------------------------------------------------------------------------

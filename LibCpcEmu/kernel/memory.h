@@ -15,7 +15,10 @@ struct Memory
     static const byte_t* kernelRom;
     static const byte_t* basicRom;
 
-    static QMap<quint8, RomImageFile*> externalRoms;
+    static const RomImageFile* extensionRoms[252];
+
+    static void allocateMemory(quint32 ramSize);
+    static void addRomImage(unsigned int number, const RomImageFile *romImage);
 };
 
 #endif // MEMORY_H

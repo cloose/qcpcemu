@@ -4,9 +4,10 @@
 
 #include "exceptions.h"
 #include "keyboard.h"
+#include "soundgenerator.h"
 
 
-IoController::IoController(Keyboard* keyboard, QObject* parent)
+IoController::IoController(Keyboard *keyboard, SoundGenerator *soundGenerator, QObject *parent)
     : QObject(parent)
     , m_portA(0x00)
     , m_portB(0x00)
@@ -14,6 +15,7 @@ IoController::IoController(Keyboard* keyboard, QObject* parent)
     , m_control(0x00)
     , m_vsyncActive(false)
     , m_keyboard(keyboard)
+    , m_soundGenerator(soundGenerator)
 {
 }
 
@@ -110,8 +112,10 @@ bool IoController::out(word_t address, byte_t value)
             m_portA = value;
             handled = true;
 
-            // TODO: sound card
-            qDebug() << "[PPI ] MISSING IMPLEMENTATION";
+            if( (m_control & 0x10) == 0x00 )    // port A set to output?
+            {
+                m_soundGenerator->write(value);
+            }
             break;
 
         // 0xf500: 8255 port B
@@ -133,8 +137,8 @@ bool IoController::out(word_t address, byte_t value)
             // TODO: sound card
             if (!(m_control & 0x08))    // output high order 4 bits
             {
-                // TODO: missing implementation
-//                qDebug() << "[PPI ] MISSING IMPLEMENTATION";
+                m_soundGenerator->selectFunction(value & 0xc0);
+                m_soundGenerator->write(m_portA);
             }
             break;
 

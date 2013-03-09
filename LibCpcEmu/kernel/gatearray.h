@@ -5,6 +5,7 @@
 #include "ioport.h"
 
 class ScreenRenderer;
+class SoundGenerator;
 class VideoController;
 class Z80;
 
@@ -17,7 +18,7 @@ class GateArray : public QObject, public IoPort
     Q_OBJECT
 
 public:
-    GateArray(Z80* cpu, VideoController* crtc, QObject* parent = 0);
+    GateArray(Z80* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent = 0);
 
     void run();
 
@@ -46,6 +47,7 @@ private:
 
     Z80* m_cpu;
     VideoController* m_crtc;
+    SoundGenerator* m_psg;
     ScreenRenderer* m_renderer;
 };
 

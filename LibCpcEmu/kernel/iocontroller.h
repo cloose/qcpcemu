@@ -5,6 +5,7 @@
 #include "ioport.h"
 
 class Keyboard;
+class SoundGenerator;
 
 // LK1, LK2 and LK3 connected to Bits 1-3 of port B
 enum ManufacturerIds
@@ -35,7 +36,7 @@ class IoController : public QObject, public IoPort
     Q_OBJECT
 
 public:
-    explicit IoController(Keyboard* keyboard, QObject* parent = 0);
+    IoController(Keyboard* keyboard, SoundGenerator* soundGenerator, QObject* parent = 0);
 
     virtual bool in(word_t address, byte_t& value);
     virtual bool out(word_t address, byte_t value);
@@ -50,6 +51,7 @@ private:
     byte_t m_control;
     bool m_vsyncActive;
     Keyboard* m_keyboard;
+    SoundGenerator* m_soundGenerator;
 };
 
 #endif // IOCONTROLLER_H

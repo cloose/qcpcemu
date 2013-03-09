@@ -140,18 +140,22 @@ void Keyboard::reset()
     keyMapping.insert(Qt::Key_F5, cpcKeyList[CPC_F5]);
     keyMapping.insert(Qt::Key_F1, cpcKeyList[CPC_F1]);
     keyMapping.insert(Qt::Key_F2, cpcKeyList[CPC_F2]);
-    // CPC_F0
+    keyMapping.insert(Qt::Key_F10, cpcKeyList[CPC_F0]);
     keyMapping.insert(Qt::Key_Delete, cpcKeyList[CPC_CLR]);
     keyMapping.insert(Qt::Key_BracketLeft, cpcKeyList[CPC_BRACKET_LEFT]);
     keyMapping.insert(Qt::Key_BraceLeft, cpcKeyList[CPC_BRACE_LEFT]);
     keyMapping.insert(Qt::Key_Return, cpcKeyList[CPC_RETURN]);
     keyMapping.insert(Qt::Key_BracketRight, cpcKeyList[CPC_BRACKET_RIGHT]);
     keyMapping.insert(Qt::Key_BraceRight, cpcKeyList[CPC_BRACE_RIGHT]);
-    // ...
+    keyMapping.insert(Qt::Key_F4, cpcKeyList[CPC_F4]);
     keyMapping.insert(Qt::Key_Shift, cpcKeyList[CPC_SHIFT]);
-    // ...
+    keyMapping.insert(Qt::Key_Backslash, cpcKeyList[CPC_BACKSLASH]);
+    // CPC_GRAVE
     keyMapping.insert(Qt::Key_Control, cpcKeyList[CPC_CTRL]);
-    // ...
+    // CPC_CIRCUMFLEX
+    // CPC_POUND
+    keyMapping.insert(Qt::Key_Minus, cpcKeyList[CPC_MINUS]);
+    keyMapping.insert(Qt::Key_Equal, cpcKeyList[CPC_EQUAL]);
     keyMapping.insert(Qt::Key_At, cpcKeyList[CPC_AT]);
     keyMapping.insert(Qt::Key_Bar, cpcKeyList[CPC_BAR]);
     keyMapping.insert(Qt::Key_P, cpcKeyList[CPC_P]);
@@ -235,30 +239,12 @@ bool Keyboard::eventFilter(QObject* watched, QEvent* event)
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        // ignore Alt, AltGr und Ctrl keys
-        if (keyEvent->key() == Qt::Key_Alt ||
-            keyEvent->key() == Qt::Key_AltGr ||
-            keyEvent->key() == Qt::Key_Control) {
-            keyEvent->ignore();
-            return false;
-        }
-
         keyPressEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
     else if (event->type() == QEvent::KeyRelease)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        // ignore Alt, AltGr und Ctrl keys
-        if (keyEvent->key() == Qt::Key_Alt ||
-            keyEvent->key() == Qt::Key_AltGr ||
-            keyEvent->key() == Qt::Key_Control) {
-            keyEvent->ignore();
-            return false;
-        }
-
         keyReleaseEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
@@ -276,6 +262,13 @@ void Keyboard::keyPressEvent(int key, Qt::KeyboardModifiers modifier)
 
     // activate the bit in the keyboard matrix
     m_keymatrix[cpcKey.row] &= ~cpcKey.bit;
+
+    // AltGr needed => remove previous Control key press
+    if ((modifier & Qt::ControlModifier) && (modifier & Qt::AltModifier))
+    {
+        CpcKey ctrlKey = cpcKeyList[CPC_CTRL];
+        m_keymatrix[ctrlKey.row] |= ctrlKey.bit;
+    }
 
     if (key >= Qt::Key_A && key <= Qt::Key_Z)
     {

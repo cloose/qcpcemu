@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QAudioOutput>
 #include <QCloseEvent>
 #include <QDebug>
 #include <QDockWidget>
@@ -19,10 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , m_screenWidget(new ScreenWidget(this))
-    , m_system(new CpcSystem())
+    , m_system(new CpcSystem(this))
     , m_driveA(new FloppyDiskDrive())
     , m_driveB(new FloppyDiskDrive())
     , m_debugForm(new DebugForm(this))
+    , m_audioOutput(0)
 {
     ui->setupUi(this);
 
@@ -74,6 +76,19 @@ void MainWindow::delayedInit()
     m_system->attachDiskDrive(1, m_driveB);
     m_system->setRenderer(m_screenWidget->renderer());
     m_screenWidget->setFocus(Qt::OtherFocusReason);
+
+    QAudioFormat format;
+    format.setSampleRate(44100);
+    format.setChannelCount(2);
+    format.setSampleSize(8);
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::SignedInt);
+
+    m_audioOutput = new QAudioOutput(format, this);
+    QIODevice* device = m_audioOutput->start();
+
+    m_system->setAudioDevice(device);
 
     debugRun();
 }

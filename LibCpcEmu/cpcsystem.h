@@ -9,6 +9,7 @@ class CpcSystemPrivate;
 class FloppyDiskDrive;
 class Keyboard;
 class ScreenRenderer;
+class QIODevice;
 
 
 class LIBCPCEMUSHARED_EXPORT CpcSystem : public QObject
@@ -28,12 +29,13 @@ public:
 
     void attachDiskDrive(uint number, FloppyDiskDrive* drive);
     void setRenderer(ScreenRenderer* renderer);
+    void setAudioDevice(QIODevice *device);
     void loadExternalRom(quint8 romNumber, const QString& fileName);
 
     void addBreakpoint(word_t address);
 
 private:
-    CpcSystemPrivate* const d;
+    const QScopedPointer<CpcSystemPrivate> d;
 };
 
 #endif // CPCSYSTEM_H

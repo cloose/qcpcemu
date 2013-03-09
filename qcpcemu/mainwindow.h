@@ -7,6 +7,7 @@ class CpcSystem;
 class DebugForm;
 class FloppyDiskDrive;
 class ScreenWidget;
+class QAudioOutput;
 
 namespace Ui {
     class MainWindow;
@@ -53,6 +54,8 @@ private:
 
     QAction* m_debugRunAction;
     QAction* m_debugStepAction;
+
+    QAudioOutput* m_audioOutput;
 };
 
 #endif // MAINWINDOW_H

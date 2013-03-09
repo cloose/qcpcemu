@@ -6,11 +6,12 @@
 #include "memory.h"
 #include "romimagefile.h"
 #include "screenrenderer.h"
+#include "soundgenerator.h"
 #include "videocontroller.h"
 #include "z80.h"
 
 
-GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
+GateArray::GateArray(Z80* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent)
     : QObject(parent)
     , m_currentPen(0)
     , m_scanlineCounter(0)
@@ -19,6 +20,7 @@ GateArray::GateArray(Z80* cpu, VideoController* crtc, QObject* parent)
     , m_upperRomNumber(0)
     , m_cpu(cpu)
     , m_crtc(crtc)
+    , m_psg(psg)
     , m_renderer(0)
 {
     connect(m_crtc, SIGNAL(hSync(bool)),
@@ -46,7 +48,8 @@ void GateArray::run()
         int cycles = cycleCount >> 2;
         while (cycles)
         {
-            m_crtc->run();
+            m_psg->run();
+            m_crtc->run();           
             word_t videoAddress = GetVideoMemoryAddress(m_crtc);
 
             byte_t displayByte1 = Memory::ram[videoAddress++];
@@ -215,7 +218,7 @@ void GateArray::selectUpperRom(quint8 romNumber)
 //    qDebug() << "[GA  ] select upper rom" << romNumber;
 
     // if there is no such external ROM use basic ROM
-    if (!Memory::externalRoms.contains(romNumber))
+    if (!Memory::extensionRoms[romNumber])
         romNumber = 0;
 
     if (romNumber == 0)
@@ -224,7 +227,7 @@ void GateArray::selectUpperRom(quint8 romNumber)
     }
     else
     {
-        Memory::blocks[3] = Memory::externalRoms[romNumber]->constData();
+        Memory::blocks[3] = Memory::extensionRoms[romNumber]->constData();
     }
 
     m_upperRomNumber = romNumber;
