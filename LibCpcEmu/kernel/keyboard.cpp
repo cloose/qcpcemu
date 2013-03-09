@@ -140,7 +140,7 @@ void Keyboard::reset()
     keyMapping.insert(Qt::Key_F5, cpcKeyList[CPC_F5]);
     keyMapping.insert(Qt::Key_F1, cpcKeyList[CPC_F1]);
     keyMapping.insert(Qt::Key_F2, cpcKeyList[CPC_F2]);
-    // CPC_F0
+    keyMapping.insert(Qt::Key_F10, cpcKeyList[CPC_F0]);
     keyMapping.insert(Qt::Key_Delete, cpcKeyList[CPC_CLR]);
     keyMapping.insert(Qt::Key_BracketLeft, cpcKeyList[CPC_BRACKET_LEFT]);
     keyMapping.insert(Qt::Key_BraceLeft, cpcKeyList[CPC_BRACE_LEFT]);
@@ -239,30 +239,12 @@ bool Keyboard::eventFilter(QObject* watched, QEvent* event)
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        // ignore Alt, AltGr und Ctrl keys
-        if (keyEvent->key() == Qt::Key_Alt ||
-            keyEvent->key() == Qt::Key_AltGr ||
-            keyEvent->key() == Qt::Key_Control) {
-            keyEvent->ignore();
-            return false;
-        }
-
         keyPressEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
     else if (event->type() == QEvent::KeyRelease)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        // ignore Alt, AltGr und Ctrl keys
-        if (keyEvent->key() == Qt::Key_Alt ||
-            keyEvent->key() == Qt::Key_AltGr ||
-            keyEvent->key() == Qt::Key_Control) {
-            keyEvent->ignore();
-            return false;
-        }
-
         keyReleaseEvent(keyEvent->key(), keyEvent->modifiers());
         handled = true;
     }
@@ -280,6 +262,13 @@ void Keyboard::keyPressEvent(int key, Qt::KeyboardModifiers modifier)
 
     // activate the bit in the keyboard matrix
     m_keymatrix[cpcKey.row] &= ~cpcKey.bit;
+
+    // AltGr needed => remove previous Control key press
+    if ((modifier & Qt::ControlModifier) && (modifier & Qt::AltModifier))
+    {
+        CpcKey ctrlKey = cpcKeyList[CPC_CTRL];
+        m_keymatrix[ctrlKey.row] |= ctrlKey.bit;
+    }
 
     if (key >= Qt::Key_A && key <= Qt::Key_Z)
     {
