@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "memory.h"
 #include "romimagefile.h"
+#include "soundgenerator.h"
 #include "videocontroller.h"
 #include "z80.h"
 
@@ -24,6 +25,7 @@ public:
     GateArray* gateArray;
     IoController* ioController;
     Keyboard* keyboard;
+    SoundGenerator* soundGenerator;
     VideoController* videoController;
     FloppyController* floppyController;
     Z80* cpu;
@@ -45,6 +47,8 @@ CpcSystemPrivate::~CpcSystemPrivate()
     delete videoController;
 
     delete ioController;
+
+    delete soundGenerator;
 
     delete keyboard;
 
@@ -88,8 +92,9 @@ void CpcSystemPrivate::setupHardware(const QString& romFileName)
     memory.blocks[3] = memory.basicRom;
 
     keyboard = new Keyboard();
+    soundGenerator = new SoundGenerator();
 
-    ioController = new IoController(keyboard);
+    ioController = new IoController(keyboard, soundGenerator);
 
     videoController = new VideoController();
 
@@ -100,7 +105,7 @@ void CpcSystemPrivate::setupHardware(const QString& romFileName)
 
     cpu = new Z80();
 
-    gateArray = new GateArray(cpu, videoController);
+    gateArray = new GateArray(cpu, videoController, soundGenerator);
 
     cpu->registerIoPort(gateArray);
     cpu->registerIoPort(videoController);

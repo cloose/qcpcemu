@@ -1,6 +1,8 @@
 #include "cpcsystem.h"
 #include "cpcsystem_p.cpp"
 
+#include <QIODevice>
+
 #include "registerset.h"
 
 
@@ -56,6 +58,11 @@ void CpcSystem::attachDiskDrive(uint number, FloppyDiskDrive* drive)
 void CpcSystem::setRenderer(ScreenRenderer* renderer)
 {
     d->gateArray->setRenderer(renderer);
+}
+
+void CpcSystem::setAudioDevice(QIODevice *device)
+{
+    d->soundGenerator->setAudioDevice(device);
 }
 
 void CpcSystem::loadExternalRom(quint8 romNumber, const QString& fileName)
