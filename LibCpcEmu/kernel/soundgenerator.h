@@ -27,6 +27,7 @@ class SoundGenerator : QObject
         byte_t mixValue;
         int toneOutput;
         word_t counter;
+        double volumeRatio;
     };
 
     struct Noise

@@ -20,18 +20,24 @@ SoundGenerator::SoundGenerator(QObject *parent)
     m_channelA.mixValue = 0;
     m_channelA.toneOutput = 0;
     m_channelA.counter = 0;
+    m_channelA.volumeRatio = 2.0/3.0;
+
     m_channelB.fineTune = 0;
     m_channelB.coarseTune = 0;
     m_channelB.amplitudeLevel = 0;
     m_channelB.mixValue = 0;
     m_channelB.toneOutput = 0;
     m_channelB.counter = 0;
+    m_channelB.volumeRatio = 1.0/3.0;
+
     m_channelC.fineTune = 0;
     m_channelC.coarseTune = 0;
     m_channelC.amplitudeLevel = 0;
     m_channelC.mixValue = 0;
     m_channelC.toneOutput = 0;
     m_channelC.counter = 0;
+    m_channelC.volumeRatio = 2.0/3.0;
+
     m_envelope.fineTune = 0;
     m_envelope.coarseTune = 0;
     m_envelope.counter = 0;
@@ -108,7 +114,7 @@ void SoundGenerator::run()
         updateChannel(m_channelB, m_mixerB);
         updateChannel(m_channelC, m_mixerC);
 
-        *m_bufferPtr++ = (m_channelC.mixValue & 0xff) - 128;
+        *m_bufferPtr++ = m_channelC.mixValue + m_channelB.mixValue;
         m_bufferPos += 1;
         if (m_bufferPos >= m_audioBuffer.length())
         {
@@ -116,7 +122,7 @@ void SoundGenerator::run()
            m_bufferPos = 0;
         }
 
-        *m_bufferPtr++ = (m_channelA.mixValue & 0xff) - 128;
+        *m_bufferPtr++ = m_channelA.mixValue + m_channelB.mixValue;
         m_bufferPos += 1;
         if (m_bufferPos >= m_audioBuffer.length())
         {
@@ -317,6 +323,7 @@ void SoundGenerator::updateChannel(Channel& channel, Mixer mixer)
     }
 
     byte_t amplitude = byte_t((double)MAX_FINAL_SAMPLE_VALUE / pow(sqrt((double)2), 15-channel.amplitudeLevel));
+    amplitude *= channel.volumeRatio;
 
     if (output)
     {
@@ -329,4 +336,7 @@ void SoundGenerator::updateChannel(Channel& channel, Mixer mixer)
             channel.mixValue -= mixer.useEnvelopeVolume ? m_envelope.volumeLevel : amplitude;
         }
     }
+
+    // map 0..255 to -128..127
+    channel.mixValue -= 128;
 }
