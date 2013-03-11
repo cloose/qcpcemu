@@ -1206,6 +1206,7 @@ void Z80::executeOpCodeED()
             }
             break;
         case 0x46: /* im 0 */       m_interruptMode = 0; break;
+        case 0x47: /* ld i,a */     Load(REGISTER_I, REGISTER_A); break;
         case 0x48: /* in c,(c) */
             REGISTER_C = emitInputRequest(REGISTER_BC);
             REGISTER_F = (REGISTER_F & C_FLAG)
@@ -1213,6 +1214,7 @@ void Z80::executeOpCodeED()
                        | ParityTable[REGISTER_C];
             break;
         case 0x49: /* out (c),c */  emitOutputRequest(REGISTER_BC, REGISTER_C); break;
+        case 0x4a: /* adc hl,bc */  Adc(REGISTER_HL, REGISTER_BC); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
         case 0x4f: /* ld r,a */     Load(REGISTER_R, REGISTER_A); break;
         case 0x51: /* out (c),d */  emitOutputRequest(REGISTER_BC, REGISTER_D); break;
@@ -1235,6 +1237,14 @@ void Z80::executeOpCodeED()
         case 0x5a: /* adc hl,de */  Adc(REGISTER_HL, REGISTER_DE); break;
         case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
         case 0x5e: /* im 2 */       m_interruptMode = 2; break;
+        case 0x5f: /* ld a,r */
+            {
+                Load(REGISTER_A, REGISTER_R);
+                REGISTER_F = (REGISTER_F & C_FLAG)
+                           | SignAndZeroTable[RegisterSet::R]
+                           | RegisterSet::IFF2 == 0x01 ? P_FLAG : 0x00;
+            }
+            break;
         case 0x61: /* out (c),h */  emitOutputRequest(REGISTER_BC, REGISTER_H); break;
         case 0x62: /* sbc hl,hl */  Sbc(REGISTER_HL, REGISTER_HL); break;
         case 0x67: /* rrd */        Rrd(); break;
