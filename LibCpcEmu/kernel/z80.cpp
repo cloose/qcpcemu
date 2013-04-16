@@ -48,6 +48,9 @@ void Z80::reset()
     REGISTER_DE1 = 0x0000;
     REGISTER_HL1 = 0x0000;
 
+    REGISTER_I = 0x00;
+    REGISTER_R = 0x00;
+
     // index registers
     REGISTER_IX = 0x0000;
     REGISTER_IY = 0x0000;
@@ -1190,6 +1193,31 @@ void Z80::executeOpCodeED()
 {
     switch (m_opCode)
     {
+        case 0x00: /* nop */
+        case 0x01:
+        case 0x02:
+        case 0x03:
+        case 0x04:
+        case 0x05:
+        case 0x06:
+        case 0x07:
+        case 0x08:
+        case 0x09:
+        case 0x0a:
+        case 0x0b:
+        case 0x0c:
+        case 0x0d:
+        case 0x0e:
+        case 0x0f:
+            break;
+
+        case 0x40: /* in b,(c) */
+            REGISTER_B = emitInputRequest(REGISTER_BC);
+            REGISTER_F = (REGISTER_F & C_FLAG)
+                       | SignAndZeroTable[REGISTER_B]
+                       | ParityTable[REGISTER_B];
+            break;
+        case 0x41: /* out c,(b) */  emitOutputRequest(REGISTER_BC, REGISTER_B); break;
         case 0x42: /* sbc hl,bc */  Sbc(REGISTER_HL, REGISTER_BC); break;
         case 0x43: /* ld (nn),bc */
             {
@@ -1217,6 +1245,13 @@ void Z80::executeOpCodeED()
         case 0x4a: /* adc hl,bc */  Adc(REGISTER_HL, REGISTER_BC); break;
         case 0x4b: /* ld bc,(nn) */ Load(REGISTER_BC, MemoryLocationWordR(ConstantWord())); break;
         case 0x4f: /* ld r,a */     Load(REGISTER_R, REGISTER_A); break;
+
+        case 0x50: /* in d,(c) */
+            REGISTER_D = emitInputRequest(REGISTER_BC);
+            REGISTER_F = (REGISTER_F & C_FLAG)
+                       | SignAndZeroTable[REGISTER_D]
+                       | ParityTable[REGISTER_D];
+            break;
         case 0x51: /* out (c),d */  emitOutputRequest(REGISTER_BC, REGISTER_D); break;
         case 0x52: /* sbc hl,de */  Sbc(REGISTER_HL, REGISTER_DE); break;
         case 0x53: /* ld (nn),de */
@@ -1233,6 +1268,14 @@ void Z80::executeOpCodeED()
             }
             break;
         case 0x56: /* im 1 */       m_interruptMode = 1; break;
+        case 0x57: /* ld a,i */
+            {
+                Load(REGISTER_A, REGISTER_I);
+                REGISTER_F = (REGISTER_F & C_FLAG)
+                           | SignAndZeroTable[RegisterSet::I]
+                           | RegisterSet::IFF2 == 0x01 ? P_FLAG : 0x00;
+            }
+            break;
         case 0x59: /* out (c),e */  emitOutputRequest(REGISTER_BC, REGISTER_E); break;
         case 0x5a: /* adc hl,de */  Adc(REGISTER_HL, REGISTER_DE); break;
         case 0x5b: /* ld de,(nn) */ Load(REGISTER_DE, MemoryLocationWordR(ConstantWord())); break;
@@ -1330,6 +1373,8 @@ void Z80::executeOpCodeXX(word_t& destinationRegister)
             }
             break;
         case 0x2a: /* ld ix,(nn) */ Load(destinationRegister, MemoryLocationWordR(ConstantWord())); break;
+        case 0x2b: /* dec ix */     Dec(destinationRegister); break;
+
         case 0x34: /* inc (ix+d) */
             {
                 offset_t offset = static_cast<offset_t>(ConstantByte());
