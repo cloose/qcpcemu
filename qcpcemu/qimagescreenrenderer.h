@@ -23,6 +23,8 @@ public:
     virtual void setColor(uchar penNum, uchar colorNum);
     virtual QColor borderColor() const;
 
+    virtual void setMode(byte_t mode);
+
 private:
     void drawMode0(byte_t displayByte1, byte_t displayByte2);
     void drawMode1(byte_t displayByte1, byte_t displayByte2);

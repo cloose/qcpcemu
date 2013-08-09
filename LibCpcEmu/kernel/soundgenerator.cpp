@@ -1,5 +1,7 @@
 #include "soundgenerator.h"
 
+#include <cmath>
+
 #include <QDebug>
 #include <QIODevice>
 

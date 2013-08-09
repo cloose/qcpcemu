@@ -42,6 +42,7 @@ private:
     byte_t m_currentPen;
     byte_t m_scanlineCounter;
     byte_t m_screenMode;
+    bool   m_screenModeChanged;
     int    m_frameCycleCount;
     byte_t m_upperRomNumber;
 
