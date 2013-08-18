@@ -8,8 +8,40 @@
 #include "romimagefile.h"
 #include "soundgenerator.h"
 #include "videocontroller.h"
-#include "z80.h"
 
+#include "cpu.h"
+#include "imemory.h"
+
+class MemoryAccessor : public IMemory
+{
+public:
+    byte_t read8(word_t address)
+    {
+        quint8 block = (address >> 14);
+        Q_ASSERT_X(block <= 3, "read8", QString("block is greater than 3: %1").arg(address, 0, 16).toLatin1());
+        quint16 addressOffset = block * 0x4000;
+
+        return Memory::blocks[block][address - addressOffset];
+    }
+
+    word_t read16(word_t address)
+    {
+        byte_t lsb = read8(address);
+        byte_t msb = read8(address + 1);
+        return msb << 8 | lsb;
+    }
+
+    void write8(word_t address, byte_t value)
+    {
+        Memory::ram[address] = value;
+    }
+
+    void write16(word_t address, word_t value)
+    {
+        write8(address, value);
+        write8(address + 1, value >> 8);
+    }
+};
 
 class CpcSystemPrivate
 {
@@ -28,11 +60,13 @@ public:
     SoundGenerator* soundGenerator;
     VideoController* videoController;
     FloppyController* floppyController;
-    Z80* cpu;
+    Z80::Cpu *cpu;
 
     QList<word_t> breakpoints;
 
     RomImageFile* systemRom;
+
+    MemoryAccessor memoryAccessor;
 };
 
 
@@ -103,7 +137,7 @@ void CpcSystemPrivate::setupHardware(const QString& romFileName)
 
     floppyController = new FloppyController();
 
-    cpu = new Z80();
+    cpu = new Z80::Cpu(&memoryAccessor);
 
     gateArray = new GateArray(cpu, videoController, soundGenerator);
 

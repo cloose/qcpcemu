@@ -7,8 +7,10 @@
 class ScreenRenderer;
 class SoundGenerator;
 class VideoController;
-class Z80;
 
+namespace Z80 {
+class Cpu;
+}
 
 /**
  * \brief A class representing the gate array in the Amstrad CPC
@@ -18,7 +20,7 @@ class GateArray : public QObject, public IoPort
     Q_OBJECT
 
 public:
-    GateArray(Z80* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent = 0);
+    GateArray(Z80::Cpu* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent = 0);
 
     void run();
 
@@ -45,7 +47,7 @@ private:
     int    m_frameCycleCount;
     byte_t m_upperRomNumber;
 
-    Z80* m_cpu;
+    Z80::Cpu* m_cpu;
     VideoController* m_crtc;
     SoundGenerator* m_psg;
     ScreenRenderer* m_renderer;
