@@ -42,7 +42,7 @@ enum FdcCommands
     SeekCommand                 = 0x0f,
     ScanEqualCommand            = 0x11,
     ScanLowOrEqualCommand       = 0x19,
-    ScanHighOrEqualCommand      = 0x1e,
+    ScanHighOrEqualCommand      = 0x1e
 };
 
 static const int BytesInCommand[32] =
@@ -124,10 +124,10 @@ bool FloppyController::in(word_t address, byte_t& value)
             break;
     }
 
-    if (handled)
-    {
-        qDebug() << "[FDC ] IN request at address" << hex << address << "returned value" << hex << value;
-    }
+//    if (handled)
+//    {
+//        qDebug() << "[FDC ] IN request at address" << hex << address << "returned value" << hex << value;
+//    }
 
     return handled;
 }
@@ -154,10 +154,10 @@ bool FloppyController::out(word_t address, byte_t value)
             break;
     }
 
-    if (handled)
-    {
-        qDebug() << "[FDC ] OUT request at address" << hex << address << "with value" << hex << value;
-    }
+//    if (handled)
+//    {
+//        qDebug() << "[FDC ] OUT request at address" << hex << address << "with value" << hex << value;
+//    }
 
     return handled;
 }

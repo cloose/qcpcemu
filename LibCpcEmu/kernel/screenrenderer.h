@@ -16,6 +16,8 @@ public:
 
     virtual void setColor(uchar penNum, uchar colorNum) = 0;
     virtual QColor borderColor() const = 0;
+
+    virtual void setMode(byte_t mode) = 0;
 };
 
 #endif // SCREENRENDERER_H

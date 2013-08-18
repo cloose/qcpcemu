@@ -16,6 +16,7 @@ GateArray::GateArray(Z80::Cpu* cpu, VideoController* crtc, SoundGenerator* psg, 
     , m_currentPen(0)
     , m_scanlineCounter(0)
     , m_screenMode(0)
+    , m_screenModeChanged(true)
     , m_frameCycleCount(4000000/50)
     , m_upperRomNumber(0)
     , m_cpu(cpu)
@@ -121,10 +122,10 @@ bool GateArray::out(word_t address, byte_t value)
         handled = true;
     }
 
-    if (handled)
-    {
+//    if (handled)
+//    {
 //        qDebug() << "[GA  ] OUT request at address" << hex << address << "with value" << hex << value;
-    }
+//    }
 
     return handled;
 }
@@ -142,6 +143,10 @@ void GateArray::hSync(bool active)
         }
 
         m_renderer->hSync();
+        if (m_screenModeChanged) {
+            m_renderer->setMode(m_screenMode);
+            m_screenModeChanged = false;
+        }
     }
 }
 
@@ -164,14 +169,14 @@ void GateArray::selectPen(byte_t value)
     else
         m_currentPen = value & 0x0f;
 
-    qDebug() << "[GA  ] select pen" << m_currentPen;
+//    qDebug() << "[GA  ] select pen" << m_currentPen;
 }
 
 void GateArray::selectColorForPen(byte_t value)
 {
     m_inkValues[m_currentPen] = value & 0x1f;
     m_renderer->setColor(m_currentPen, value & 0x1f);
-    qDebug() << "[GA  ] select color" << m_inkValues[m_currentPen] << "for pen" << m_currentPen;
+//    qDebug() << "[GA  ] select color" << m_inkValues[m_currentPen] << "for pen" << m_currentPen;
 }
 
 void GateArray::setRomConfiguration(byte_t value)
@@ -179,6 +184,7 @@ void GateArray::setRomConfiguration(byte_t value)
     Memory memory;
 
     // bit 0 & 1: screen mode selection
+    m_screenModeChanged = (m_screenMode != (value & 0x03));
     m_screenMode = value & 0x03;
 
 //    qDebug() << "[GA  ] set screen mode to" << m_screenMode;
