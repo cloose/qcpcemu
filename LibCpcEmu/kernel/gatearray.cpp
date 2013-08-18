@@ -8,10 +8,10 @@
 #include "screenrenderer.h"
 #include "soundgenerator.h"
 #include "videocontroller.h"
-#include "z80.h"
 
+#include "cpu.h"
 
-GateArray::GateArray(Z80* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent)
+GateArray::GateArray(Z80::Cpu* cpu, VideoController* crtc, SoundGenerator* psg, QObject* parent)
     : QObject(parent)
     , m_currentPen(0)
     , m_scanlineCounter(0)
@@ -40,7 +40,7 @@ word_t GetVideoMemoryAddress(VideoController* crtc)
 
 void GateArray::run()
 {
-    int cycleCount = m_cpu->step();
+    int cycleCount = m_cpu->executeTStates(4);
 
     // wait states
     if (cycleCount)
@@ -64,8 +64,6 @@ void GateArray::run()
         }
         m_frameCycleCount -= cycleCount;
     }
-
-    m_cpu->checkInterrupt();
 
     if (m_frameCycleCount <= 0)
     {
@@ -139,7 +137,7 @@ void GateArray::hSync(bool active)
 
         if (m_scanlineCounter >= 52)
         {
-            m_cpu->setInterruptPending();
+            m_cpu->requestInterrupt();
             m_scanlineCounter = 0;
         }
 
