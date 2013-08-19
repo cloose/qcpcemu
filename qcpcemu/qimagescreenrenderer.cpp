@@ -114,30 +114,34 @@ static uchar mode1[256] =
         0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03
     };
 
+static QRgb colorPalette[32];
 
 QImageScreenRenderer::QImageScreenRenderer(QWidget* widget)
     : m_widget(widget)
     , m_xpos(0)
     , m_ypos(0)
-    , m_screenBuffer(new QImage(640, 200, QImage::Format_Indexed8))
+//    , m_screenBuffer(new QImage(640, 200, QImage::Format_Indexed8))
+    , m_screenBuffer(new QImage(640, 200, QImage::Format_ARGB32_Premultiplied))
     , m_scanLine(0)
     , m_drawFuncPtr(&QImageScreenRenderer::drawMode1)
+    , m_frameCounter(0)
 {
     // initialize inks
     for (int i = 0; i < 17; ++i)
         m_inks[i] = 0x00;
 
-    m_screenBuffer->setColorCount(32);
+//    m_screenBuffer->setColorCount(32);
     for( int i = 0; i < 32; i++ )
     {
         int r = (cpc_palette[i][0]);
         int g = (cpc_palette[i][1]);
         int b = (cpc_palette[i][2]);
-        m_screenBuffer->setColor(i, qRgb(r, g, b));
+        colorPalette[i] = qRgb(r, g, b);
+//        m_screenBuffer->setColor(i, qRgb(r, g, b));
     }
 
-    m_screenBuffer->fill(0x00);
-    m_scanLine = m_screenBuffer->scanLine(m_ypos);
+//    m_screenBuffer->fill(0x00);
+    m_scanLine = (QRgb*)m_screenBuffer->scanLine(m_ypos);
 }
 
 QImageScreenRenderer::~QImageScreenRenderer()
@@ -147,7 +151,8 @@ QImageScreenRenderer::~QImageScreenRenderer()
 
 const QImage QImageScreenRenderer::screenBuffer() const
 {
-    return m_screenBuffer->convertToFormat(QImage::Format_ARGB32_Premultiplied);
+//    return m_screenBuffer->convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    return *m_screenBuffer;
 }
 
 void QImageScreenRenderer::draw(byte_t displayByte1, byte_t displayByte2)
@@ -162,7 +167,7 @@ void QImageScreenRenderer::hSync()
 {
     m_ypos++;
     m_xpos = 0;
-    m_scanLine = m_screenBuffer->scanLine(m_ypos);
+    m_scanLine = (QRgb*)m_screenBuffer->scanLine(m_ypos);
 }
 
 void QImageScreenRenderer::vSync(bool active)
@@ -170,9 +175,11 @@ void QImageScreenRenderer::vSync(bool active)
     if (!active)
     {
         m_ypos = 0;
-        m_scanLine = m_screenBuffer->scanLine(m_ypos);
+        m_scanLine = (QRgb*)m_screenBuffer->scanLine(m_ypos);
 
         m_widget->update();
+
+        m_frameCounter++;
     }
 }
 
@@ -184,7 +191,8 @@ void QImageScreenRenderer::setColor(uchar penNum, uchar colorNum)
 
 QColor QImageScreenRenderer::borderColor() const
 {
-    return QColor(m_screenBuffer->color(m_inks[16]));
+//    return QColor(m_screenBuffer->color(m_inks[16]));
+    return QColor(colorPalette[m_inks[16]]);
 }
 
 void QImageScreenRenderer::setMode(byte_t mode)
@@ -220,17 +228,17 @@ void QImageScreenRenderer::drawMode0(byte_t displayByte1, byte_t displayByte2)
 
     for (int pixel = 0; pixel < 2; ++pixel)
     {
-        m_scanLine[m_xpos++]   = m_inks[mode0[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode0[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode0[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode0[displayByte2]]];
 
-        m_scanLine[m_xpos++]   = m_inks[mode0[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode0[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode0[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode0[displayByte2]]];
 
-        m_scanLine[m_xpos++]   = m_inks[mode0[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode0[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode0[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode0[displayByte2]]];
 
-        m_scanLine[m_xpos++]   = m_inks[mode0[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode0[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode0[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode0[displayByte2]]];
 
         displayByte1 <<= 1;
         displayByte2 <<= 1;
@@ -249,11 +257,11 @@ void QImageScreenRenderer::drawMode1(byte_t displayByte1, byte_t displayByte2)
 
     for (int pixel = 0; pixel < 4; ++pixel)
     {
-        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode1[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode1[displayByte2]]];
 
-        m_scanLine[m_xpos++]   = m_inks[mode1[displayByte1]];
-        m_scanLine[(m_xpos+7)] = m_inks[mode1[displayByte2]];
+        m_scanLine[m_xpos++]   = colorPalette[m_inks[mode1[displayByte1]]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[mode1[displayByte2]]];
 
         displayByte1 <<= 1;
         displayByte2 <<= 1;
@@ -275,8 +283,8 @@ void QImageScreenRenderer::drawMode2(byte_t displayByte1, byte_t displayByte2)
         int ink1 = (displayByte1 & 0x80 ? 1 : 0);
         int ink2 = (displayByte2 & 0x80 ? 1 : 0);
 
-        m_scanLine[m_xpos++] = m_inks[ink1];
-        m_scanLine[(m_xpos+7)] = m_inks[ink2];
+        m_scanLine[m_xpos++] = colorPalette[m_inks[ink1]];
+        m_scanLine[(m_xpos+7)] = colorPalette[m_inks[ink2]];
 
         displayByte1 <<= 1;
         displayByte2 <<= 1;

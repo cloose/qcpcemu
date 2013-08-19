@@ -2,8 +2,9 @@
 #define QIMAGESCREENRENDERER_H
 
 #include "screenrenderer.h"
+#include <QImage>
 
-class QImage;
+//class QImage;
 class QWidget;
 
 
@@ -25,6 +26,8 @@ public:
 
     virtual void setMode(byte_t mode);
 
+    long frameCounter() const { return m_frameCounter; }
+
 private:
     void drawMode0(byte_t displayByte1, byte_t displayByte2);
     void drawMode1(byte_t displayByte1, byte_t displayByte2);
@@ -38,8 +41,11 @@ private:
     uchar m_inks[17];
 
     QImage* m_screenBuffer;
-    uchar* m_scanLine;
+//    uchar* m_scanLine;
+    QRgb* m_scanLine;
     DrawFunction m_drawFuncPtr;
+
+    long m_frameCounter;
 };
 
 #endif // QIMAGESCREENRENDERER_H
