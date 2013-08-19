@@ -23,6 +23,8 @@ DiskImageFile::~DiskImageFile()
     delete m_header;
 }
 
+#include <QDebug>
+#include <QElapsedTimer>
 bool DiskImageFile::open()
 {
     QFile imageFile(m_fileName);
@@ -33,8 +35,13 @@ bool DiskImageFile::open()
 
     QDataStream in(&imageFile);
 
+    QElapsedTimer timer;
+    timer.start();
+
     // read disk information block
     m_header = readDiskInformationBlock(in);
+
+    qDebug() << "reading disk info block took" << timer.restart() << "milliseconds";
 
     // read tracks
     m_tracks = new Track[m_header->numberOfTracks*m_header->numberOfSides];
@@ -50,11 +57,14 @@ bool DiskImageFile::open()
         // read sector data
         qint64 size = m_tracks[i].header->sectorSize * 0x100 * m_tracks[i].header->numberOfSectors;
         m_tracks[i].data = new byte_t[size];
-        for (int j = 0; j < size; ++j)
-        {
-            in >> m_tracks[i].data[j];
-        }
+//        for (int j = 0; j < size; ++j)
+//        {
+//            in >> m_tracks[i].data[j];
+//        }
+        in.readRawData((char*)m_tracks[i].data, size);
     }
+
+    qDebug() << "reading disk tracks took" << timer.elapsed() << "milliseconds";
 
     return true;
 }
