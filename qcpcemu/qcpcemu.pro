@@ -32,3 +32,10 @@ else:unix: LIBS += -L$$OUT_PWD/../LibCpcEmu/ -lLibCpcEmu
 INCLUDEPATH += $$PWD/../LibCpcEmu \
                $$PWD/../LibCpcEmu/kernel
 DEPENDPATH += $$PWD/../LibCpcEmu
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libz80-qt/src/release/ -llibz80-qt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libz80-qt/src/debug/ -llibz80-qt
+else:unix: LIBS += -L$$OUT_PWD/../libz80-qt/src/ -llibz80-qt
+
+INCLUDEPATH += $$PWD/../libz80-qt/src
+DEPENDPATH += $$PWD/../libz80-qt/src

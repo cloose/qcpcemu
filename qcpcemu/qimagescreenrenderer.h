@@ -11,7 +11,7 @@ class QImageScreenRenderer : public ScreenRenderer
 {
 public:
     explicit QImageScreenRenderer(QWidget* widget);
-    ~QImageScreenRenderer();
+    virtual ~QImageScreenRenderer();
 
     const QImage screenBuffer() const;
 
@@ -22,6 +22,8 @@ public:
 
     virtual void setColor(uchar penNum, uchar colorNum);
     virtual QColor borderColor() const;
+
+    virtual void setMode(byte_t mode);
 
 private:
     void drawMode0(byte_t displayByte1, byte_t displayByte2);
