@@ -41,6 +41,8 @@ private slots:
     // emulation menu
     void resetEmulation();
 
+    void fps();
+
 private:
     void createActions();
     void createDockWindows();
@@ -56,6 +58,7 @@ private:
     QAction* m_debugStepAction;
 
     QAudioOutput* m_audioOutput;
+    long m_lastFrameCount;
 };
 
 #endif // MAINWINDOW_H

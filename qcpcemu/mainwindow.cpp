@@ -90,6 +90,10 @@ void MainWindow::delayedInit()
 
     m_system->setAudioDevice(device);
 
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(fps()));
+    timer->start(1000);
+
     debugRun();
 }
 
@@ -158,6 +162,18 @@ void MainWindow::ejectDiscInDriveB()
 void MainWindow::resetEmulation()
 {
     m_system->reset();
+}
+
+#include "qimagescreenrenderer.h"
+void MainWindow::fps()
+{
+    QImageScreenRenderer *r = (QImageScreenRenderer*)m_screenWidget->renderer();
+
+    long frameCount = r->frameCounter();
+
+    qDebug() << "Frames per second" << (frameCount - m_lastFrameCount);
+
+    m_lastFrameCount = frameCount;
 }
 
 void MainWindow::createActions()
