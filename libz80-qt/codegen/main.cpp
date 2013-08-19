@@ -261,7 +261,7 @@ enum Z80OperandType
     OP_WORD
 };
 
-char* OpTypeName[] = { "OP_NONE", "OP_BYTE", "OP_OFFSET", "OP_WORD" };
+const char* OpTypeName[] = { "OP_NONE", "OP_BYTE", "OP_OFFSET", "OP_WORD" };
 
 
 int isHex(char c)

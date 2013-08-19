@@ -30,6 +30,11 @@ Cpu::Cpu(IMemory *memory) :
     reset();
 }
 
+Cpu::~Cpu()
+{
+    delete alu;
+}
+
 void Cpu::registerIoPort(IoPort *port)
 {
     ioPorts.append(port);

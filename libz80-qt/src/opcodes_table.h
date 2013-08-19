@@ -20,7 +20,7 @@ struct OpcodeEntry
     OpcodeFunc func;
 
     OperandType operandType;
-    char* format;
+    const char* format;
 
     OpcodeTable* table;
 };

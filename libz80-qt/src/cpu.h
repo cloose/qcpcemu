@@ -16,6 +16,7 @@ class Cpu : public IInputOutput
 {
 public:
     explicit Cpu(IMemory *memory);
+    virtual ~Cpu();
 
     void registerIoPort(IoPort* port);
     byte_t emitInputRequest(word_t address);
