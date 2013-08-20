@@ -21,8 +21,10 @@ public:
 
 protected:
     virtual void paintEvent(QPaintEvent* event);
+    virtual void resizeEvent(QResizeEvent* event);
 
     QImageScreenRenderer* m_renderer;
+    double m_scaleFactor;
 };
 
 #endif // SCREENWIDGET_H
