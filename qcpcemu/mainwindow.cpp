@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -32,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     createActions();
     createDockWindows();
+    setupStatusBar();
 
     connect(m_debugForm, SIGNAL(setBreakpoint(quint16)),
             this, SLOT(setBreakpoint(quint16)));
@@ -91,6 +93,7 @@ void MainWindow::delayedInit()
     m_system->setAudioDevice(device);
 
     QTimer *timer = new QTimer(this);
+
     connect(timer, SIGNAL(timeout()), this, SLOT(fps()));
     timer->start(1000);
 
@@ -171,7 +174,7 @@ void MainWindow::fps()
 
     long frameCount = r->frameCounter();
 
-    qDebug() << "Frames per second" << (frameCount - m_lastFrameCount);
+    m_fpsValue->setText(QString("FPS: %1").arg(frameCount - m_lastFrameCount));
 
     m_lastFrameCount = frameCount;
 }
@@ -207,4 +210,10 @@ void MainWindow::createDockWindows()
     QDockWidget* dock = new QDockWidget(tr("Debug"), this);
     addDockWidget(Qt::RightDockWidgetArea, dock);
     dock->setWidget(m_debugForm);
+}
+
+void MainWindow::setupStatusBar()
+{
+    m_fpsValue = new QLabel("FPS: 0", this);
+    statusBar()->addPermanentWidget(m_fpsValue);
 }

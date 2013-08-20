@@ -8,6 +8,7 @@ class DebugForm;
 class FloppyDiskDrive;
 class ScreenWidget;
 class QAudioOutput;
+class QLabel;
 
 namespace Ui {
     class MainWindow;
@@ -28,6 +29,7 @@ protected:
 
 private slots:
     void delayedInit();
+
     void debugRun();
     void debugStep();
     void setBreakpoint(quint16 address);
@@ -46,6 +48,7 @@ private slots:
 private:
     void createActions();
     void createDockWindows();
+    void setupStatusBar();
 
     Ui::MainWindow *ui;
     ScreenWidget* m_screenWidget;
@@ -56,6 +59,7 @@ private:
 
     QAction* m_debugRunAction;
     QAction* m_debugStepAction;
+    QLabel* m_fpsValue;
 
     QAudioOutput* m_audioOutput;
     long m_lastFrameCount;
